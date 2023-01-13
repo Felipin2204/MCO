@@ -38,9 +38,8 @@ module TrafficGeneratorHost
         ///application.mobilityModule=".mobility";
         ///vehicleTable.mobilityModule=".mobility";
         ///application.vehicleTable=".vehicleTable";
-        mobility.typename = mobilityType;
        
-        wlan.**.mobilityModule = default(exists(mobility) ? absPath(".mobility") : "");
+        ///wlan.**.mobilityModule = default(exists(mobility) ? absPath(".mobility") : "");
         //wlan.interfaceTableModule = default("InterfaceTable");
         
         *.interfaceTableModule = default(absPath(".interfaceTable"));
@@ -55,7 +54,7 @@ module TrafficGeneratorHost
             parameters:
                 @display("p=125,240;is=s");
         }
-        mobility: <default("")> like IMobility if typename != "" {
+        mobility: <mobilityType> like IMobility if typename != "" {
             parameters:
                 @display("p=125,160;is=s");
         }

@@ -17,7 +17,6 @@ package inet.applications.vehicular;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 import inet.physicallayer.wireless.common.medium.RadioMedium;
 import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
-import inet.applications.vehicular.TrafficGenerator;
 ///import inet.applications.vehicular.INodeManager;
 ///import inet.applications.vehicular.FileNodeManager;
 
@@ -26,15 +25,11 @@ network TraficGeneratorNetwork
 {
     parameters:
         @display("bgb=1400,400");
+        int nodes;
 
     submodules:
-        A: TrafficGeneratorHost {
-            @display("p=331.695,187.785");
-            id = 2;
-        }
-        B: TrafficGeneratorHost {
-            @display("p=610.74,187.785");
-            id = 3;
+        node[nodes]: TrafficGeneratorHost {
+            id = index;
         }
         ///        nodeManager: <default("")>  like INodeManager if typename != "" {
         ///           @display("p=226.62724,50.05918");
@@ -43,7 +38,7 @@ network TraficGeneratorNetwork
         //            @display("p=226.62724,110.05918");
         //        }      
         radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=94.770004,56.16");
+            @display("p=94,56");
         }
 
 }
