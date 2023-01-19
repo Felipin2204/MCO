@@ -14,9 +14,8 @@
 // 
 
 package inet.applications.vehicular;
-import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
-import inet.physicallayer.wireless.common.medium.RadioMedium;
 import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
+import inet.visualizer.contract.IIntegratedVisualizer;
 ///import inet.applications.vehicular.INodeManager;
 ///import inet.applications.vehicular.FileNodeManager;
 
@@ -28,17 +27,19 @@ network TraficGeneratorNetwork
         int nodes;
 
     submodules:
+        radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
+            @display("p=94,56");
+        }
         node[nodes]: TrafficGeneratorHost {
             id = index;
+        }
+        visualizer: <default(firstAvailableOrEmpty("IntegratedCanvasVisualizer"))> like IIntegratedVisualizer if typename != "" {
+            @display("p=250,56");
         }
         ///        nodeManager: <default("")>  like INodeManager if typename != "" {
         ///           @display("p=226.62724,50.05918");
         ///        }
         //        destination: OpalNode {
         //            @display("p=226.62724,110.05918");
-        //        }      
-        radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=94,56");
-        }
-
+        //        }
 }
