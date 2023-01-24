@@ -33,7 +33,7 @@ PROJECTRELATIVE_PATH = src/inet/applications/vehicular
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/TrafficGenerator.o $O/TrafficPacket_m.o
+OBJS = $O/MCO.o $O/TrafficGenerator.o $O/TrafficPacket_m.o
 
 # Message files
 MSGFILES = \

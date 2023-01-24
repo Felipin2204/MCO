@@ -13,9 +13,35 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-import inet.common.packet.chunk.Chunk;
-namespace inet;
+#include <string>
+#include "MCO.h"
+#include "TrafficPacket_m.h"
+#include "inet/common/packet/Packet.h"
 
-class TrafficPacket extends FieldsChunk {
-    int appIdentifier;
+namespace inet {
+
+Define_Module(MCO);
+
+MCO::MCO() {
+
 }
+
+MCO::~MCO() {
+
+}
+
+void MCO::initialize(){
+    indexOutGateWLAN = findGate("outWLAN");
+}
+
+void MCO::handleMessage(cMessage *msg){
+    if((std::string(msg->getSenderModule()->getName()).compare("application")) == 0) {
+        send(msg, indexOutGateWLAN);
+    } else {
+        Packet *pkt = static_cast<Packet*>(msg);
+        auto p = pkt->peekData<TrafficPacket>();
+        send(msg, findGate("outApp", p->getAppIdentifier()));
+    }
+}
+
+} /* namespace inet */

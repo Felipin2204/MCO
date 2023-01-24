@@ -177,30 +177,30 @@ TrafficPacket& TrafficPacket::operator=(const TrafficPacket& other)
 
 void TrafficPacket::copy(const TrafficPacket& other)
 {
-    this->packetLength = other.packetLength;
+    this->appIdentifier = other.appIdentifier;
 }
 
 void TrafficPacket::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::inet::FieldsChunk::parsimPack(b);
-    doParsimPacking(b,this->packetLength);
+    doParsimPacking(b,this->appIdentifier);
 }
 
 void TrafficPacket::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::inet::FieldsChunk::parsimUnpack(b);
-    doParsimUnpacking(b,this->packetLength);
+    doParsimUnpacking(b,this->appIdentifier);
 }
 
-int TrafficPacket::getPacketLength() const
+int TrafficPacket::getAppIdentifier() const
 {
-    return this->packetLength;
+    return this->appIdentifier;
 }
 
-void TrafficPacket::setPacketLength(int packetLength)
+void TrafficPacket::setAppIdentifier(int appIdentifier)
 {
     handleChange();
-    this->packetLength = packetLength;
+    this->appIdentifier = appIdentifier;
 }
 
 class TrafficPacketDescriptor : public omnetpp::cClassDescriptor
@@ -208,7 +208,7 @@ class TrafficPacketDescriptor : public omnetpp::cClassDescriptor
   private:
     mutable const char **propertyNames;
     enum FieldConstants {
-        FIELD_packetLength,
+        FIELD_appIdentifier,
     };
   public:
     TrafficPacketDescriptor();
@@ -287,7 +287,7 @@ unsigned int TrafficPacketDescriptor::getFieldTypeFlags(int field) const
         field -= base->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
-        FD_ISEDITABLE,    // FIELD_packetLength
+        FD_ISEDITABLE,    // FIELD_appIdentifier
     };
     return (field >= 0 && field < 1) ? fieldTypeFlags[field] : 0;
 }
@@ -301,7 +301,7 @@ const char *TrafficPacketDescriptor::getFieldName(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "packetLength",
+        "appIdentifier",
     };
     return (field >= 0 && field < 1) ? fieldNames[field] : nullptr;
 }
@@ -310,7 +310,7 @@ int TrafficPacketDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
-    if (strcmp(fieldName, "packetLength") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "appIdentifier") == 0) return baseIndex + 0;
     return base ? base->findField(fieldName) : -1;
 }
 
@@ -323,7 +323,7 @@ const char *TrafficPacketDescriptor::getFieldTypeString(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "int",    // FIELD_packetLength
+        "int",    // FIELD_appIdentifier
     };
     return (field >= 0 && field < 1) ? fieldTypeStrings[field] : nullptr;
 }
@@ -408,7 +408,7 @@ std::string TrafficPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr obje
     }
     TrafficPacket *pp = omnetpp::fromAnyPtr<TrafficPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_packetLength: return long2string(pp->getPacketLength());
+        case FIELD_appIdentifier: return long2string(pp->getAppIdentifier());
         default: return "";
     }
 }
@@ -425,7 +425,7 @@ void TrafficPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int
     }
     TrafficPacket *pp = omnetpp::fromAnyPtr<TrafficPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_packetLength: pp->setPacketLength(string2long(value)); break;
+        case FIELD_appIdentifier: pp->setAppIdentifier(string2long(value)); break;
         default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TrafficPacket'", field);
     }
 }
@@ -440,7 +440,7 @@ omnetpp::cValue TrafficPacketDescriptor::getFieldValue(omnetpp::any_ptr object, 
     }
     TrafficPacket *pp = omnetpp::fromAnyPtr<TrafficPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_packetLength: return pp->getPacketLength();
+        case FIELD_appIdentifier: return pp->getAppIdentifier();
         default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'TrafficPacket' as cValue -- field index out of range?", field);
     }
 }
@@ -457,7 +457,7 @@ void TrafficPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, 
     }
     TrafficPacket *pp = omnetpp::fromAnyPtr<TrafficPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_packetLength: pp->setPacketLength(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_appIdentifier: pp->setAppIdentifier(omnetpp::checked_int_cast<int>(value.intValue())); break;
         default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TrafficPacket'", field);
     }
 }

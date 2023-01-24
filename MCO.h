@@ -13,9 +13,26 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-import inet.common.packet.chunk.Chunk;
-namespace inet;
+#ifndef INET_APPLICATIONS_VEHICULAR_MCO_H_
+#define INET_APPLICATIONS_VEHICULAR_MCO_H_
 
-class TrafficPacket extends FieldsChunk {
-    int appIdentifier;
-}
+#include <omnetpp.h>
+
+using namespace omnetpp;
+
+namespace inet {
+
+class MCO: public cSimpleModule {
+public:
+    MCO();
+    virtual ~MCO();
+protected:
+    virtual void initialize() override;
+    virtual void handleMessage(cMessage *msg) override;
+
+    int indexOutGateWLAN;
+};
+
+} /* namespace inet */
+
+#endif /* INET_APPLICATIONS_VEHICULAR_MCO_H_ */

@@ -22,7 +22,7 @@ simple TrafficGenerator like IApp
 	    @display("i=block/app");
 	    
 	    int totalPacketsPerSecond = default(100);
-	    int packetLength @unit(byte) = default(100B);
+	    int packetLength @unit(byte) = default(1000B);
 	    string trafficDistribution = default("deterministic");
 	    
 	gates:

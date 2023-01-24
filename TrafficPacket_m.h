@@ -44,14 +44,14 @@ namespace inet {
  * <pre>
  * class TrafficPacket extends FieldsChunk
  * {
- *     int packetLength;
+ *     int appIdentifier;
  * }
  * </pre>
  */
 class INET_API TrafficPacket : public ::inet::FieldsChunk
 {
   protected:
-    int packetLength = 0;
+    int appIdentifier = 0;
 
   private:
     void copy(const TrafficPacket& other);
@@ -68,8 +68,8 @@ class INET_API TrafficPacket : public ::inet::FieldsChunk
     virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
-    virtual int getPacketLength() const;
-    virtual void setPacketLength(int packetLength);
+    virtual int getAppIdentifier() const;
+    virtual void setAppIdentifier(int appIdentifier);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const TrafficPacket& obj) {obj.parsimPack(b);}

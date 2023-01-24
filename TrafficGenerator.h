@@ -42,6 +42,7 @@ protected:
     std::string trafficDistribution;
 
     int generatedPackets;
+    int receivedPackets;
     simtime_t timeBetweenPackets;
     cMessage *packetGenerationTimer;
 };

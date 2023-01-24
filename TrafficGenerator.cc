@@ -13,9 +13,9 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
+#include <random>
 #include "TrafficGenerator.h"
 #include "TrafficPacket_m.h"
-#include <random>
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -44,6 +44,8 @@ void TrafficGenerator::initialize(){
 
     generatedPackets = 0;
     WATCH(generatedPackets);
+    receivedPackets = 0;
+    WATCH(receivedPackets);
 
     timeBetweenPackets = getTimeBetweenPackets();
     packetGenerationTimer = new cMessage();
@@ -54,15 +56,15 @@ void TrafficGenerator::initialize(){
 void TrafficGenerator::handleMessage(cMessage *packet){
     if(packet->isSelfMessage()) {
         auto data = makeShared<TrafficPacket>();
-        data->setPacketLength(packetLength);
         data->setChunkLength(B(packetLength));
+        data->setAppIdentifier(getIndex());
+
+//        auto data = makeShared<ByteCountChunk>(B(packetLength), 0);
+
         data->enableImplicitChunkSerialization = true;
 
-//        auto data = makeShared<ByteCountChunk>(B(100), 0);
-//        data->enableImplicitChunkSerialization = true;
-
         char buffer [20];
-        sprintf(buffer, "TrafficPacket-%d", generatedPackets);
+        sprintf(buffer, "App%d-Packet%d", getIndex(), generatedPackets);
         Packet *newpacket = new Packet(buffer, data);
 
         sendDown(newpacket);
@@ -72,10 +74,11 @@ void TrafficGenerator::handleMessage(cMessage *packet){
         generatedPackets++;
     } else {
         Packet *pkt = static_cast<Packet*>(packet);
-        auto p = pkt->peekAtFront<TrafficPacket>(B(packetLength));
-        int length = p->getPacketLength();
-        EV << "Message " << packet->getName() << " (" << length << "B) arrived.\n";
+        auto p = pkt->peekData<TrafficPacket>();
+        EV << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with index="
+                << p->getAppIdentifier() <<". Current application index is " << getIndex() << ".\n";
         delete packet;
+        receivedPackets++;
     }
 }
 

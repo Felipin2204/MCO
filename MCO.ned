@@ -13,9 +13,17 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-import inet.common.packet.chunk.Chunk;
-namespace inet;
+package inet.applications.vehicular;
 
-class TrafficPacket extends FieldsChunk {
-    int appIdentifier;
-}
+simple MCO
+{
+    parameters:
+        @display("i=block/queue");
+		
+	gates:
+	    input inApp[];
+	    output outApp[];
+	    
+	    input inWLAN;
+	    output outWLAN;
+}	

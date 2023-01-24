@@ -28,13 +28,13 @@ network TraficGeneratorNetwork
 
     submodules:
         radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=94,56");
+            @display("p=94.770004,84.240005");
         }
         node[nodes]: TrafficGeneratorHost {
             id = index;
         }
         visualizer: <default(firstAvailableOrEmpty("IntegratedCanvasVisualizer"))> like IIntegratedVisualizer if typename != "" {
-            @display("p=250,56");
+            @display("p=257.98502,85.995");
         }
         ///        nodeManager: <default("")>  like INodeManager if typename != "" {
         ///           @display("p=226.62724,50.05918");
