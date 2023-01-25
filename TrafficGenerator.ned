@@ -23,7 +23,7 @@ simple TrafficGenerator like IApp
 	    
 	    int totalPacketsPerSecond = default(100);
 	    int packetLength @unit(byte) = default(1000B);
-	    string trafficDistribution = default("deterministic");
+	    volatile double timeBetweenPackets = default(1/totalPacketsPerSecond);
 	    
 	gates:
 		input socketIn;

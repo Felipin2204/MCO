@@ -40,14 +40,14 @@ void TrafficGenerator::initialize(){
     //Getting NED parameters
     totalPacketsPerSecond = par("totalPacketsPerSecond");
     packetLength = par("packetLength");
-    trafficDistribution = par("trafficDistribution").stdstringValue();
+    timeBetweenPackets = simtime_t(par("timeBetweenPackets"));
 
+    //Change for statistics
     generatedPackets = 0;
     WATCH(generatedPackets);
     receivedPackets = 0;
     WATCH(receivedPackets);
 
-    timeBetweenPackets = getTimeBetweenPackets();
     packetGenerationTimer = new cMessage();
     scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
     generatedPackets++;
@@ -69,7 +69,7 @@ void TrafficGenerator::handleMessage(cMessage *packet){
 
         sendDown(newpacket);
 
-        timeBetweenPackets = getTimeBetweenPackets();
+        timeBetweenPackets = simtime_t(par("timeBetweenPackets"));
         scheduleAt(simTime()+timeBetweenPackets, packet);
         generatedPackets++;
     } else {
@@ -90,28 +90,6 @@ void TrafficGenerator::sendDown(Packet* p){
     p->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     send(p,lowerLayerOut);
-}
-
-double TrafficGenerator::getTimeBetweenPackets(){
-    //Assign time between packets depending on the selected traffic distribution
-    //First we set a default value for the time between packets corresponding to a deterministic generation
-    double packetTime = 1.0/totalPacketsPerSecond;
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    if(trafficDistribution == "uniform") {
-        std::uniform_real_distribution<> dis(0.5*(1.0/totalPacketsPerSecond), 1.5*(1.0/totalPacketsPerSecond));
-        packetTime = dis(gen);
-    } else if (trafficDistribution == "exponential") {
-        std::exponential_distribution<> dis(totalPacketsPerSecond);
-        packetTime = dis(gen);
-    } else if (generatedPackets == 0) {
-        /*First time between packets for deterministic distribution is uniform in order to avoid that nodes send
-        packets at the same time*/
-        std::uniform_real_distribution<> dis(0.5*(1.0/totalPacketsPerSecond), 1.5*(1.0/totalPacketsPerSecond));
-        packetTime = dis(gen);
-    }
-    return packetTime;
 }
 
 } /* namespace inet */

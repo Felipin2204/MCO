@@ -32,18 +32,16 @@ protected:
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
     virtual void sendDown(Packet* p);
-    virtual double getTimeBetweenPackets();
 
     int lowerLayerIn;
     int lowerLayerOut;
 
     int totalPacketsPerSecond;
     int packetLength;
-    std::string trafficDistribution;
+    simtime_t timeBetweenPackets;
 
     int generatedPackets;
     int receivedPackets;
-    simtime_t timeBetweenPackets;
     cMessage *packetGenerationTimer;
 };
 
