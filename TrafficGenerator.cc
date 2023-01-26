@@ -24,6 +24,10 @@ namespace inet {
 
 Define_Module(TrafficGenerator);
 
+simsignal_t TrafficGenerator::timeBetweenPacketsSignal = SIMSIGNAL_NULL;
+simsignal_t TrafficGenerator::generatedPacketsSignal = SIMSIGNAL_NULL;
+simsignal_t TrafficGenerator::receivedPacketsSignal = SIMSIGNAL_NULL;
+
 TrafficGenerator::TrafficGenerator() {
     packetGenerationTimer = nullptr;
 }
@@ -33,24 +37,30 @@ TrafficGenerator::~TrafficGenerator() {
 }
 
 void TrafficGenerator::initialize(){
+    generatedPackets = 0;
+    receivedPackets = 0;
+
     //Getting the IDs of the gates
     lowerLayerIn = findGate("socketIn");
     lowerLayerOut = findGate("socketOut");
 
+    //Registering signals for statistics
+    timeBetweenPacketsSignal = registerSignal("timeBetweenPackets");
+    generatedPacketsSignal = registerSignal("generatedPackets");
+    receivedPacketsSignal = registerSignal("receivedPackets");
+
     //Getting NED parameters
     totalPacketsPerSecond = par("totalPacketsPerSecond");
     packetLength = par("packetLength");
-    timeBetweenPackets = simtime_t(par("timeBetweenPackets"));
+    double aux = par("timeBetweenPackets");
 
-    //Change for statistics
-    generatedPackets = 0;
-    WATCH(generatedPackets);
-    receivedPackets = 0;
-    WATCH(receivedPackets);
+    timeBetweenPackets = simtime_t(aux);
+    emit(timeBetweenPacketsSignal, aux);
 
     packetGenerationTimer = new cMessage();
     scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
     generatedPackets++;
+    emit(generatedPacketsSignal, generatedPackets);
 }
 
 void TrafficGenerator::handleMessage(cMessage *packet){
@@ -69,9 +79,12 @@ void TrafficGenerator::handleMessage(cMessage *packet){
 
         sendDown(newpacket);
 
-        timeBetweenPackets = simtime_t(par("timeBetweenPackets"));
+        double aux = par("timeBetweenPackets");
+        timeBetweenPackets = simtime_t(aux);
+        emit(timeBetweenPacketsSignal, aux);
         scheduleAt(simTime()+timeBetweenPackets, packet);
         generatedPackets++;
+        emit(generatedPacketsSignal, generatedPackets);
     } else {
         Packet *pkt = static_cast<Packet*>(packet);
         auto p = pkt->peekData<TrafficPacket>();
@@ -79,6 +92,7 @@ void TrafficGenerator::handleMessage(cMessage *packet){
                 << p->getAppIdentifier() <<". Current application index is " << getIndex() << ".\n";
         delete packet;
         receivedPackets++;
+        emit(receivedPacketsSignal, receivedPackets);
     }
 }
 

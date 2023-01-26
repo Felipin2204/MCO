@@ -43,6 +43,10 @@ protected:
     int generatedPackets;
     int receivedPackets;
     cMessage *packetGenerationTimer;
+
+    static simsignal_t timeBetweenPacketsSignal;
+    static simsignal_t generatedPacketsSignal;
+    static simsignal_t receivedPacketsSignal;
 };
 
 } /* namespace inet */

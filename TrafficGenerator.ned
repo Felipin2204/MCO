@@ -25,6 +25,13 @@ simple TrafficGenerator like IApp
 	    int packetLength @unit(byte) = default(1000B);
 	    volatile double timeBetweenPackets = default(1/totalPacketsPerSecond);
 	    
+	    @signal[timeBetweenPackets](type=double);
+	    @signal[generatedPackets](type=int);
+	    @signal[receivedPackets](type=int);
+	    @statistic[timeBetweenPackets](title="Time between packets"; record=vector,stats,histogram);
+		@statistic[generatedPackets](title="Generated packets"; source=count(generatedPackets); record=last);
+		@statistic[receivedPackets](title="Received packets"; source=count(receivedPackets); record=last);
+	    
 	gates:
 		input socketIn;
         output socketOut;
