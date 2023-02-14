@@ -13,43 +13,32 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef INET_APPLICATIONS_VEHICULAR_TRAFFICGENERATOR_H_
-#define INET_APPLICATIONS_VEHICULAR_TRAFFICGENERATOR_H_
+#ifndef INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
+#define INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
 
 #include <omnetpp.h>
-#include <string>
-#include "inet/common/packet/Packet.h"
+#include "inet/applications/vehicular/MyScheduler.h"
+#include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211Radio.h"
+#include "inet/queueing/queue/PacketQueue.h"
 
 using namespace omnetpp;
 
 namespace inet {
 
-class TrafficGenerator: public cSimpleModule {
-public:
-    TrafficGenerator();
-    virtual ~TrafficGenerator();
+class MgmtMCO : public cSimpleModule, public cListener {
 protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
-    virtual void sendDown(Packet* p);
 
-    int lowerLayerIn;
-    int lowerLayerOut;
+    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
 
-    int totalPacketsPerSecond;
-    int packetLength;
-    simtime_t timeBetweenPackets;
-
-    int generatedPackets;
-    int receivedPackets;
-    cMessage *packetGenerationTimer;
-
-    static simsignal_t timeBetweenPacketsSignal;
-    static simsignal_t generatedPacketsSignal;
-    static simsignal_t receivedPacketsSignal;
+    cGate *inSchedulerGate = nullptr;
+    MyScheduler *provider = nullptr;
+    physicallayer::Ieee80211Radio *radio = nullptr;
+    queueing::PacketQueue *macQueue = nullptr;
 };
 
 } /* namespace inet */
 
-#endif /* INET_APPLICATIONS_VEHICULAR_TRAFFICGENERATOR_H_ */
+#endif /* INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_ */

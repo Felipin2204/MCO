@@ -39,12 +39,15 @@ module TrafficGeneratorHost
 
         wlan.agent.typename = default("");
 
-        //wlan.radio.bandwidth=default(10 MHz); opMode p already sets a channel spacing of 10MHz. TODO: inet4.3 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
-        wlan.radio.channelNumber = 4;  //4 gives 5.9 GHz center frequency, which is the control channel G5-CCH according to ETSI EN 302 663
-        //wlan.radio.carrierFrequency = 5.9 GHz;
+        //wlan.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
+        //wlan.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
+        wlan.radio.bandName = "5.9 GHz";
+        
         wlan.radio.antenna.mobilityModule = default(absPath(".mobility"));
 
         ///vehicleTable.mobilityModule=".mobility";
+        
+        MCO.numApplications = this.numApplications;
 
     gates:
         input radioIn @directIn;

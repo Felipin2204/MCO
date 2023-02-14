@@ -13,7 +13,6 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include <random>
 #include "TrafficGenerator.h"
 #include "TrafficPacket_m.h"
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
@@ -36,31 +35,32 @@ TrafficGenerator::~TrafficGenerator() {
     cancelAndDelete(packetGenerationTimer);
 }
 
-void TrafficGenerator::initialize(){
-    generatedPackets = 0;
-    receivedPackets = 0;
+void TrafficGenerator::initialize(int stage){
+    if (stage == INITSTAGE_LOCAL) {
+        generatedPackets = 0;
+        receivedPackets = 0;
 
-    //Getting the IDs of the gates
-    lowerLayerIn = findGate("socketIn");
-    lowerLayerOut = findGate("socketOut");
+        //Getting the IDs of the gates
+        lowerLayerIn = findGate("socketIn");
+        lowerLayerOut = findGate("socketOut");
 
-    //Registering signals for statistics
-    timeBetweenPacketsSignal = registerSignal("timeBetweenPackets");
-    generatedPacketsSignal = registerSignal("generatedPackets");
-    receivedPacketsSignal = registerSignal("receivedPackets");
+        //Registering signals for statistics
+        timeBetweenPacketsSignal = registerSignal("timeBetweenPackets");
+        generatedPacketsSignal = registerSignal("generatedPackets");
+        receivedPacketsSignal = registerSignal("receivedPackets");
 
-    //Getting NED parameters
-    totalPacketsPerSecond = par("totalPacketsPerSecond");
-    packetLength = par("packetLength");
-    double aux = par("timeBetweenPackets");
+        totalPacketsPerSecond = par("totalPacketsPerSecond");
+        packetLength = par("packetLength");
+    } else if(stage == INITSTAGE_APPLICATION_LAYER) {
+        double aux = par("timeBetweenPackets");
+        timeBetweenPackets = simtime_t(aux);
+        emit(timeBetweenPacketsSignal, aux);
 
-    timeBetweenPackets = simtime_t(aux);
-    emit(timeBetweenPacketsSignal, aux);
-
-    packetGenerationTimer = new cMessage();
-    scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
-    generatedPackets++;
-    emit(generatedPacketsSignal, generatedPackets);
+        packetGenerationTimer = new cMessage();
+        scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
+        generatedPackets++;
+        emit(generatedPacketsSignal, generatedPackets);
+    }
 }
 
 void TrafficGenerator::handleMessage(cMessage *packet){
@@ -103,7 +103,7 @@ void TrafficGenerator::sendDown(Packet* p){
     //Should put something sensible here. Keep this to prevent LlcEpd from complaining
     p->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
-    send(p,lowerLayerOut);
+    send(p, lowerLayerOut);
 }
 
 } /* namespace inet */

@@ -23,7 +23,7 @@ simple TrafficGenerator like IApp
 	    
 	    int totalPacketsPerSecond = default(100);
 	    int packetLength @unit(byte) = default(1000B);
-	    volatile double timeBetweenPackets = default(1/totalPacketsPerSecond);
+	    volatile double timeBetweenPackets = default(exponential(1/totalPacketsPerSecond));
 	    
 	    @signal[timeBetweenPackets](type=double);
 	    @signal[generatedPackets](type=int);

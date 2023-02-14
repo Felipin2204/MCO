@@ -15,15 +15,58 @@
 
 package inet.applications.vehicular;
 
-simple MCO
+import inet.queueing.common.PacketMultiplexer;
+import inet.queueing.contract.IPacketClassifier;
+import inet.queueing.contract.IPacketQueue;
+import inet.queueing.contract.IPacketScheduler;
+
+module MCO
 {
     parameters:
-        @display("i=block/queue");
-		
-	gates:
-	    input inApp[];
-	    output outApp[];
-	    
-	    input inWLAN;
-	    output outWLAN;
-}	
+        int numApplications;
+
+		//Statistics
+
+    gates:
+        input inApp[];
+        output outApp[];
+
+        input inWLAN;
+        output outWLAN;
+
+    submodules:
+        packetMultiplexer: PacketMultiplexer {
+            parameters:
+                @display("p=100,100");
+        }
+        classifier: <default("WrrClassifier")> like IPacketClassifier {
+            parameters:
+                @display("p=250,100");
+        }
+        queue[7]: <default("DropTailQueue")> like IPacketQueue {
+            parameters:
+                @display("p=400,100");
+        }
+        scheduler: <default("MyScheduler")> like IPacketScheduler {
+            parameters:
+                @display("p=550,100");
+        }
+        mgmt: MgmtMCO {
+            parameters:
+                @display("p=550,300");
+        }
+
+    connections allowunconnected:
+        for i=0..numApplications-1 {
+            inApp[i] --> { @display("m=w"); } --> packetMultiplexer.in++;
+            mgmt.outApp++ --> { @display("m=w"); } --> outApp[i];
+        }
+        packetMultiplexer.out --> classifier.in;
+        for i=0..6 {
+            classifier.out++ --> queue[i].in;
+            queue[i].out --> scheduler.in++;
+        }
+        scheduler.out --> mgmt.inScheduler;
+        mgmt.outWLAN --> { @display("m=e"); } --> outWLAN;
+        inWLAN --> mgmt.inWLAN;
+}
