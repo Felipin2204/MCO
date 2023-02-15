@@ -19,14 +19,14 @@
 #include <omnetpp.h>
 #include "inet/applications/vehicular/MyScheduler.h"
 #include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211Radio.h"
-#include "inet/queueing/queue/PacketQueue.h"
+#include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
 
 using namespace omnetpp;
 
 namespace inet {
 
 class MgmtMCO : public cSimpleModule, public cListener {
-protected:
+  protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
@@ -36,7 +36,7 @@ protected:
     cGate *inSchedulerGate = nullptr;
     MyScheduler *provider = nullptr;
     physicallayer::Ieee80211Radio *radio = nullptr;
-    queueing::PacketQueue *macQueue = nullptr;
+    ieee80211::Dcaf *macDcaf = nullptr;
 };
 
 } /* namespace inet */

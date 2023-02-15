@@ -30,8 +30,8 @@ void MgmtMCO::initialize(int stage)
         inSchedulerGate = gate("inScheduler");
     } else if(stage == INITSTAGE_LINK_LAYER) {
         provider = findConnectedModule<MyScheduler>(inSchedulerGate);
-        radio = check_and_cast<physicallayer::Ieee80211Radio*>(getParentModule()->getParentModule()->getModuleByPath(".wlan.radio"));
-        macQueue = check_and_cast<queueing::PacketQueue*>(getParentModule()->getParentModule()->getModuleByPath(".wlan.mac.dcf.channelAccess.pendingQueue"));
+        radio = check_and_cast<physicallayer::Ieee80211Radio*>(getModuleByPath("^.^.wlan.radio"));
+        macDcaf = check_and_cast<ieee80211::Dcaf*>(getModuleByPath("^.^.wlan.mac.dcf.channelAccess"));
 
         //MCO module is subscribed to this signal which is emitted when a packet is pushed into one of the queues of the MCO
         getParentModule()->subscribe(packetPushEndedSignal, this);
@@ -51,8 +51,8 @@ void MgmtMCO::handleMessage(cMessage *msg)
 }
 
 void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) {
-    //This variable is true if there are packets in the MCO queues and the WLAN interface is ready to transmit
-    bool a = signalID == packetPushEndedSignal && macQueue->isEmpty();
+    //This variable is true if there are packets in the MCO queues and the Dcf don't have a frame to transmit(Dcf::hasFrameToTransmit)
+    bool a = signalID == packetPushEndedSignal && !(!macDcaf->getPendingQueue()->isEmpty() || macDcaf->getInProgressFrames()->hasInProgressFrames());
 
     //This other variable is true if a transmission is finished and there are packets in one of the MCO queues
     bool b = signalID == transmissionEndedSignal && provider->canPullSomePacket(inSchedulerGate->getPathStartGate());
