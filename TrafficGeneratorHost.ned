@@ -32,7 +32,6 @@ module TrafficGeneratorHost
 		///application.mobilityModule=".mobility";
 
         wlan.opMode = "p";
-        wlan.bitrate = default(6Mbps);
         wlan.interfaceTableModule = default(absPath(".interfaceTable"));
 
         wlan.mgmt.typename = default("Ieee80211MgmtAdhoc");
