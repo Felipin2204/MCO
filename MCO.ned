@@ -20,10 +20,12 @@ import inet.queueing.contract.IPacketClassifier;
 import inet.queueing.contract.IPacketQueue;
 import inet.queueing.contract.IPacketScheduler;
 
-module MCO
+module MCO like IMCO
 {
     parameters:
         int numApplications;
+
+		scheduler.weights = "1 1 1 1 1 1 1";
 
 		//Statistics
 
@@ -39,11 +41,11 @@ module MCO
             parameters:
                 @display("p=100,100");
         }
-        classifier: <default("WrrClassifier")> like IPacketClassifier {
+        classifier: <> like IPacketClassifier {
             parameters:
                 @display("p=250,100");
         }
-        queue[7]: <default("DropTailQueue")> like IPacketQueue {
+        queue[7]: <> like IPacketQueue {
             parameters:
                 @display("p=400,100");
         }

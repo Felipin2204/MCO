@@ -16,9 +16,6 @@
 package inet.applications.vehicular;
 import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
 import inet.visualizer.contract.IIntegratedVisualizer;
-///import inet.applications.vehicular.INodeManager;
-///import inet.applications.vehicular.FileNodeManager;
-
 
 network TraficGeneratorNetwork
 {
@@ -36,10 +33,4 @@ network TraficGeneratorNetwork
         visualizer: <default(firstAvailableOrEmpty("IntegratedCanvasVisualizer"))> like IIntegratedVisualizer if typename != "" {
             @display("p=257.98502,85.995");
         }
-        ///        nodeManager: <default("")>  like INodeManager if typename != "" {
-        ///           @display("p=226.62724,50.05918");
-        ///        }
-        //        destination: OpalNode {
-        //            @display("p=226.62724,110.05918");
-        //        }
 }

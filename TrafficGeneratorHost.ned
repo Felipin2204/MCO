@@ -26,10 +26,6 @@ module TrafficGeneratorHost
         int id @mutable = default(0);
         int numApplications = default(1);
         string mobilityType = default("inet.mobility.static.StationaryMobility");
-        ///string vtType = default("VehicleTable");
-
-		///application.vehicleTable=".vehicleTable";
-		///application.mobilityModule=".mobility";
 
         wlan.opMode = "p";
         wlan.interfaceTableModule = default(absPath(".interfaceTable"));
@@ -41,10 +37,12 @@ module TrafficGeneratorHost
         //wlan.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
         //wlan.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan.radio.bandName = "5.9 GHz";
+        wlan.radio.channelNumber = 0;
         
         wlan.radio.antenna.mobilityModule = default(absPath(".mobility"));
-
-        ///vehicleTable.mobilityModule=".mobility";
+        
+        wlan.mac.dcf.rateControl.initialRate = 3Mbps;
+        wlan.mac.dcf.rateControl.typename = "MCORateControl";
         
         MCO.numApplications = this.numApplications;
 
@@ -64,12 +62,9 @@ module TrafficGeneratorHost
         interfaceTable: InterfaceTable {
             @display("p=125,240");
         }
-        MCO: MCO {
+        MCO: <> like IMCO {
             @display("p=375,537");
         }
-///        vehicleTable: <vtType>  like IVehicleTable {
-///                @display("p=100,200;is=s");
-///        }
 
     connections allowunconnected:
         for i = 0..numApplications-1 {
