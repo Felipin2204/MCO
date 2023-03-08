@@ -15,15 +15,12 @@
 
 package inet.applications.vehicular;
 
-moduleinterface IMCO
+simple FileNodeManager like INodeManager
 {
     parameters:
-		@display("i=block/cogwheel");
-		
-	gates:
-		input inApp[];
-        output outApp[];
-
-        input inWLAN;
-        output outWLAN;
+        @display("i=block/network2");
+        string moduleType = default("inet.applications.vehicular.TrafficGeneratorHost");  // module type to be used in the simulation for each managed vehicle
+        string moduleName = default("node");  // module name to be used in the simulation for each managed vehicle
+        string moduleDisplayString = default("i=misc/node2;is=vs");
+        string filename;
 }

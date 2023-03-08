@@ -20,17 +20,17 @@ import inet.visualizer.contract.IIntegratedVisualizer;
 network TraficGeneratorNetwork
 {
     parameters:
-        @display("bgb=1400,400");
         int nodes;
 
     submodules:
         radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=94.770004,84.240005");
+            @display("p=50,50;is=vs");
         }
         node[nodes]: TrafficGeneratorHost {
             id = index;
+            @display("p=100,125");
         }
-        visualizer: <default(firstAvailableOrEmpty("IntegratedCanvasVisualizer"))> like IIntegratedVisualizer if typename != "" {
-            @display("p=257.98502,85.995");
+        nodeManager: <default("")> like INodeManager if typename != "" {
+            @display("p=170,50;is=vs");
         }
 }

@@ -25,6 +25,8 @@ module TrafficGeneratorHost
 
         int id @mutable = default(0);
         int numApplications = default(1);
+        double initialX @unit(m);
+        double initialY @unit(m);
         string mobilityType = default("inet.mobility.static.StationaryMobility");
 
         wlan.opMode = "p";
@@ -43,6 +45,9 @@ module TrafficGeneratorHost
         
         wlan.mac.dcf.rateControl.initialRate = 3Mbps;
         wlan.mac.dcf.rateControl.typename = "MCORateControl";
+        
+        mobility.initialX = this.initialX;
+        mobility.initialY = this.initialY;
         
         MCO.numApplications = this.numApplications;
 

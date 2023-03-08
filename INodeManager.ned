@@ -15,15 +15,8 @@
 
 package inet.applications.vehicular;
 
-moduleinterface IMCO
+moduleinterface INodeManager
 {
     parameters:
-		@display("i=block/cogwheel");
-		
-	gates:
-		input inApp[];
-        output outApp[];
-
-        input inWLAN;
-        output outWLAN;
+        @display("i=block/control");
 }
