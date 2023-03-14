@@ -13,14 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "MyScheduler.h"
+#ifndef INET_APPLICATIONS_VEHICULAR_CURRENTCHANNELFUNCTION_H_
+#define INET_APPLICATIONS_VEHICULAR_CURRENTCHANNELFUNCTION_H_
+
+#include <omnetpp.h>
+#include "inet/queueing/contract/IPacketSchedulerFunction.h"
+#include "inet/queueing/contract/IPassivePacketSource.h"
+
+using namespace omnetpp;
 
 namespace inet {
 
-Define_Module(MyScheduler);
-
-int MyScheduler::schedulePacket() {
-    return WrrScheduler::schedulePacket();
-}
+class CurrentChannelFunction : public queueing::IPacketSchedulerFunction, public cObject {
+  public:
+    virtual int schedulePacket(const std::vector<queueing::IPassivePacketSource *>& sources) const override;
+};
 
 } /* namespace inet */
+
+#endif /* INET_APPLICATIONS_VEHICULAR_CURRENTCHANNELFUNCTION_H_ */

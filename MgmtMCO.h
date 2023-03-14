@@ -17,9 +17,10 @@
 #define INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
 
 #include <omnetpp.h>
-#include "inet/applications/vehicular/MyScheduler.h"
 #include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211Radio.h"
 #include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
+#include "inet/queueing/queue/PacketQueue.h"
+#include "inet/queueing/scheduler/PacketScheduler.h"
 
 using namespace omnetpp;
 
@@ -34,9 +35,17 @@ class MgmtMCO : public cSimpleModule, public cListener {
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
 
     cGate *inSchedulerGate = nullptr;
-    MyScheduler *provider = nullptr;
+    queueing::PacketScheduler *scheduler = nullptr;
     physicallayer::Ieee80211Radio *radio = nullptr;
     ieee80211::Dcaf *macDcaf = nullptr;
+
+    cMessage *radioTimeDivisionTimer;
+    queueing::PacketQueue *currentQueue;
+    int numChannels;
+    int currentChannelNumber;
+
+  public:
+    int getCurrentChannelNumber() const {return currentChannelNumber;}
 };
 
 } /* namespace inet */

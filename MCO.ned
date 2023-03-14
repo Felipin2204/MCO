@@ -25,7 +25,7 @@ module MCO like IMCO
     parameters:
         int numApplications;
 
-		scheduler.weights = "1 1 1 1 1 1 1";
+		scheduler.schedulerClass = "inet::queueing::PacketCurrentChannel";
 
 		//Statistics
 
@@ -49,7 +49,7 @@ module MCO like IMCO
             parameters:
                 @display("p=400,100");
         }
-        scheduler: <default("MyScheduler")> like IPacketScheduler {
+        scheduler: <default("PacketScheduler")> like IPacketScheduler {
             parameters:
                 @display("p=550,100");
         }

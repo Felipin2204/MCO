@@ -13,13 +13,19 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#include "inet/queueing/function/PacketSchedulerFunction.h"
+#include "MgmtMCO.h"
 
-import inet.queueing.scheduler.WrrScheduler;
+namespace inet {
+namespace queueing {
 
-simple MyScheduler extends WrrScheduler
+static int schedulePacketByCurrentChannel(const std::vector<IPassivePacketSource *>& sources)
 {
-    parameters:
-        @class(MyScheduler);
-        
+    MgmtMCO *test = check_and_cast<MgmtMCO*>(getSimulation()->getSystemModule()->getSubmodule("node", 0)->getSubmodule("MCO")->getSubmodule("mgmt"));
+    return test->getCurrentChannelNumber();
 }
+
+Register_Packet_Scheduler_Function(PacketCurrentChannel, schedulePacketByCurrentChannel);
+
+} // namespace queueing
+} /* namespace inet */
