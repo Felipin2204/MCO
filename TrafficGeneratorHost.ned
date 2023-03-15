@@ -25,40 +25,42 @@ module TrafficGeneratorHost
 
         int id @mutable = default(0);
         int numApplications = default(1);
+        int numNIC = default(7);
         double initialX @unit(m);
         double initialY @unit(m);
         string mobilityType = default("inet.mobility.static.StationaryMobility");
 
-        wlan.opMode = "p";
-        wlan.interfaceTableModule = default(absPath(".interfaceTable"));
+        wlan*.opMode = "p";
+        wlan*.interfaceTableModule = default(absPath(".interfaceTable"));
 
-        wlan.mgmt.typename = default("Ieee80211MgmtAdhoc");
+        wlan*.mgmt.typename = default("Ieee80211MgmtAdhoc");
 
-        wlan.agent.typename = default("");
+        wlan*.agent.typename = default("");
 
-        //wlan.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
-        //wlan.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
-        wlan.radio.bandName = "5.9 GHz";
-        wlan.radio.channelNumber = 0;
-        
-        wlan.radio.antenna.mobilityModule = default(absPath(".mobility"));
-        
-        wlan.mac.dcf.rateControl.initialRate = 3Mbps;
-        wlan.mac.dcf.rateControl.typename = "MCORateControl";
-        
+        //wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
+        //wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
+        wlan*.radio.bandName = "5.9 GHz";
+        wlan*.radio.channelNumber = 0;
+
+        wlan*.radio.antenna.mobilityModule = default(absPath(".mobility"));
+
+        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
+        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
+
         mobility.initialX = this.initialX;
         mobility.initialY = this.initialY;
-        
+
         MCO.numApplications = this.numApplications;
+        MCO.numNIC = this.numNIC;
 
     gates:
-        input radioIn @directIn;
+        input radioIn[numNIC] @directIn;
 
     submodules:
         application[numApplications]: TrafficGenerator {
             @display("p=375,403");
         }
-        wlan: <default("Ieee80211Interface")> like IWirelessInterface {
+        wlan[numNIC]: <default("Ieee80211Interface")> like IWirelessInterface {
             @display("p=375,616");
         }
         mobility: <mobilityType> like IMobility if typename != "" {
@@ -68,15 +70,17 @@ module TrafficGeneratorHost
             @display("p=125,240");
         }
         MCO: <> like IMCO {
-            @display("p=375,537");
+            @display("p=375,512");
         }
 
     connections allowunconnected:
-        for i = 0..numApplications-1 {
+        for i=0..numApplications-1 {
             application[i].socketOut --> MCO.inApp++;
-             MCO.outApp++ --> application[i].socketIn;
+            MCO.outApp++ --> application[i].socketIn;
         }
-        MCO.outWLAN --> wlan.upperLayerIn;
-        wlan.upperLayerOut --> MCO.inWLAN;
-        radioIn --> { @display("m=s"); } --> wlan.radioIn;
+        for i=0..numNIC-1 {
+            MCO.outWLAN++ --> wlan[i].upperLayerIn;
+            wlan[i].upperLayerOut --> MCO.inWLAN++;
+            radioIn[i] --> { @display("m=s"); } --> wlan[i].radioIn;
+        }
 }

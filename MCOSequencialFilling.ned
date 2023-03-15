@@ -15,11 +15,30 @@
 
 package inet.applications.vehicular;
 
+import inet.queueing.queue.PacketQueue;
+import inet.queueing.queue.DropTailQueue;
+
 module MCOSequencialFilling extends MCO
 {
     parameters:
         classifier.typename = "PriorityClassifier";
-        queue[0..5].typename = "PacketQueue";
-        queue[0..5].packetCapacity = 100;
-        queue[6].typename = "DropTailQueue";
+
+    submodules:
+        queue[numNIC-1]: PacketQueue {
+            parameters:
+                @display("p=100,306");
+                packetCapacity = 100;
+        }
+        dropTailQueue: DropTailQueue {
+            parameters:
+                @display("p=214,237");
+        }
+
+    connections allowunconnected:
+        for i=0..numNIC-2 {
+            classifier.out++ --> queue[i].in;
+            queue[i].out --> mgmt.inQueue++; //Symbolic connections
+        }
+        classifier.out++ --> dropTailQueue.in;
+        dropTailQueue.out --> mgmt.inQueue++; //Symbolic connection
 }

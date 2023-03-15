@@ -15,10 +15,22 @@
 
 package inet.applications.vehicular;
 
+import inet.queueing.queue.DropTailQueue;
+
 module MCOLoadBalancing extends MCO
 {
     parameters:
         classifier.typename = "WrrClassifier";
-        classifier.weights = "1 1 1 1 1 1 1";
-        queue[*].typename = "DropTailQueue";
+
+    submodules:
+        queue[numNIC]: DropTailQueue {
+            parameters:
+                @display("p=100,306");
+        }
+	
+	connections allowunconnected:
+	    for i=0..numNIC-1 {
+			classifier.out++ --> queue[i].in;
+            queue[i].out --> mgmt.inQueue++; //Symbolic connections   
+	    }
 }

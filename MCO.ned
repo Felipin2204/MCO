@@ -23,9 +23,9 @@ import inet.queueing.contract.IPacketScheduler;
 module MCO like IMCO
 {
     parameters:
+        @display("i=block/cogwheel");
         int numApplications;
-
-		scheduler.schedulerClass = "inet::queueing::PacketCurrentChannel";
+        int numNIC;
 
 		//Statistics
 
@@ -33,42 +33,31 @@ module MCO like IMCO
         input inApp[];
         output outApp[];
 
-        input inWLAN;
-        output outWLAN;
+        input inWLAN[];
+        output outWLAN[];
 
     submodules:
         packetMultiplexer: PacketMultiplexer {
             parameters:
-                @display("p=100,100");
+                @display("p=100,58");
         }
         classifier: <> like IPacketClassifier {
             parameters:
-                @display("p=250,100");
-        }
-        queue[7]: <> like IPacketQueue {
-            parameters:
-                @display("p=400,100");
-        }
-        scheduler: <default("PacketScheduler")> like IPacketScheduler {
-            parameters:
-                @display("p=550,100");
+                @display("p=100,159");
         }
         mgmt: MgmtMCO {
             parameters:
-                @display("p=550,300");
+                @display("p=320,306");
         }
 
     connections allowunconnected:
         for i=0..numApplications-1 {
-            inApp[i] --> { @display("m=w"); } --> packetMultiplexer.in++;
-            mgmt.outApp++ --> { @display("m=w"); } --> outApp[i];
+            inApp[i] --> { @display("m=n"); } --> packetMultiplexer.in++;
+            mgmt.outApp++ --> { @display("m=n"); } --> outApp[i];
         }
         packetMultiplexer.out --> classifier.in;
-        for i=0..6 {
-            classifier.out++ --> queue[i].in;
-            queue[i].out --> scheduler.in++;
+        for i=0..numNIC-1 {
+            mgmt.outWLAN++ --> { @display("m=s"); } --> outWLAN++;
+            inWLAN++ --> { @display("m=s"); } --> mgmt.inWLAN++;
         }
-        scheduler.out --> mgmt.inScheduler;
-        mgmt.outWLAN --> { @display("m=e"); } --> outWLAN;
-        inWLAN --> mgmt.inWLAN;
 }
