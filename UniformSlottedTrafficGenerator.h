@@ -13,31 +13,39 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
-#define INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
+#ifndef __INET4_4_UNIFORMSLOTTEDTRAFFICGENERATOR_H_
+#define __INET4_4_UNIFORMSLOTTEDTRAFFICGENERATOR_H_
 
 #include <omnetpp.h>
-#include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
-#include "inet/queueing/queue/PacketQueue.h"
+#include "TrafficGenerator.h"
 
 using namespace omnetpp;
 
 namespace inet {
 
-class MgmtMCO : public cSimpleModule, public cListener {
+class UniformSlottedTrafficGenerator : public TrafficGenerator
+{
   protected:
     virtual void initialize(int stage) override;
-    virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
+    void generateSlots();
 
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
+    int maximumPacketsPerSecond;
+    double generatedPacketsFraction;
+    double minimumPacketDuration;
+    simtime_t generateSlotsPeriod;
 
-    int numChannels;
+    int packetsToGenerate;
+    int currentSlot;
+    cMessage *generateSlotsTimer;
+    std::vector<simtime_t> slots;
 
-    std::vector<queueing::PacketQueue*> queues;
-    std::vector<ieee80211::Dcaf*> macDcafs;
+  public:
+    UniformSlottedTrafficGenerator();
+    virtual ~UniformSlottedTrafficGenerator();
+
 };
 
-} /* namespace inet */
+} //namespace inet
 
-#endif /* INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_ */
+#endif /* __INET4_4_UNIFORMSLOTTEDTRAFFICGENERATOR_H_ */

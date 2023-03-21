@@ -23,14 +23,14 @@ module MCOLoadBalancing extends MCO
         classifier.typename = "WrrClassifier";
 
     submodules:
-        queue[numNIC]: DropTailQueue {
+        queue[numChannels]: DropTailQueue {
             parameters:
-                @display("p=100,306");
+                @display("p=76,289");
         }
-	
-	connections allowunconnected:
-	    for i=0..numNIC-1 {
-			classifier.out++ --> queue[i].in;
+
+    connections allowunconnected:
+        for i=0..numChannels-1 {
+            classifier.out++ --> queue[i].in;
             queue[i].out --> mgmt.inQueue++; //Symbolic connections   
-	    }
+        }
 }

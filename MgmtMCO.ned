@@ -20,7 +20,7 @@ simple MgmtMCO
     parameters:
         
     gates:
-        input inQueue[]; //These gates are symbolic
+        input inQueue[];
         output outApp[];
         input inWLAN[];
         output outWLAN[];

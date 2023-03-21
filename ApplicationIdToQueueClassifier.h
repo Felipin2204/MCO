@@ -13,19 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef INET_APPLICATIONS_VEHICULAR_APPLICATIONIDTOQUEUECLASSIFIER_H_
+#define INET_APPLICATIONS_VEHICULAR_APPLICATIONIDTOQUEUECLASSIFIER_H_
 
-moduleinterface IMCO
-{
-    parameters:
-		@display("i=block/cogwheel");
-		int numApplications;
-		int numChannels;
-		
-	gates:
-		input inApp[];
-        output outApp[];
+#include "inet/queueing/contract/IPacketClassifierFunction.h"
 
-        input inWLAN[];
-        output outWLAN[];
-}
+namespace inet {
+
+class ApplicationIdToQueueClassifier: public cObject, public queueing::IPacketClassifierFunction {
+public:
+    ApplicationIdToQueueClassifier();
+    virtual ~ApplicationIdToQueueClassifier();
+    virtual int classifyPacket(Packet *packet) const override;
+};
+
+} /* namespace inet */
+
+#endif /* INET_APPLICATIONS_VEHICULAR_APPLICATIONIDTOQUEUECLASSIFIER_H_ */

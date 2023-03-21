@@ -28,9 +28,9 @@ Define_Module(MgmtMCO);
 void MgmtMCO::initialize(int stage)
 {
     if(stage == INITSTAGE_LOCAL) {
-        numNIC = getModuleByPath("^.^")->par("numNIC").intValue();
+        numChannels = getModuleByPath("^.^")->par("numChannels").intValue();
     } else if(stage == INITSTAGE_LINK_LAYER) {
-        for (int i = 0; i < numNIC; i++) {
+        for (int i = 0; i < numChannels; i++) {
             queues.push_back(findConnectedModule<queueing::PacketQueue>(gate("inQueue", i)));
 
             std::string aux = "^.^.wlan[" + std::to_string(i) + "].mac.dcf.channelAccess";
@@ -63,7 +63,7 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
         queueing::PacketQueue *queue = check_and_cast<queueing::PacketQueue*>(source);
         int indexQueue;
         if(queue->isVector()) indexQueue = queue->getIndex(); //Required for the MCOSequencialFilling case
-        else indexQueue = numNIC-1;
+        else indexQueue = numChannels-1;
 
         //Pull packet if the Dcf don't have a frame to transmit(Dcf::hasFrameToTransmit)
         if(macDcafs[indexQueue]->getPendingQueue()->isEmpty() && !macDcafs[indexQueue]->getInProgressFrames()->hasInProgressFrames()) {

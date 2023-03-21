@@ -13,19 +13,29 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef __INET4_4_INTERFERENCEMONITOR_H_
+#define __INET4_4_INTERFERENCEMONITOR_H_
 
-moduleinterface IMCO
+#include <omnetpp.h>
+#include "inet/common/InitStages.h"
+
+
+using namespace omnetpp;
+
+namespace inet {
+
+class InterferenceMonitor : public cSimpleModule, public cListener
 {
-    parameters:
-		@display("i=block/cogwheel");
-		int numApplications;
-		int numChannels;
-		
-	gates:
-		input inApp[];
-        output outApp[];
+  protected:
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override {return NUM_INIT_STAGES;}
+    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
 
-        input inWLAN[];
-        output outWLAN[];
-}
+    int numChannels;
+    int myNode;
+    std::vector<cComponent*> radios; //Unnecessary
+};
+
+} //namespace inet
+
+#endif /* __INET4_4_INTERFERENCEMONITOR_H_ */

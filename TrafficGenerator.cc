@@ -51,6 +51,9 @@ void TrafficGenerator::initialize(int stage){
 
         totalPacketsPerSecond = par("totalPacketsPerSecond");
         packetLength = par("packetLength");
+
+        appId = par("appId");
+        if(appId == -1) appId = getIndex();
     } else if(stage == INITSTAGE_APPLICATION_LAYER) {
         double aux = par("timeBetweenPackets");
         timeBetweenPackets = simtime_t(aux);
@@ -63,36 +66,46 @@ void TrafficGenerator::initialize(int stage){
     }
 }
 
+void TrafficGenerator::sendPacket() {
+    auto data = makeShared<TrafficPacket>();
+    data->setChunkLength(B(packetLength));
+    data->setAppIdentifier(appId);
+
+//    auto data = makeShared<ByteCountChunk>(B(packetLength), 0);
+
+    data->enableImplicitChunkSerialization = true;
+
+    char buffer [20];
+    sprintf(buffer, "App%d-Packet%d", appId, generatedPackets);
+    Packet *newpacket = new Packet(buffer, data);
+
+    sendDown(newpacket);
+
+    double aux = par("timeBetweenPackets");
+    timeBetweenPackets = simtime_t(aux);
+    emit(timeBetweenPacketsSignal, aux);
+
+    generatedPackets++;
+    emit(generatedPacketsSignal, generatedPackets);
+}
+
+void TrafficGenerator::receivePacket(cMessage *packet) {
+    Packet *pkt = static_cast<Packet*>(packet);
+    auto p = pkt->peekData<TrafficPacket>();
+    EV << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with ID="
+            << p->getAppIdentifier() <<". Current application ID is " << appId << ".\n";
+    delete packet;
+    receivedPackets++;
+    emit(receivedPacketsSignal, receivedPackets);
+}
+
 void TrafficGenerator::handleMessage(cMessage *packet){
     if(packet->isSelfMessage()) {
-        auto data = makeShared<TrafficPacket>();
-        data->setChunkLength(B(packetLength));
-        data->setAppIdentifier(getIndex());
-
-//        auto data = makeShared<ByteCountChunk>(B(packetLength), 0);
-
-        data->enableImplicitChunkSerialization = true;
-
-        char buffer [20];
-        sprintf(buffer, "App%d-Packet%d", getIndex(), generatedPackets);
-        Packet *newpacket = new Packet(buffer, data);
-
-        sendDown(newpacket);
-
-        double aux = par("timeBetweenPackets");
-        timeBetweenPackets = simtime_t(aux);
-        emit(timeBetweenPacketsSignal, aux);
+        sendPacket();
         scheduleAt(simTime()+timeBetweenPackets, packet);
-        generatedPackets++;
-        emit(generatedPacketsSignal, generatedPackets);
+
     } else {
-        Packet *pkt = static_cast<Packet*>(packet);
-        auto p = pkt->peekData<TrafficPacket>();
-        EV << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with index="
-                << p->getAppIdentifier() <<". Current application index is " << getIndex() << ".\n";
-        delete packet;
-        receivedPackets++;
-        emit(receivedPacketsSignal, receivedPackets);
+        receivePacket(packet);
     }
 }
 

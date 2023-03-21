@@ -25,7 +25,7 @@ module MCO like IMCO
     parameters:
         @display("i=block/cogwheel");
         int numApplications;
-        int numNIC;
+        int numChannels;
 
 		//Statistics
 
@@ -39,15 +39,19 @@ module MCO like IMCO
     submodules:
         packetMultiplexer: PacketMultiplexer {
             parameters:
-                @display("p=100,58");
+                @display("p=76,58");
         }
         classifier: <> like IPacketClassifier {
             parameters:
-                @display("p=100,159");
+                @display("p=76,157");
         }
         mgmt: MgmtMCO {
             parameters:
-                @display("p=320,306");
+                @display("p=199,289");
+        }
+        interferenceMonitor: InterferenceMonitor {
+            parameters:
+                @display("p=292,58");
         }
 
     connections allowunconnected:
@@ -56,7 +60,7 @@ module MCO like IMCO
             mgmt.outApp++ --> { @display("m=n"); } --> outApp[i];
         }
         packetMultiplexer.out --> classifier.in;
-        for i=0..numNIC-1 {
+        for i=0..numChannels-1 {
             mgmt.outWLAN++ --> { @display("m=s"); } --> outWLAN++;
             inWLAN++ --> { @display("m=s"); } --> mgmt.inWLAN++;
         }

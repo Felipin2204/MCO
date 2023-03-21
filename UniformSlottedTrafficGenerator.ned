@@ -14,18 +14,16 @@
 // 
 
 package inet.applications.vehicular;
+import inet.applications.vehicular.TrafficGenerator;
 
-moduleinterface IMCO
+simple UniformSlottedTrafficGenerator extends TrafficGenerator
 {
     parameters:
-		@display("i=block/cogwheel");
-		int numApplications;
-		int numChannels;
-		
-	gates:
-		input inApp[];
-        output outApp[];
-
-        input inWLAN[];
-        output outWLAN[];
+        @class(UniformSlottedTrafficGenerator);
+        @display("i=block/app");
+    
+	    int maximumPacketsPerSecond = default(1329);
+	    double generatedPacketsFraction = default(0.5);
+	    double minimumPacketDuration @unit(s) = default(752us); //generateSlotsPeriod/maximumPacketsPerSecond
+	    double generateSlotsPeriod @unit(s) = default(1s);
 }

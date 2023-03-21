@@ -24,18 +24,18 @@ module MCOSequencialFilling extends MCO
         classifier.typename = "PriorityClassifier";
 
     submodules:
-        queue[numNIC-1]: PacketQueue {
+        queue[numChannels-1]: PacketQueue {
             parameters:
-                @display("p=100,306");
+                @display("p=76,289");
                 packetCapacity = 100;
         }
         dropTailQueue: DropTailQueue {
             parameters:
-                @display("p=214,237");
+                @display("p=133,221");
         }
 
     connections allowunconnected:
-        for i=0..numNIC-2 {
+        for i=0..numChannels-2 {
             classifier.out++ --> queue[i].in;
             queue[i].out --> mgmt.inQueue++; //Symbolic connections
         }

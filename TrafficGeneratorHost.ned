@@ -25,13 +25,22 @@ module TrafficGeneratorHost
 
         int id @mutable = default(0);
         int numApplications = default(1);
-        int numNIC = default(7);
+        int numChannels = default(7);
         double initialX @unit(m);
         double initialY @unit(m);
         string mobilityType = default("inet.mobility.static.StationaryMobility");
 
         wlan*.opMode = "p";
         wlan*.interfaceTableModule = default(absPath(".interfaceTable"));
+        
+        //Bitrate
+        wlan*.bitrate = 6Mbps;
+        wlan*.mac.dcf.rateSelection.multicastFrameBitrate = 6Mbps;
+        wlan*.mac.dcf.rateSelection.dataFrameBitrate = 6Mbps;
+        wlan*.mac.dcf.rateSelection.dataFrameBandwidth = 20MHz;
+        
+//        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
+//        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
 
         wlan*.mgmt.typename = default("Ieee80211MgmtAdhoc");
 
@@ -44,23 +53,20 @@ module TrafficGeneratorHost
 
         wlan*.radio.antenna.mobilityModule = default(absPath(".mobility"));
 
-        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
-        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
-
         mobility.initialX = this.initialX;
         mobility.initialY = this.initialY;
 
         MCO.numApplications = this.numApplications;
-        MCO.numNIC = this.numNIC;
+        MCO.numChannels = this.numChannels;
 
     gates:
-        input radioIn[numNIC] @directIn;
+        input radioIn[numChannels] @directIn;
 
     submodules:
-        application[numApplications]: TrafficGenerator {
+        application[numApplications]: UniformSlottedTrafficGenerator {
             @display("p=375,403");
         }
-        wlan[numNIC]: <default("Ieee80211Interface")> like IWirelessInterface {
+        wlan[numChannels]: <default("Ieee80211Interface")> like IWirelessInterface {
             @display("p=375,616");
         }
         mobility: <mobilityType> like IMobility if typename != "" {
@@ -78,7 +84,7 @@ module TrafficGeneratorHost
             application[i].socketOut --> MCO.inApp++;
             MCO.outApp++ --> application[i].socketIn;
         }
-        for i=0..numNIC-1 {
+        for i=0..numChannels-1 {
             MCO.outWLAN++ --> wlan[i].upperLayerIn;
             wlan[i].upperLayerOut --> MCO.inWLAN++;
             radioIn[i] --> { @display("m=s"); } --> wlan[i].radioIn;

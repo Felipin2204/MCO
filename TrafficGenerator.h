@@ -28,17 +28,21 @@ class TrafficGenerator: public cSimpleModule {
 public:
     TrafficGenerator();
     virtual ~TrafficGenerator();
+    virtual int getAppId() const { return appId;};
 protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
     virtual void sendDown(Packet* p);
+    virtual void sendPacket();
+    virtual void receivePacket(cMessage *packet);
 
     int lowerLayerIn;
     int lowerLayerOut;
 
     int totalPacketsPerSecond;
     int packetLength;
+    int appId;
     simtime_t timeBetweenPackets;
 
     int generatedPackets;
@@ -48,6 +52,7 @@ protected:
     static simsignal_t timeBetweenPacketsSignal;
     static simsignal_t generatedPacketsSignal;
     static simsignal_t receivedPacketsSignal;
+
 };
 
 } /* namespace inet */

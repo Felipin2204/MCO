@@ -15,17 +15,8 @@
 
 package inet.applications.vehicular;
 
-moduleinterface IMCO
+simple InterferenceMonitor
 {
     parameters:
-		@display("i=block/cogwheel");
-		int numApplications;
-		int numChannels;
-		
-	gates:
-		input inApp[];
-        output outApp[];
-
-        input inWLAN[];
-        output outWLAN[];
+   		int numChannels;
 }
