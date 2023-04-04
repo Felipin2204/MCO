@@ -15,23 +15,18 @@
 
 package inet.applications.vehicular;
 
-import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
-import inet.visualizer.contract.IIntegratedVisualizer;
-
-network TraficGeneratorNetwork
+moduleinterface IMgmtMCO
 {
     parameters:
-        int nodes;
-
-    submodules:
-        radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=50,50;is=vs");
-        }
-        node[nodes]: TrafficGeneratorHost {
-            id = index;
-            @display("p=100,125");
-        }
-        nodeManager: <default("")> like INodeManager if typename != "" {
-            @display("p=170,50;is=vs");
-        }
+		@display("i=block/cogwheel");
+		
+        int numChannels;
+        int numApplications;
+        
+    gates:
+        input inQueue[numChannels];
+        output outApp[numApplications];
+        
+		input inWLAN[numChannels];
+        output outWLAN[numChannels];
 }

@@ -15,13 +15,27 @@
 
 package inet.applications.vehicular;
 
-simple MgmtMCO
+simple MgmtMCO like IMgmtMCO
 {
     parameters:
+		@display("i=block/cogwheel");
+		
+        int numChannels;
+        int numApplications;
+        double cbtWindow @unit(s) = default(0.1s);
+        double pdrRange = default(250);
+        
+        @signal[cbt*](type=double);
+        @signal[pdr*](type=double);
+        @signal[MCOPacketReceived];
+  
+		@statisticTemplate[cbt](record=timeavg, vector);
+        @statisticTemplate[pdr](record=mean, vector);
         
     gates:
-        input inQueue[];
-        output outApp[];
-        input inWLAN[];
-        output outWLAN[];
+        input inQueue[numChannels];
+        output outApp[numApplications];
+        
+        input inWLAN[numChannels];
+        output outWLAN[numChannels];
 }

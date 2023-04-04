@@ -45,11 +45,10 @@ void TrafficGenerator::initialize(int stage){
         lowerLayerOut = findGate("socketOut");
 
         //Registering signals for statistics
-        timeBetweenPacketsSignal = registerSignal("timeBetweenPackets");
+        timeBetweenPacketsSignal = registerSignal("timeBetweenPackets"); //Only used in this module
         generatedPacketsSignal = registerSignal("generatedPackets");
         receivedPacketsSignal = registerSignal("receivedPackets");
 
-        totalPacketsPerSecond = par("totalPacketsPerSecond");
         packetLength = par("packetLength");
 
         appId = par("appId");
@@ -81,10 +80,6 @@ void TrafficGenerator::sendPacket() {
 
     sendDown(newpacket);
 
-    double aux = par("timeBetweenPackets");
-    timeBetweenPackets = simtime_t(aux);
-    emit(timeBetweenPacketsSignal, aux);
-
     generatedPackets++;
     emit(generatedPacketsSignal, generatedPackets);
 }
@@ -102,8 +97,10 @@ void TrafficGenerator::receivePacket(cMessage *packet) {
 void TrafficGenerator::handleMessage(cMessage *packet){
     if(packet->isSelfMessage()) {
         sendPacket();
+        double aux = par("timeBetweenPackets");
+        timeBetweenPackets = simtime_t(aux);
+        emit(timeBetweenPacketsSignal, aux);
         scheduleAt(simTime()+timeBetweenPackets, packet);
-
     } else {
         receivePacket(packet);
     }

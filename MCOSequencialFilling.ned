@@ -37,8 +37,8 @@ module MCOSequencialFilling extends MCO
     connections allowunconnected:
         for i=0..numChannels-2 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue++; //Symbolic connections
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
         }
         classifier.out++ --> dropTailQueue.in;
-        dropTailQueue.out --> mgmt.inQueue++; //Symbolic connection
+        dropTailQueue.out --> mgmt.inQueue[numChannels-1]; //Symbolic connection
 }

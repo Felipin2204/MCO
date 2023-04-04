@@ -14,9 +14,11 @@
 // 
 
 package inet.applications.vehicular;
+
 import inet.linklayer.contract.IWirelessInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
+import inet.applications.contract.IApp;
 
 module TrafficGeneratorHost
 {
@@ -49,7 +51,7 @@ module TrafficGeneratorHost
         //wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
         //wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
-        wlan*.radio.channelNumber = 0;
+        //Radio channel number initilizated in the submodules block
 
         wlan*.radio.antenna.mobilityModule = default(absPath(".mobility"));
 
@@ -63,11 +65,12 @@ module TrafficGeneratorHost
         input radioIn[numChannels] @directIn;
 
     submodules:
-        application[numApplications]: UniformSlottedTrafficGenerator {
+        application[numApplications]: <default("TrafficGenerator")> like IApp {
             @display("p=375,403");
         }
         wlan[numChannels]: <default("Ieee80211Interface")> like IWirelessInterface {
             @display("p=375,616");
+            radio.channelNumber = index;
         }
         mobility: <mobilityType> like IMobility if typename != "" {
             @display("p=125,160");
@@ -81,12 +84,12 @@ module TrafficGeneratorHost
 
     connections allowunconnected:
         for i=0..numApplications-1 {
-            application[i].socketOut --> MCO.inApp++;
-            MCO.outApp++ --> application[i].socketIn;
+            application[i].socketOut --> MCO.inApp[i];
+            MCO.outApp[i] --> application[i].socketIn;
         }
         for i=0..numChannels-1 {
-            MCO.outWLAN++ --> wlan[i].upperLayerIn;
-            wlan[i].upperLayerOut --> MCO.inWLAN++;
+            MCO.outWLAN[i] --> wlan[i].upperLayerIn;
+            wlan[i].upperLayerOut --> MCO.inWLAN[i];
             radioIn[i] --> { @display("m=s"); } --> wlan[i].radioIn;
         }
 }

@@ -22,8 +22,10 @@ simple UniformSlottedTrafficGenerator extends TrafficGenerator
         @class(UniformSlottedTrafficGenerator);
         @display("i=block/app");
     
-	    int maximumPacketsPerSecond = default(1329);
+	    int maximumPacketsPerSecond = default(995);
 	    double generatedPacketsFraction = default(0.5);
-	    double minimumPacketDuration @unit(s) = default(752us); //generateSlotsPeriod/maximumPacketsPerSecond
 	    double generateSlotsPeriod @unit(s) = default(1s);
+	    //minimumPacketDuration = generateSlotsPeriod/maximumPacketsPerSecond
+	    double minimumPacketDuration @unit(s) = default(1005us); //Time to transmit a packet, including IFS (58us) and E[cw]*slot (slot=13us)
+	    bool uniqueSlots = default(true); //Generate a set of unique slots
 }

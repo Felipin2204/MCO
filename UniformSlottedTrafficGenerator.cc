@@ -15,6 +15,8 @@
 
 #include "UniformSlottedTrafficGenerator.h"
 #include <algorithm>
+#include <random>
+#include <numeric>
 
 namespace inet {
 
@@ -42,11 +44,14 @@ void UniformSlottedTrafficGenerator::initialize(int stage)
         packetsToGenerate = floor(generatedPacketsFraction*maximumPacketsPerSecond);
         minimumPacketDuration = par("minimumPacketDuration");
         generateSlotsPeriod = par("generateSlotsPeriod");
+        uniqueSlots = par("uniqueSlots");
 
         packetGenerationTimer = new cMessage("packetGenerationTimer");
     } else if (stage == INITSTAGE_APPLICATION_LAYER) {
         generateSlotsTimer = new cMessage("generateSlotsTimer");
-        generateSlots();
+
+        if (uniqueSlots) generateUniqueSlots();
+        else generateSlots();
 
         //Already added simTime() when created the slots, generateSlots() will generate the first packet
 
@@ -55,25 +60,49 @@ void UniformSlottedTrafficGenerator::initialize(int stage)
     } else {
         TrafficGenerator::initialize(stage);
     }
-
 }
+
+void UniformSlottedTrafficGenerator::generateUniqueSlots() {
+    slots.clear();
+
+    //Generate a number of slots equal to total capacity
+    std::vector<int> genSlots(maximumPacketsPerSecond);
+    std::iota(begin(genSlots), end(genSlots), 0);
+
+    //Generate a random permutation
+    std::mt19937 gen(intuniform(0, maximumPacketsPerSecond-1));
+    std::shuffle(begin(genSlots), end(genSlots), gen);
+
+    //Take only the first packetsToGenerate slots
+    for (int i = 0; i < packetsToGenerate; i++) {
+        slots.push_back(simTime()+genSlots[i]*minimumPacketDuration);
+    }
+
+    std::sort(slots.begin(),slots.end());
+    scheduleAt(simTime()+generateSlotsPeriod, generateSlotsTimer);
+    currentSlot = 0;
+    if (!packetGenerationTimer->isScheduled()) {
+        scheduleAt(slots[currentSlot], packetGenerationTimer);
+        ++currentSlot;
+    }
+}
+
 void UniformSlottedTrafficGenerator::generateSlots() {
     slots.clear();
     for (int i = 0; i < packetsToGenerate; i++) {
         int slot = intuniform(0, maximumPacketsPerSecond-1);
         //TODO: set the proper time according to the packet length
         slots.push_back(simTime()+slot*minimumPacketDuration);
-
-        //Tests
-//        int slot=i;
-//        slots.push_back(simTime()+(slot+0.5*appId)*minimumPacketDuration);
     }
     std::sort(slots.begin(), slots.end());
     scheduleAt(simTime()+generateSlotsPeriod, generateSlotsTimer);
-    currentSlot=0;
+    currentSlot = 0;
     if (!packetGenerationTimer->isScheduled()) {
         scheduleAt(slots[currentSlot], packetGenerationTimer);
         ++currentSlot;
+
+        ++generatedPackets;
+        emit(generatedPacketsSignal, generatedPackets);
     }
 }
 
@@ -87,7 +116,8 @@ void UniformSlottedTrafficGenerator::handleMessage(cMessage *msg)
                 ++currentSlot;
             }
         } else if (msg == generateSlotsTimer) {
-            generateSlots();
+            if (uniqueSlots) generateUniqueSlots();
+            else generateSlots();
         }
     } else {
         receivePacket(msg);

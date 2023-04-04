@@ -28,7 +28,8 @@ class TrafficGenerator: public cSimpleModule {
 public:
     TrafficGenerator();
     virtual ~TrafficGenerator();
-    virtual int getAppId() const { return appId;};
+    virtual int getAppId() const {return appId;};
+    virtual double getTrafficDemand() const {return ((double) totalPacketsPerSecond);};
 protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}

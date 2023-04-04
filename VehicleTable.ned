@@ -15,8 +15,18 @@
 
 package inet.applications.vehicular;
 
-simple InterferenceMonitor
+simple VehicleTable like IVehicleTable
 {
     parameters:
-   		int numChannels;
+        double updateTime @unit(s) = default(1s);
+        bool persistent = default(false);
+        
+        @signal[neighbors](type=unsigned int);
+        @signal[irt](type=double);
+        //@signal[rrt](type=double);
+        
+        @statistic[neighbors](title="neighbors"; record=timeavg,vector);
+        @statistic[irt](title="irt"; record=mean,histogram,vector);
+       //@statistic[rrt](title="rrt"; record=mean);
 }
+ 

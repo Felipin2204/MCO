@@ -26,11 +26,12 @@ module MCOLoadBalancing extends MCO
         queue[numChannels]: DropTailQueue {
             parameters:
                 @display("p=76,289");
+				packetCapacity = 100;
         }
 
     connections allowunconnected:
         for i=0..numChannels-1 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue++; //Symbolic connections   
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
         }
 }

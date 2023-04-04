@@ -24,17 +24,16 @@ module MCO like IMCO
 {
     parameters:
         @display("i=block/cogwheel");
+        
         int numApplications;
         int numChannels;
 
-		//Statistics
-
     gates:
-        input inApp[];
-        output outApp[];
+        input inApp[numApplications];
+        output outApp[numApplications];
 
-        input inWLAN[];
-        output outWLAN[];
+        input inWLAN[numChannels];
+        output outWLAN[numChannels];
 
     submodules:
         packetMultiplexer: PacketMultiplexer {
@@ -45,23 +44,30 @@ module MCO like IMCO
             parameters:
                 @display("p=76,157");
         }
-        mgmt: MgmtMCO {
+        mgmt: <> like IMgmtMCO {
             parameters:
                 @display("p=199,289");
+                numChannels = parent.numChannels;
+                numApplications = parent.numApplications;
         }
-        interferenceMonitor: InterferenceMonitor {
+        interferenceMonitor: AdjacentChannelInterferenceMonitor {
             parameters:
-                @display("p=292,58");
+                @display("p=300,200");
+                numChannels = parent.numChannels;
+        }
+        vehicleTable: VehicleTable {
+              parameters:
+                @display("p=450,200");
         }
 
     connections allowunconnected:
         for i=0..numApplications-1 {
             inApp[i] --> { @display("m=n"); } --> packetMultiplexer.in++;
-            mgmt.outApp++ --> { @display("m=n"); } --> outApp[i];
+            mgmt.outApp[i] --> { @display("m=n"); } --> outApp[i];
         }
         packetMultiplexer.out --> classifier.in;
         for i=0..numChannels-1 {
-            mgmt.outWLAN++ --> { @display("m=s"); } --> outWLAN++;
-            inWLAN++ --> { @display("m=s"); } --> mgmt.inWLAN++;
+            mgmt.outWLAN[i] --> { @display("m=s"); } --> outWLAN[i];
+            inWLAN[i] --> { @display("m=s"); } --> mgmt.inWLAN[i];
         }
 }

@@ -29,11 +29,13 @@ class UniformSlottedTrafficGenerator : public TrafficGenerator
     virtual void initialize(int stage) override;
     virtual void handleMessage(cMessage *msg) override;
     void generateSlots();
+    void generateUniqueSlots();
 
     int maximumPacketsPerSecond;
     double generatedPacketsFraction;
-    double minimumPacketDuration;
     simtime_t generateSlotsPeriod;
+    double minimumPacketDuration;
+    bool uniqueSlots;
 
     int packetsToGenerate;
     int currentSlot;

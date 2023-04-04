@@ -19,13 +19,14 @@ moduleinterface IMCO
 {
     parameters:
 		@display("i=block/cogwheel");
+		
 		int numApplications;
 		int numChannels;
 		
 	gates:
-		input inApp[];
-        output outApp[];
+		input inApp[numApplications];
+        output outApp[numApplications];
 
-        input inWLAN[];
-        output outWLAN[];
+        input inWLAN[numChannels];
+        output outWLAN[numChannels];
 }

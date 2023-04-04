@@ -17,25 +17,92 @@
 #define INET_APPLICATIONS_VEHICULAR_MGMTMCO_H_
 
 #include <omnetpp.h>
+#include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211Radio.h"
 #include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
-#include "inet/queueing/queue/PacketQueue.h"
+#include "VehicleInfo.h"
+#include "VehicleTable.h"
 
 using namespace omnetpp;
 
 namespace inet {
 
+struct PDR {
+    unsigned int vehicles, received;
+};
+
+class MCOReceivedInfo: public cObject, noncopyable {
+  public:
+    int id;
+    int appId;
+    int source;
+    int sequenceNumber;
+    int channel;
+    Coord position;
+};
+
 class MgmtMCO : public cSimpleModule, public cListener {
+  public:
+    MgmtMCO();
+    virtual ~MgmtMCO();
+
   protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
-
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
 
-    int numChannels;
+    //CBT (Channel Busy Time)
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, intval_t value, cObject *details) override;
+    virtual double getMeasuredCBT(double period, int channel);
+    virtual void setCbtWindow(const simtime_t& cbtWindow, double offset = -1);
 
-    std::vector<queueing::PacketQueue*> queues;
-    std::vector<ieee80211::Dcaf*> macDcafs;
+    //PDR (Packet Delivery Ratio)
+    virtual void processPDRSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details);
+    virtual void computePDR(int channel);
+
+    //MCOPacket
+    virtual Packet* createMCOPacket(Packet* packet, int channel);
+    virtual void receiveMCOPacket(cMessage *msg);
+
+    int numChannels;
+    int numApplications;
+    int myId;
+    int MCOSent;
+    IMobility* mob;
+    VehicleInfo* info;
+    VehicleTable* vehicleTable;
+
+    static simsignal_t MCOReceivedSignal;
+
+    std::map<int,int> outAppId;
+    std::vector<int> inWlanId;
+    std::vector<int> outWlanId;
+    std::vector<cComponent*> queues;
+    std::vector<cComponent*> radios;
+    std::vector<ieee80211::Dcaf*> macDcaf;
+
+    //CBT measurement
+    simtime_t cbtWindow;
+    std::vector<simsignal_t> cbtSignals;
+    cMessage* cbtSampleTimer;
+    std::vector<simtime_t> cbt_rtime;
+    std::vector<simtime_t> lu_rtime; //lu = last update
+    std::vector<simtime_t> cbt_txtime;
+    std::vector<simtime_t> lu_txtime;
+    std::vector<simtime_t> cbt_idletime;
+    std::vector<simtime_t> lu_idletime;
+    std::vector<physicallayer::IRadio::ReceptionState> lastReceptionState;
+    std::vector<physicallayer::IRadio::TransmissionState> lastTransmissionState;
+    std::vector<simsignal_t> subgradientSignals;
+
+    //PDR measurement
+    double pdrRange;
+    std::vector<simsignal_t> pdrSignals;
+    std::vector<PDR> pdrAtChannel;
+    std::vector<const physicallayer::ITransmission*> currentTransmission;
+    std::vector<int> currentTransmissionSeqNumber;
+    std::vector<int> MCOSignalArrival;
+    std::vector<int> numberOfNodes;
 };
 
 } /* namespace inet */

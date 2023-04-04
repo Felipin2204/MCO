@@ -13,29 +13,14 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_INTERFERENCEMONITOR_H_
-#define __INET4_4_INTERFERENCEMONITOR_H_
+import inet.common.geometry.Geometry;
+import TrafficPacket;
 
-#include <omnetpp.h>
-#include "inet/common/InitStages.h"
+namespace inet;
 
-
-using namespace omnetpp;
-
-namespace inet {
-
-class InterferenceMonitor : public cSimpleModule, public cListener
-{
-  protected:
-    virtual void initialize(int stage) override;
-    virtual int numInitStages() const override {return NUM_INIT_STAGES;}
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
-
-    int numChannels;
-    int myNode;
-    std::vector<cComponent*> radios; //Unnecessary
-};
-
-} //namespace inet
-
-#endif /* __INET4_4_INTERFERENCEMONITOR_H_ */
+class MCOPacket extends TrafficPacket {
+    int source;
+    int sequenceNumber;
+    int channel;
+    Coord position;
+}
