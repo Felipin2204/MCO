@@ -28,35 +28,42 @@ module TrafficGeneratorHost
         int id @mutable = default(0);
         int numApplications = default(1);
         int numChannels = default(7);
-        double initialX @unit(m);
-        double initialY @unit(m);
-        string mobilityType = default("inet.mobility.static.StationaryMobility");
-
-        wlan*.opMode = "p";
-        wlan*.interfaceTableModule = default(absPath(".interfaceTable"));
         
-        //Bitrate
+        //These parameters are used when we use the FileNodeManager
+        double initialX @unit(m) = default(0m);
+        double initialY @unit(m) = default(0m);
+
+		wlan*.agent.typename = "";
+        wlan*.mgmt.typename = "Ieee80211MgmtAdhoc";
+
+        wlan*.interfaceTableModule = absPath(".interfaceTable");
+        wlan*.opMode = "p";
         wlan*.bitrate = 6Mbps;
+        
         wlan*.mac.dcf.rateSelection.multicastFrameBitrate = 6Mbps;
         wlan*.mac.dcf.rateSelection.dataFrameBitrate = 6Mbps;
-        wlan*.mac.dcf.rateSelection.dataFrameBandwidth = 20MHz;
-        
-//        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
-//        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
-
-        wlan*.mgmt.typename = default("Ieee80211MgmtAdhoc");
-
-        wlan*.agent.typename = default("");
+        wlan*.mac.dcf.rateSelection.dataFrameBandwidth = 20MHz;        
+        //wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
+        //wlan*.mac.dcf.rateControl.typename = "MCORateControl";
 
         //wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
         //wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
         //Radio channel number initilizated in the submodules block
-
-        wlan*.radio.antenna.mobilityModule = default(absPath(".mobility"));
-
+        wlan*.radio.antenna.typename = "ConstantGainAntenna";
+        wlan*.radio.antenna.mobilityModule = absPath(".mobility");
+        wlan*.radio.antenna.gain = 3dB;
+        //We want that gain only in the receiver so the transmission power is going to be tx_power = 23dBm - 3dB = 20 dBm = 0.1W
+        wlan*.radio.transmitter.power = 0.1W;
+        wlan*.radio.receiver.energyDetection = -85dBm;
+        wlan*.radio.receiver.sensitivity = -65dBm;
+        wlan*.radio.*.modulation = "QPSK"; //Transmitter and receiver
+		
+		//In the HighwayMobility case, these values don't overwrite the predefined ones.
         mobility.initialX = this.initialX;
         mobility.initialY = this.initialY;
+        mobility.initialZ = 2m;
+        mobility.initFromDisplayString = false;
 
         MCO.numApplications = this.numApplications;
         MCO.numChannels = this.numChannels;
@@ -72,7 +79,7 @@ module TrafficGeneratorHost
             @display("p=375,616");
             radio.channelNumber = index;
         }
-        mobility: <mobilityType> like IMobility if typename != "" {
+        mobility: <default("StationaryMobility")> like IMobility {
             @display("p=125,160");
         }
         interfaceTable: InterfaceTable {

@@ -52,6 +52,7 @@ class VehicleTable : public cSimpleModule {
 
     double updateTime;
     bool persistent;
+    double irtRange;
     cMessage* updateTimer;
     IRTHistogram* irthist;
     IMobility* mob;
@@ -65,6 +66,7 @@ class VehicleTable : public cSimpleModule {
     virtual void refreshTable();
     virtual void refreshTable(double ut);
     virtual bool cancelUpdateTimer();
+    virtual int getNumberOfNeighbors() const {return vt.size();};
     VTable vt;
 };
 

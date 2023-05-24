@@ -34,8 +34,6 @@ protected:
     std::string moduleType; /**< module type to be used in the simulation for each managed vehicle */
     std::string moduleName; /**< module name to be used in the simulation for each managed vehicle */
     std::string moduleDisplayString; /**< module displayString to be used in the simulation for each managed vehicle */
-    double maxX;
-    double separation;
 
     int nodeVectorIndex;
 };

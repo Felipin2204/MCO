@@ -22,15 +22,18 @@ simple MgmtMCO like IMgmtMCO
 		
         int numChannels;
         int numApplications;
-        double cbtWindow @unit(s) = default(0.1s);
-        double pdrRange = default(250);
+        double cbtWindow @unit(s) = default(0.1s); //Tcbr-itsg5
+        double pdrWindow @unit(s) = default(0.1s);
+        double pdrUpdate @unit(s) = default(0.1s);
+        double pdrDistanceStep @unit(m) = default(100m);
+        int pdrNumberIntervals = default(10);      
         
         @signal[cbt*](type=double);
-        @signal[pdr*](type=double);
+        @signal[pdr*_*-*](type=double);
         @signal[MCOPacketReceived];
   
-		@statisticTemplate[cbt](record=timeavg, vector);
-        @statisticTemplate[pdr](record=mean, vector);
+		@statisticTemplate[cbt](record=mean);
+        @statisticTemplate[pdr](record=mean,vector);
         
     gates:
         input inQueue[numChannels];

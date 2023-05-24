@@ -15,25 +15,10 @@
 
 package inet.applications.vehicular;
 
-import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
-import inet.visualizer.contract.IIntegratedVisualizer;
-
-network TraficGeneratorNetwork
+moduleinterface IInterferenceMonitor
 {
     parameters:
-        int nodes;
-
-    submodules:
-        radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=0,0;is=vs");
-            analogModel.ignorePartialInterference = true;
-            mediumLimitCache.centerFrequency = 5.9GHz;
-        }
-        node[nodes]: TrafficGeneratorHost {
-            id = index;
-            @display("b=100,100,oval,,black,1");
-        }
-        nodeManager: <default("")> like INodeManager if typename != "" {
-            @display("p=0,0;is=vs");
-        }
+        @display("i=block/cogwheel");
+        
+        int numChannels;
 }

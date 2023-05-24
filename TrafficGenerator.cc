@@ -49,10 +49,15 @@ void TrafficGenerator::initialize(int stage){
         generatedPacketsSignal = registerSignal("generatedPackets");
         receivedPacketsSignal = registerSignal("receivedPackets");
 
-        packetLength = par("packetLength");
+        //The parameters are illustrative in this module
+        totalPacketsPerSecond = par("totalPacketsPerSecond");
+        minPacketsPerSecond = par("minPacketsPerSecond");
+        packetRate = par("packetRate");
 
+        packetLength = par("packetLength");
         appId = par("appId");
         if(appId == -1) appId = getIndex();
+
     } else if(stage == INITSTAGE_APPLICATION_LAYER) {
         double aux = par("timeBetweenPackets");
         timeBetweenPackets = simtime_t(aux);
@@ -60,8 +65,18 @@ void TrafficGenerator::initialize(int stage){
 
         packetGenerationTimer = new cMessage();
         scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
-        generatedPackets++;
-        emit(generatedPacketsSignal, generatedPackets);
+    }
+}
+
+void TrafficGenerator::handleMessage(cMessage *packet){
+    if(packet->isSelfMessage()) {
+        sendPacket();
+        double aux = par("timeBetweenPackets");
+        timeBetweenPackets = simtime_t(aux);
+        emit(timeBetweenPacketsSignal, aux);
+        scheduleAt(simTime()+timeBetweenPackets, packet);
+    } else {
+        receivePacket(packet);
     }
 }
 
@@ -84,28 +99,6 @@ void TrafficGenerator::sendPacket() {
     emit(generatedPacketsSignal, generatedPackets);
 }
 
-void TrafficGenerator::receivePacket(cMessage *packet) {
-    Packet *pkt = static_cast<Packet*>(packet);
-    auto p = pkt->peekData<TrafficPacket>();
-    EV << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with ID="
-            << p->getAppIdentifier() <<". Current application ID is " << appId << ".\n";
-    delete packet;
-    receivedPackets++;
-    emit(receivedPacketsSignal, receivedPackets);
-}
-
-void TrafficGenerator::handleMessage(cMessage *packet){
-    if(packet->isSelfMessage()) {
-        sendPacket();
-        double aux = par("timeBetweenPackets");
-        timeBetweenPackets = simtime_t(aux);
-        emit(timeBetweenPacketsSignal, aux);
-        scheduleAt(simTime()+timeBetweenPackets, packet);
-    } else {
-        receivePacket(packet);
-    }
-}
-
 void TrafficGenerator::sendDown(Packet* p){
     //Add SAP. I think we may remove this
     p->addTagIfAbsent<Ieee802SapReq>()->setDsap(SapCode::SAP_IP);
@@ -114,6 +107,16 @@ void TrafficGenerator::sendDown(Packet* p){
     p->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
 
     send(p, lowerLayerOut);
+}
+
+void TrafficGenerator::receivePacket(cMessage *packet) {
+    Packet *pkt = static_cast<Packet*>(packet);
+    auto p = pkt->peekData<TrafficPacket>();
+    EV_INFO << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with ID="
+            << p->getAppIdentifier() <<". Current application ID is " << appId << ".\n";
+    delete packet;
+    receivedPackets++;
+    emit(receivedPacketsSignal, receivedPackets);
 }
 
 } /* namespace inet */

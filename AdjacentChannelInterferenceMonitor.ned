@@ -19,7 +19,7 @@ package inet.applications.vehicular;
 // It only computes the interference from channels which are at maxChannelSeparation (it is assumed that further away channel interference is neglectable)
 // Separation is given by channel number, not by actual delta frequency
 
-simple AdjacentChannelInterferenceMonitor
+simple AdjacentChannelInterferenceMonitor like IInterferenceMonitor
 {  
     parameters:
     int numChannels;
@@ -40,8 +40,8 @@ simple AdjacentChannelInterferenceMonitor
      @signal[interferenceOverlap*](type=double);
      @signal[interferenceCount*](type=int);
      @signal[interferencePower*](type=double);
-     @statisticTemplate[interferenceFraction](record=mean,vector);
-     @statisticTemplate[interferenceOverlap](record=sum,vector); //To be divided by total sim time
-     @statisticTemplate[interferenceCount](record=sum,vector);
-     @statisticTemplate[interferencePower](record=mean,vector);
+     @statisticTemplate[interferenceFraction](record=mean,vector); //Average fraction of a packet interferred
+     @statisticTemplate[interferenceOverlap](record=sum,vector); //To be divided by total sim time to get the fraction of total time that interference has occurred
+     @statisticTemplate[interferenceCount](record=sum,vector); //Number of packets interferred
+     @statisticTemplate[interferencePower](record=mean,vector); //Interferencer power
 }

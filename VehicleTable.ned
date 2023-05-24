@@ -21,12 +21,11 @@ simple VehicleTable like IVehicleTable
         double updateTime @unit(s) = default(1s);
         bool persistent = default(false);
         
+        double irtRange @unit(m) = default(200m);
+        
         @signal[neighbors](type=unsigned int);
         @signal[irt](type=double);
-        //@signal[rrt](type=double);
         
-        @statistic[neighbors](title="neighbors"; record=timeavg,vector);
+        @statistic[neighbors](title="neighbors"; record=mean);
         @statistic[irt](title="irt"; record=mean,histogram,vector);
-       //@statistic[rrt](title="rrt"; record=mean);
 }
- 

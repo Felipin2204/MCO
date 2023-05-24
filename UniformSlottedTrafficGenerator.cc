@@ -28,10 +28,7 @@ UniformSlottedTrafficGenerator::UniformSlottedTrafficGenerator() {
 }
 
 UniformSlottedTrafficGenerator::~UniformSlottedTrafficGenerator() {
-    cancelAndDelete(packetGenerationTimer);
-    if (generateSlotsTimer) {
-        cancelAndDelete(generateSlotsTimer);
-    }
+    if (generateSlotsTimer) cancelAndDelete(generateSlotsTimer);
 }
 
 void UniformSlottedTrafficGenerator::initialize(int stage)
@@ -39,11 +36,12 @@ void UniformSlottedTrafficGenerator::initialize(int stage)
     if (stage == INITSTAGE_LOCAL) {
         TrafficGenerator::initialize(stage);
 
-        maximumPacketsPerSecond = par("maximumPacketsPerSecond");
-        generatedPacketsFraction = par("generatedPacketsFraction");
-        packetsToGenerate = floor(generatedPacketsFraction*maximumPacketsPerSecond);
-        minimumPacketDuration = par("minimumPacketDuration");
+        minimumSlotDuration = par("minimumSlotDuration");
+        maximumPacketsPerSecond = ceil(1/minimumSlotDuration);
+        generatePacketsFraction = par("generatePacketsFraction");
+        packetsToGenerate = floor(generatePacketsFraction*maximumPacketsPerSecond);
         generateSlotsPeriod = par("generateSlotsPeriod");
+        //fractionDemand = par("fractionDemand");
         uniqueSlots = par("uniqueSlots");
 
         packetGenerationTimer = new cMessage("packetGenerationTimer");
@@ -57,6 +55,7 @@ void UniformSlottedTrafficGenerator::initialize(int stage)
 
         WATCH(currentSlot);
         WATCH_VECTOR(slots);
+        WATCH(packetsToGenerate);
     } else {
         TrafficGenerator::initialize(stage);
     }
@@ -75,7 +74,7 @@ void UniformSlottedTrafficGenerator::generateUniqueSlots() {
 
     //Take only the first packetsToGenerate slots
     for (int i = 0; i < packetsToGenerate; i++) {
-        slots.push_back(simTime()+genSlots[i]*minimumPacketDuration);
+        slots.push_back(simTime()+genSlots[i]*minimumSlotDuration);
     }
 
     std::sort(slots.begin(),slots.end());
@@ -92,7 +91,7 @@ void UniformSlottedTrafficGenerator::generateSlots() {
     for (int i = 0; i < packetsToGenerate; i++) {
         int slot = intuniform(0, maximumPacketsPerSecond-1);
         //TODO: set the proper time according to the packet length
-        slots.push_back(simTime()+slot*minimumPacketDuration);
+        slots.push_back(simTime()+slot*minimumSlotDuration);
     }
     std::sort(slots.begin(), slots.end());
     scheduleAt(simTime()+generateSlotsPeriod, generateSlotsTimer);
@@ -100,9 +99,6 @@ void UniformSlottedTrafficGenerator::generateSlots() {
     if (!packetGenerationTimer->isScheduled()) {
         scheduleAt(slots[currentSlot], packetGenerationTimer);
         ++currentSlot;
-
-        ++generatedPackets;
-        emit(generatedPacketsSignal, generatedPackets);
     }
 }
 
@@ -122,6 +118,19 @@ void UniformSlottedTrafficGenerator::handleMessage(cMessage *msg)
     } else {
         receivePacket(msg);
     }
+}
+
+void UniformSlottedTrafficGenerator::setPacketsToGenerate(int packets) {
+    Enter_Method_Silent();
+    packetsToGenerate = packets;
+
+    if (packetGenerationTimer->isScheduled()) cancelEvent(packetGenerationTimer);
+    if (uniqueSlots) generateUniqueSlots();
+    else generateSlots();
+}
+
+void UniformSlottedTrafficGenerator::setPacketRate(double rate) {
+    setPacketsToGenerate(round(rate));
 }
 
 } //namespace inet

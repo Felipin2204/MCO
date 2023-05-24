@@ -31,12 +31,13 @@ class UniformSlottedTrafficGenerator : public TrafficGenerator
     void generateSlots();
     void generateUniqueSlots();
 
-    int maximumPacketsPerSecond;
-    double generatedPacketsFraction;
+    double minimumSlotDuration;
+    double generatePacketsFraction;
     simtime_t generateSlotsPeriod;
-    double minimumPacketDuration;
+    //double fractionDemand;
     bool uniqueSlots;
 
+    int maximumPacketsPerSecond;
     int packetsToGenerate;
     int currentSlot;
     cMessage *generateSlotsTimer;
@@ -45,7 +46,8 @@ class UniformSlottedTrafficGenerator : public TrafficGenerator
   public:
     UniformSlottedTrafficGenerator();
     virtual ~UniformSlottedTrafficGenerator();
-
+    void setPacketsToGenerate(int packets);
+    virtual void setPacketRate(double rate) override;
 };
 
 } //namespace inet

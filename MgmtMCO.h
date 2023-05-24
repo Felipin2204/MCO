@@ -27,7 +27,8 @@ using namespace omnetpp;
 namespace inet {
 
 struct PDR {
-    unsigned int vehicles, received;
+    std::map<int,int> vehicles, received;
+    simtime_t insertTime;
 };
 
 class MCOReceivedInfo: public cObject, noncopyable {
@@ -50,6 +51,7 @@ class MgmtMCO : public cSimpleModule, public cListener {
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
+    virtual void finish() override;
 
     //CBT (Channel Busy Time)
     virtual void receiveSignal(cComponent *source, simsignal_t signal, intval_t value, cObject *details) override;
@@ -58,51 +60,51 @@ class MgmtMCO : public cSimpleModule, public cListener {
 
     //PDR (Packet Delivery Ratio)
     virtual void processPDRSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details);
-    virtual void computePDR(int channel);
+    virtual void computePDR();
 
     //MCOPacket
     virtual Packet* createMCOPacket(Packet* packet, int channel);
     virtual void receiveMCOPacket(cMessage *msg);
 
+    virtual void updateVehicleInfo(Packet* p);
+
     int numChannels;
     int numApplications;
     int myId;
     int MCOSent;
-    IMobility* mob;
     VehicleInfo* info;
+    IMobility* mob;
     VehicleTable* vehicleTable;
 
     static simsignal_t MCOReceivedSignal;
 
-    std::map<int,int> outAppId;
     std::vector<int> inWlanId;
     std::vector<int> outWlanId;
-    std::vector<cComponent*> queues;
+    std::map<int,int> outAppId;
     std::vector<cComponent*> radios;
+    std::vector<cComponent*> queues;
     std::vector<ieee80211::Dcaf*> macDcaf;
 
     //CBT measurement
     simtime_t cbtWindow;
     std::vector<simsignal_t> cbtSignals;
+
     cMessage* cbtSampleTimer;
-    std::vector<simtime_t> cbt_rtime;
-    std::vector<simtime_t> lu_rtime; //lu = last update
-    std::vector<simtime_t> cbt_txtime;
-    std::vector<simtime_t> lu_txtime;
     std::vector<simtime_t> cbt_idletime;
-    std::vector<simtime_t> lu_idletime;
+    std::vector<simtime_t> lu_idletime; //lu = last update
     std::vector<physicallayer::IRadio::ReceptionState> lastReceptionState;
     std::vector<physicallayer::IRadio::TransmissionState> lastTransmissionState;
-    std::vector<simsignal_t> subgradientSignals;
 
     //PDR measurement
-    double pdrRange;
-    std::vector<simsignal_t> pdrSignals;
-    std::vector<PDR> pdrAtChannel;
-    std::vector<const physicallayer::ITransmission*> currentTransmission;
-    std::vector<int> currentTransmissionSeqNumber;
-    std::vector<int> MCOSignalArrival;
-    std::vector<int> numberOfNodes;
+    simtime_t pdrWindow;
+    simtime_t pdrUpdate;
+    double pdrDistanceStep;
+    unsigned int pdrNumberIntervals;
+    std::vector<std::vector<simsignal_t>> pdrSignals;
+
+    cMessage* pdrSampleTimer;
+    std::vector<std::map<int,PDR>> pdrAtChannel;
+    std::vector<std::vector<cComponent*>> nodesInPdrIntervals;
 };
 
 } /* namespace inet */

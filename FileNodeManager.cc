@@ -41,6 +41,7 @@ void FileNodeManager::initialize(int stage)
         cModule* parentmod = getParentModule();
         if (!parentmod) error("Parent Module not found");
 
+        std::vector<cModule*> nodes;
         while (std::getline(in, line))
         {
             double xc;
@@ -76,9 +77,16 @@ void FileNodeManager::initialize(int stage)
             mod->getDisplayString().parse(moduleDisplayString.c_str());
             mod->buildInside();
             mod->scheduleStart(simTime());
-            mod->callInitialize();
+            nodes.push_back(mod);
 
             nodeVectorIndex++;
+        }
+
+        //Now we have to initialize them in order
+        for (int i=0; i<numInitStages(); ++i) {
+            for (auto mod : nodes) {
+                mod->callInitialize(i);
+            }
         }
         in.close();
     }

@@ -18,9 +18,9 @@
 namespace inet {
 
 VehicleInfo::VehicleInfo(int id, int appId, Coord pos) {
-  this->id=id;
-  this->appId=appId;
-  this->pos=pos;
+  this->id = id;
+  this->appId = appId;
+  this->pos = pos;
   this->last_update = simTime();
   this->init = simTime();
   this->beaconsReceived = 0;
@@ -39,14 +39,13 @@ VehicleInfo::~VehicleInfo() {}
 
 std::ostream& operator<<(std::ostream& out, const VehicleInfo& inf)
 {
-   //std::string a=inf.toString();
-   out << inf.description;
+   std::string a = inf.toString();
    return out;
 }
 
 std::string VehicleInfo::toString() const {
    std::ostringstream s(std::ostringstream::out);
-   s <<"id="<<id<<";appId="<<appId<<";(x,y)="<<pos<<";init="<<init<<";lu="<<last_update<<";br="<<beaconsReceived;
+   s<<"id="<<id<<";appId="<<appId<<";(x,y)="<<pos<<";init="<<init<<";lu="<<last_update<<";br="<<beaconsReceived;
    return s.str();
 }
 

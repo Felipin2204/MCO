@@ -25,23 +25,22 @@ using namespace omnetpp;
 namespace inet {
 
 class TrafficGenerator: public cSimpleModule {
-public:
-    TrafficGenerator();
-    virtual ~TrafficGenerator();
-    virtual int getAppId() const {return appId;};
-    virtual double getTrafficDemand() const {return ((double) totalPacketsPerSecond);};
 protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
     virtual void handleMessage(cMessage *msg) override;
-    virtual void sendDown(Packet* p);
     virtual void sendPacket();
+    virtual void sendDown(Packet* p);
     virtual void receivePacket(cMessage *packet);
 
     int lowerLayerIn;
     int lowerLayerOut;
 
+    //The parameters are illustrative in this module
     int totalPacketsPerSecond;
+    int minPacketsPerSecond;
+    double packetRate;
+
     int packetLength;
     int appId;
     simtime_t timeBetweenPackets;
@@ -54,6 +53,13 @@ protected:
     static simsignal_t generatedPacketsSignal;
     static simsignal_t receivedPacketsSignal;
 
+public:
+    TrafficGenerator();
+    virtual ~TrafficGenerator();
+    virtual int getAppId() const {return appId;};
+    virtual double getTrafficDemand() const {return ((double) totalPacketsPerSecond);};
+    virtual double getMinimumTrafficDemand() const {return ((double) minPacketsPerSecond);};
+    virtual void setPacketRate(double rate) {packetRate = rate;};
 };
 
 } /* namespace inet */

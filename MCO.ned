@@ -44,18 +44,18 @@ module MCO like IMCO
             parameters:
                 @display("p=76,157");
         }
-        mgmt: <> like IMgmtMCO {
+        mgmt: <default("MgmtMCO")> like IMgmtMCO {
             parameters:
                 @display("p=199,289");
                 numChannels = parent.numChannels;
                 numApplications = parent.numApplications;
         }
-        interferenceMonitor: AdjacentChannelInterferenceMonitor {
+        interferenceMonitor: <default("AdjacentChannelInterferenceMonitor")> like IInterferenceMonitor if typename != "" {
             parameters:
                 @display("p=300,200");
                 numChannels = parent.numChannels;
         }
-        vehicleTable: VehicleTable {
+        vehicleTable: <default("VehicleTable")> like IVehicleTable {
               parameters:
                 @display("p=450,200");
         }

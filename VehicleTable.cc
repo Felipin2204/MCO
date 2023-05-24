@@ -39,8 +39,10 @@ void IRTHistogram::collect(double itime, double distance) {
 }
 
 double IRTHistogram::meanAtCell(int k) {
-    if (k < 0 || k >= irts.size()) {std::cout<<"k="<<k<<";irts="<<irts.size()<<endl; throw cRuntimeError("mean");}
-    if (k < 0 || k >= samples.size()) {std::cout<<"k="<<k<<";samples="<<samples.size()<<endl; throw cRuntimeError("mean");}
+    if (k < 0 || k >= irts.size()) {
+        std::cout<<"k="<<k<<";irts=samples="<<irts.size()<<endl;
+        throw cRuntimeError("mean");
+    }
 
     if (samples[k] == 0) return 0.0;
     return (irts[k]/samples[k]);
@@ -58,15 +60,13 @@ double IRTHistogram::meanLessDistance(double distance) {
 
     double aux = 0.0;
     int sumc = 0.0;
-    for (int i = 0; i <= k; i++) {
-        sumc += samples[i];
+    for (int i = 0; i < k; i++) {
         aux += irts[i];
+        sumc += samples[i];
     }
-    if (sumc == 0) {
-        return 0.0;
-    } else {
-        return (aux/sumc);
-    }
+
+    if (sumc == 0) return 0.0;
+    else return (aux/sumc);
 }
 
 std::ostream& operator<<(std::ostream& out, const IRTHistogram& inf)
@@ -89,21 +89,14 @@ std::string IRTHistogram::info() const {
     return this->toString();
 }
 
-VehicleTable::~VehicleTable() {
-    cancelAndDelete(updateTimer);
-    //std::cout<<"delete TRCRAdio"<<endl;
-    delete irthist;
-}
-
 void VehicleTable::initialize()
 {
     updateTime = par("updateTime");
-    EV << "Initializing Vehicle Table with update time=" << updateTime << endl;
+    EV_INFO << "Initializing Vehicle Table with update time=" << updateTime << endl;
     persistent = par("persistent");
+    irtRange = par("irtRange");
     updateTimer = new cMessage("VTable update", UPDATE_TO);
-    if (!persistent) {
-        scheduleAt(simTime()+updateTime, updateTimer);
-    }
+    if (!persistent) scheduleAt(simTime()+updateTime, updateTimer);
     irthist = new IRTHistogram(50, 10.0);
     WATCH_PTR(irthist);
     mob = check_and_cast<IMobility*>(getModuleByPath("^.^.mobility"));
@@ -118,15 +111,16 @@ void VehicleTable::handleMessage(cMessage *msg)
     if (msg->isSelfMessage()) {
         refreshTable();
         scheduleAt(simTime()+updateTime, updateTimer);
-        //emit(neighbors, 0);
     }
 }
 
 void VehicleTable::finish() {
-    recordScalar("irt_250", irthist->meanAtDistance(250.0));
-    recordScalar("irt_500", irthist->meanAtDistance(500.0));
-    //recordScalar("accirt_250",irthist->meanLessDistance(250.0));
-    //recordScalar("accirt_500",irthist->meanLessDistance(500.0));
+    recordScalar("irt_irtRange", irthist->meanLessDistance(irtRange));
+}
+
+VehicleTable::~VehicleTable() {
+    cancelAndDelete(updateTimer);
+    delete irthist;
 }
 
 int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
@@ -141,15 +135,13 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
         double irt_time = (simTime()-it->second->last_update).dbl();
         double distance = mob->getCurrentPosition().distance(info->pos);
         irthist->collect(irt_time, distance);
-        //Uncomment if to obtain the irt due to only the moving cluster with priority
-        //if (info->id>=255 && info->id<=280 && distance>=200 && distance <=300) {
-         emit(irt, irt_time);
-        //}
 
-        int brp = it->second->beaconsReceived;
-        it->second->beaconsReceived = brp+1;
+        //Emit IRT if the node is in the irtRange
+        if (distance <= irtRange) emit(irt, irt_time);
 
         (*it->second) = *info;
+        int brp = it->second->beaconsReceived;
+        it->second->beaconsReceived = brp++;
         it->second->last_update = simTime();
 
         return 0;
@@ -160,21 +152,10 @@ void VehicleTable::refreshTable() {
     emit(neighbors, vt.size());
     VTable::iterator it = vt.begin();
     while(it != vt.end()) {
-        //std::cout<<simTime()<<"--"<<it->first<<"last_update="<<it->second->last_update<<std::endl;
         if (simTime()-it->second->last_update > updateTime) {
-            //WE HAVE NOT ACTUALLY RECEIVED A BEACON SO IF WE COLLECT HERE WE ARE ARTIFICIALLY DECREASING THE IRT
-            //WHAT SHOULD WE DO, A HISTORIC WITH ALL THE KNOWN VEHICLES AND LAST UPDATE...?
-            //double irt_time=(simTime()-it->second->last_update).dbl();
-            //double distance = mob->getCurrentPosition().distance(pos);
-            //irthist->collect(irt_time,distance);
-            //emit(irt,irt_time);
-            //emit(rrt,1/(irt_time*it->second->beaconRate));
-            //std::cout<<simTime()<<"--Delete neighbor:"<<it->first<<"last_update="<<it->second->last_update<<std::endl;
-
             delete(it->second);
             it = vt.erase(it);
         } else {
-            //std::cout<<it->second->id<<"br="<<it->second->beaconsReceived<<"t="<<simTime()<<"ut="<<updateTime<<"t-ut"<<(simTime()-it->second->last_update).dbl()<<"mbr=" <<(it->second->beaconsReceived/updateTime)<<endl;
             it->second->beaconsReceived = 0;
             ++it;
         }
@@ -187,11 +168,11 @@ void VehicleTable::refreshTable(double ut) {
     while(it != vt.end()) {
         if (simTime()-it->second->last_update > ut) {
             delete(it->second);
-            vt.erase(it);
+            it = vt.erase(it);
         }else {
-            it->second->beaconsReceived=0;
+            it->second->beaconsReceived = 0;
+            ++it;
         }
-        ++it;
     }
 }
 
@@ -199,9 +180,7 @@ bool VehicleTable::cancelUpdateTimer() {
     if (updateTimer->isScheduled()) {
         cancelEvent(updateTimer);
         return true;
-    } else {
-        return false;
-    }
+    } else return false;
 }
 
 } //namespace

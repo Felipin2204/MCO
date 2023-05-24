@@ -40,7 +40,7 @@ void AdjacentChannelInterferenceMonitor::initialize(int stage)
         //Work in W, since all the powers below are provided in W
         for (unsigned int i = 0; i < adjacentLoss.size(); ++i) {
             adjacentLoss[i] = pow(10.0, adjacentLoss[i]/10.0);
-            std::cout << "adjacentLoss[i]" << adjacentLoss[i] << endl;
+            //std::cout << "adjacentLoss[i]" << adjacentLoss[i] << endl;
         }
         interferenceOnTransmission = par("interferenceOnTransmission");
 
@@ -75,7 +75,7 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
         //std::cout<<myNode<<"*"<<simTime()<<": Signal "<< transmission->getId()<<" transmitted on channel "<<txChannel<<" from node "<<txNodeIndex<<endl;
 
         //Consider only adjacent channels
-        for (int channel = txChannel-maxChannelSeparation; channel < txChannel+maxChannelSeparation+1; ++channel) { //TODO: Delete the +1
+        for (int channel = txChannel-maxChannelSeparation; channel < txChannel+maxChannelSeparation+1; ++channel) {
             if (channel<0 || channel==txChannel) {
                 continue;
             } else if (channel>numChannels-1) {
@@ -85,7 +85,7 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                 auto radio = check_and_cast<physicallayer::Ieee80211Radio*>(radios[channel]);
 
                 //Get all the interfering packets (overlapped packet durations) for the transmission picked
-                // auto interference = radio->getMedium()->getInterference(radio, transmission)->getInterferingReceptions();
+                //auto interference = radio->getMedium()->getInterference(radio, transmission)->getInterferingReceptions();
                 physicallayer::ICommunicationCache* comCache = const_cast<physicallayer::ICommunicationCache*>(radio->getMedium()->getCommunicationCache());
                 auto interference = comCache->computeInterferingTransmissions(radio, transmission->getStartTime(), transmission->getEndTime());
                 //std::cout<<myNode<<"*"<<simTime()<< ":"<<channel<<"interference size" <<(*interference).size()<<endl;
@@ -99,11 +99,11 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
 
                 for (const auto i : *interference) {
                     auto ieeeItransmission = check_and_cast<const physicallayer::Ieee80211ScalarTransmission*>(i);
-                    std::cout << myNode << "*" << simTime() << ":" << channel << ": ieeeItransmission " << ieeeItransmission->getId() << endl;
+                    // std::cout << myNode << "*" << simTime() << ":" << channel << ": ieeeItransmission " << ieeeItransmission->getId() << endl;
                     // auto ieeeItransmission=check_and_cast<const physicallayer::Ieee80211ScalarTransmission*>(i->getTransmission());
                     int channelI = ieeeItransmission->getChannel()->getChannelNumber();
                     //Consider only the interfering packets on the currently evaluated channel
-                    if (channelI==channel) {
+                    if (channelI == channel) {
                         //Here we should compute the loss according to the transmit power, modulation and so on
                         double filterLoss = adjacentLoss[deltaChannel-1];
                         double interferencePower = -1.0;
@@ -118,7 +118,6 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
 
                         //Record interference
                         if (interferencePower >= 0.0) {
-                            //std::cout<<myNode<<"*"<<simTime()<<":"<<channel<<"Interference from channel "<<txChannel<<" on  previous transmission "<<ieeeItransmission->getId()<< "(channel "<<channelI<<") with interfering power "<<interferencePower;
                             auto overlapEnd = ieeeItransmission->getEndTime();
                             if (overlapEnd > transmission->getEndTime()) {
                                 overlapEnd = transmission->getEndTime();
@@ -130,11 +129,13 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                             auto overlap = overlapEnd-overlapStart;
                             auto fraction = overlap/transmission->getDuration();
 
-                            //std::cout<<". Overlap time:"<<overlap<<", fraction:" <<fraction;
-                            //std::cout<<". Updating interference E"<<txChannel<<"->"<<channel<<endl;
+                            //Fraction of the packet duration that is interfered
                             emit(interferenceFractionSignals[channel][txChannel], fraction);
+                            //Absolute duration of the interference
                             emit(interferenceOverlapSignals[channel][txChannel], overlap.dbl());
+                            //Number of packet interferred (if the model is not slotted the sum can be higher than the number of packets)
                             emit(interferenceCountSignals[channel][txChannel], 1);
+                            //Power of the interferring signal
                             emit(interferencePowerSignals[channel][txChannel], interferencePower);
                         }
 
@@ -164,6 +165,8 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                                     interferencePower = ip.get();
                                 }
                             }
+                            delete arrival;
+                            delete reception;
                         //Otherwise just compute the reciprocal interference power
                         } else {
                             interferencePower = getInterferencePower(radio, ieeeItransmission, medium, filterLoss);
@@ -174,9 +177,7 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                             interferencePower = -1.0;
                         }
 
-                        //Otherwise compute the interference that the overlapped
-                        //transmission (ieeeItransmission) will have in the (future) reception of the picked transmission
-
+                        //Otherwise compute the interference that the overlapped transmission (ieeeItransmission) will have in the (future) reception of the picked transmission
 
                         //Now we have here a problem: maybe this transmission is below the sensitivity and will never be received
                         //We should not count the interference in this case
@@ -188,10 +189,6 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                         if (interferencePower < 0.0) {
                             continue;
                         } else {
-                            //std::cout<<myNode<<"*"<<simTime()<<":"<<"Interference from channel "<<channel<<" on  current transmission "<<transmission->getId()<< "(channel "<<txChannel<<") with interfering power "<<interferencePower;
-                            //std::cout<<"reception: "<<reception->getStartTime()<<","<<reception->getEndTime()<<endl;
-                            //std::cout<<"transmission: "<<ieeeItransmission->getStartTime()<<","<<ieeeItransmission->getEndTime()<<endl;
-
                             auto overlapEnd = transmission->getEndTime();
                             if (overlapEnd > ieeeItransmission->getEndTime()) {
                                 overlapEnd = ieeeItransmission->getEndTime();
@@ -203,8 +200,6 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                             auto overlap = overlapEnd-overlapStart;
                             auto fraction = overlap/ieeeItransmission->getDuration();
 
-                            //std::cout<<". Overlap time:"<<overlap<<", fraction:" <<fraction;
-                            //std::cout<<". Updating interference E"<<channel<<"->"<<txChannel<<endl;
                             emit(interferenceFractionSignals[txChannel][channel], fraction);
                             emit(interferenceFractionSignals[txChannel][channel], overlap.dbl());
                             emit(interferenceCountSignals[txChannel][channel], 1);
@@ -231,7 +226,7 @@ double AdjacentChannelInterferenceMonitor::getInterferencePower(const physicalla
 
     if (interferencePower < radio->getReceiver()->getMinInterferencePower() ) {
         //Too weak to be considered interference
-        return -1;
+        return -1.0;
     }
     return interferencePower.get();
 }
@@ -242,24 +237,24 @@ void AdjacentChannelInterferenceMonitor::createSignals() {
     //Interference is computed from channel i to channel j E[I_i->j]
     for (int j = 0; j < numChannels; j++) {
         std::map<int,simsignal_t> ifv;
+        std::map<int,simsignal_t> iov;
         std::map<int,simsignal_t> icv;
         std::map<int,simsignal_t> ipv;
-        std::map<int,simsignal_t> iov;
 
-        std::string tname("interferenceFraction");
-        std::string ifn("interferenceCount");
-        std::string ifp("interferencePower");
+        std::string iff("interferenceFraction");
         std::string ifo("interferenceOverlap");
+        std::string ifc("interferenceCount");
+        std::string ifp("interferencePower");
 
         if (j==0) {
             //On channel 0, we can only have interference from 1, 2, ...
-            for (int i = 1; i < maxChannelSeparation+1; ++i) { //TODO: Change the initialization
-                std::string sname = tname + std::to_string(i) + "-" + std::to_string(j);
-                std::cout << "sname=" << sname << endl;
-                ifv.insert({i,createAndRegisterSignal(sname,tname)});
+            for (int i = 1; i < maxChannelSeparation+1; ++i) {
+                std::string sname = iff + std::to_string(i) + "-" + std::to_string(j);
+                //std::cout << "sname=" << sname << endl;
+                ifv.insert({i,createAndRegisterSignal(sname,iff)});
 
-                sname = ifn + std::to_string(i) + "-" + std::to_string(j);
-                icv.insert({i,createAndRegisterSignal(sname,ifn)});
+                sname = ifc + std::to_string(i) + "-" + std::to_string(j);
+                icv.insert({i,createAndRegisterSignal(sname,ifc)});
 
                 sname = ifp + std::to_string(i) + "-" + std::to_string(j);
                 ipv.insert({i,createAndRegisterSignal(sname,ifp)});
@@ -270,12 +265,12 @@ void AdjacentChannelInterferenceMonitor::createSignals() {
         } else if (j==numChannels-1) {
             //On the last channel we can only have interference from numChannels-1, ...
             for (int i = j-maxChannelSeparation; i < numChannels-1; ++i) {
-                std::string sname = tname + std::to_string(i) + "-" + std::to_string(j);
-                std::cout << "sname=" << sname << endl;
-                ifv.insert({i,createAndRegisterSignal(sname,tname)});
+                std::string sname = iff + std::to_string(i) + "-" + std::to_string(j);
+                //std::cout << "sname=" << sname << endl;
+                ifv.insert({i,createAndRegisterSignal(sname,iff)});
 
-                sname = ifn + std::to_string(i) + "-" + std::to_string(j);
-                icv.insert({i,createAndRegisterSignal(sname,ifn)});
+                sname = ifc + std::to_string(i) + "-" + std::to_string(j);
+                icv.insert({i,createAndRegisterSignal(sname,ifc)});
 
                 sname = ifp + std::to_string(i) + "-" + std::to_string(j);
                 ipv.insert({i,createAndRegisterSignal(sname,ifp)});
@@ -284,18 +279,18 @@ void AdjacentChannelInterferenceMonitor::createSignals() {
                 iov.insert({i,createAndRegisterSignal(sname,ifo)});
             }
         } else {
-            for (int i = j-maxChannelSeparation; i < j+maxChannelSeparation; ++i) {
+            for (int i = j-maxChannelSeparation; i < j+maxChannelSeparation+1; ++i) {
                 if (i<0 || i==j) {
                     continue;
                 } else if (i > numChannels-1) {
                     break;
                 } else {
-                    std::string sname = tname + std::to_string(i) + "-" + std::to_string(j);
-                    std::cout << "sname=" << sname << endl;
-                    ifv.insert({i,createAndRegisterSignal(sname,tname)});
+                    std::string sname = iff + std::to_string(i) + "-" + std::to_string(j);
+                    //std::cout << "sname=" << sname << endl;
+                    ifv.insert({i,createAndRegisterSignal(sname,iff)});
 
-                    sname = ifn + std::to_string(i) + "-" + std::to_string(j);
-                    icv.insert({i,createAndRegisterSignal(sname,ifn)});
+                    sname = ifc + std::to_string(i) + "-" + std::to_string(j);
+                    icv.insert({i,createAndRegisterSignal(sname,ifc)});
 
                     sname = ifp + std::to_string(i) + "-" + std::to_string(j);
                     ipv.insert({i,createAndRegisterSignal(sname,ifp)});

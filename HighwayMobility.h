@@ -13,32 +13,32 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_
-#define INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_
-#include "inet/common/INETDefs.h"
-#include "inet/common/geometry/common/Coord.h"
+#ifndef INET_APPLICATIONS_VEHICULAR_HIGHWAYMOBILITY_H_
+#define INET_APPLICATIONS_VEHICULAR_HIGHWAYMOBILITY_H_
+
+#include "inet/mobility/base/MovingMobilityBase.h"
 
 namespace inet {
 
-class INET_API VehicleInfo : public cObject {
+class HighwayMobility : public MovingMobilityBase
+{
+  protected:
+    double speed;
+
+  protected:
+    virtual int numInitStages() const override { return NUM_INIT_STAGES; }
+
+    /** @brief Initializes mobility model parameters.*/
+    virtual void initialize(int stage) override;
+
+    /** @brief Move the host*/
+    virtual void move() override;
+
   public:
-    VehicleInfo(int id, int appId, Coord pos);
-    VehicleInfo(const VehicleInfo &info);
-    virtual ~VehicleInfo();
-
-    int id;
-    int appId;
-    Coord pos;
-
-    simtime_t last_update;
-    simtime_t init;
-
-    int beaconsReceived;
-
-    friend std::ostream& operator<<(std::ostream& out, const VehicleInfo& inf);
-    virtual std::string toString() const;
+    virtual double getMaxSpeed() const override { return speed; }
+    HighwayMobility();
 };
 
 } /* namespace inet */
 
-#endif /* INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_ */
+#endif /* INET_APPLICATIONS_VEHICULAR_HIGHWAYMOBILITY_H_ */

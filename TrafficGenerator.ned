@@ -21,15 +21,19 @@ simple TrafficGenerator like IApp
 	parameters:
 	    @display("i=block/app");
 	    
+	    //The parameters are illustrative in this module
+	    int totalPacketsPerSecond = default(100);
+	    int minPacketsPerSecond = default(0);
+	    double packetRate = default(100);
+	    
 	    int packetLength @unit(byte) = default(500B);
 	    int appId = default(-1);
-	    int totalPacketsPerSecond = default(100);
-	    volatile double timeBetweenPackets = default(exponential(1/totalPacketsPerSecond));
+	    volatile double timeBetweenPackets = default(exponential(1/packetRate));
 	    
 	    @signal[timeBetweenPackets](type=double);
 	    @signal[generatedPackets](type=int);
 	    @signal[receivedPackets](type=int);
-	    @statistic[timeBetweenPackets](title="Time between packets"; record=vector,stats,histogram);
+	    @statistic[timeBetweenPackets](title="Time between packets"; record=vector,histogram);
 		@statistic[generatedPackets](title="Generated packets"; source=count(generatedPackets); record=last);
 		@statistic[receivedPackets](title="Received packets"; source=count(receivedPackets); record=last);
 	    
