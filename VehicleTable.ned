@@ -18,14 +18,15 @@ package inet.applications.vehicular;
 simple VehicleTable like IVehicleTable
 {
     parameters:
+        int numChannels;
         double updateTime @unit(s) = default(1s);
         bool persistent = default(false);
         
         double irtRange @unit(m) = default(200m);
         
         @signal[neighbors](type=unsigned int);
-        @signal[irt](type=double);
+        @signal[irt*](type=double);
         
         @statistic[neighbors](title="neighbors"; record=mean);
-        @statistic[irt](title="irt"; record=mean,histogram,vector);
+        @statisticTemplate[irt](record=mean,histogram,vector);
 }

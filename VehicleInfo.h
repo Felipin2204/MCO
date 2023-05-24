@@ -26,11 +26,15 @@ class INET_API VehicleInfo : public cObject {
     VehicleInfo(const VehicleInfo &info);
     virtual ~VehicleInfo();
 
+    //In INET4.4, the IEEE802.11p standard has 7 channels
+    static const int maxNumberOfChannels = 7;
+
     int id;
     int appId;
+    int channelNumberLastUpdate;
     Coord pos;
 
-    simtime_t last_update;
+    std::vector<simtime_t> last_update;
     simtime_t init;
 
     int beaconsReceived;

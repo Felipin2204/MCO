@@ -23,7 +23,6 @@ namespace inet {
 Define_Module(VehicleTable);
 
 simsignal_t VehicleTable::neighbors = SIMSIGNAL_NULL;
-simsignal_t VehicleTable::irt = SIMSIGNAL_NULL;
 
 IRTHistogram::IRTHistogram(int cells, double size) : irts(cells+1, 0.0), samples(cells+1, 0) {
     cellsize = size;
@@ -91,6 +90,7 @@ std::string IRTHistogram::info() const {
 
 void VehicleTable::initialize()
 {
+    numChannels = par("numChannels");
     updateTime = par("updateTime");
     EV_INFO << "Initializing Vehicle Table with update time=" << updateTime << endl;
     persistent = par("persistent");
@@ -103,7 +103,15 @@ void VehicleTable::initialize()
     WATCH_PTRMAP(vt);
 
     neighbors = registerSignal("neighbors");
-    irt = registerSignal("irt");
+    irtSignals.resize(numChannels);
+    //Statistics recording for dynamically registered signals
+    for (int i = 0; i < numChannels; i++) {
+        std::string tname("irt");
+        tname += std::to_string(i);
+        irtSignals[i] = registerSignal(tname.c_str());
+        cProperty *statisticTemplate = getProperties()->get("statisticTemplate", "irt");
+        getEnvir()->addResultRecorders(this, irtSignals[i], tname.c_str(), statisticTemplate);
+    }
 }
 
 void VehicleTable::handleMessage(cMessage *msg)
@@ -132,17 +140,18 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
         vt.insert(it, std::pair<int, VehicleInfo*>(info->id, newNeigbor));
         return 1;
     } else {
-        double irt_time = (simTime()-it->second->last_update).dbl();
+        double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
         double distance = mob->getCurrentPosition().distance(info->pos);
         irthist->collect(irt_time, distance);
 
         //Emit IRT if the node is in the irtRange
-        if (distance <= irtRange) emit(irt, irt_time);
+        if (distance <= irtRange)
+            emit(irtSignals[info->channelNumberLastUpdate], irt_time);
 
         (*it->second) = *info;
         int brp = it->second->beaconsReceived;
         it->second->beaconsReceived = brp++;
-        it->second->last_update = simTime();
+        it->second->last_update[info->channelNumberLastUpdate] = simTime();
 
         return 0;
     }
@@ -152,7 +161,14 @@ void VehicleTable::refreshTable() {
     emit(neighbors, vt.size());
     VTable::iterator it = vt.begin();
     while(it != vt.end()) {
-        if (simTime()-it->second->last_update > updateTime) {
+        bool remove = true;
+        for (int i = 0; i < it->second->last_update.size(); i++) {
+            if(simTime()-it->second->last_update[i] <= updateTime) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
             delete(it->second);
             it = vt.erase(it);
         } else {
@@ -166,10 +182,17 @@ void VehicleTable::refreshTable(double ut) {
     emit(neighbors, vt.size());
     VTable::iterator it = vt.begin();
     while(it != vt.end()) {
-        if (simTime()-it->second->last_update > ut) {
+        bool remove = true;
+        for (int i = 0; i < it->second->last_update.size(); i++) {
+            if(simTime()-it->second->last_update[i] <= ut) {
+                remove = false;
+                break;
+            }
+        }
+        if (remove) {
             delete(it->second);
             it = vt.erase(it);
-        }else {
+        } else {
             it->second->beaconsReceived = 0;
             ++it;
         }

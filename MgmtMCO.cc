@@ -429,6 +429,7 @@ void MgmtMCO::updateVehicleInfo(Packet* pkt) {
 
     info->id = p->getSource();
     info->appId = p->getAppIdentifier();
+    info->channelNumberLastUpdate = p->getChannel();
     info->pos = p->getPosition();
     vehicleTable->insertOrUpdate(info);
 }

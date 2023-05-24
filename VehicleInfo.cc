@@ -20,8 +20,10 @@ namespace inet {
 VehicleInfo::VehicleInfo(int id, int appId, Coord pos) {
   this->id = id;
   this->appId = appId;
+  this->channelNumberLastUpdate = 0;
   this->pos = pos;
-  this->last_update = simTime();
+  last_update.resize(maxNumberOfChannels);
+  for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();
   this->init = simTime();
   this->beaconsReceived = 0;
 }
@@ -29,8 +31,10 @@ VehicleInfo::VehicleInfo(int id, int appId, Coord pos) {
 VehicleInfo::VehicleInfo(const VehicleInfo &info) {
     this->id = info.id;
     this->appId = info.appId;
+    this->channelNumberLastUpdate = 0;
     this->pos = info.pos;
-    this->last_update = simTime();
+    last_update.resize(maxNumberOfChannels);
+    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();
     this->init = simTime();
     this->beaconsReceived = 0;
 }
@@ -45,7 +49,7 @@ std::ostream& operator<<(std::ostream& out, const VehicleInfo& inf)
 
 std::string VehicleInfo::toString() const {
    std::ostringstream s(std::ostringstream::out);
-   s<<"id="<<id<<";appId="<<appId<<";(x,y)="<<pos<<";init="<<init<<";lu="<<last_update<<";br="<<beaconsReceived;
+   s<<"id="<<id<<";appId="<<appId<<";channelNumberLastUpdate="<<channelNumberLastUpdate<<";(x,y)="<<pos<<";init="<<init<<";lu="<<last_update[channelNumberLastUpdate]<<";br="<<beaconsReceived;
    return s.str();
 }
 

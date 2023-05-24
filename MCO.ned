@@ -56,8 +56,9 @@ module MCO like IMCO
                 numChannels = parent.numChannels;
         }
         vehicleTable: <default("VehicleTable")> like IVehicleTable {
-              parameters:
+  			parameters:
                 @display("p=450,200");
+                numChannels = parent.numChannels;
         }
 
     connections allowunconnected:

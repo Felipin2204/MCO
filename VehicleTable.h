@@ -50,6 +50,7 @@ class VehicleTable : public cSimpleModule {
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
+    int numChannels;
     double updateTime;
     bool persistent;
     double irtRange;
@@ -58,7 +59,7 @@ class VehicleTable : public cSimpleModule {
     IMobility* mob;
 
     static simsignal_t neighbors;
-    static simsignal_t irt;
+    std::vector<simsignal_t> irtSignals;
 
   public:
     virtual ~VehicleTable();
