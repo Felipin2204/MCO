@@ -25,6 +25,7 @@
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolTag_m.h"
+#include "inet/linklayer/common/UserPriorityTag_m.h"
 #include <string>
 
 #define CBT_TO 1003
@@ -211,7 +212,7 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
         auto mobility = check_and_cast<IMobility*>(source);
         if (mobility != mob) {
             double sqrd = mob->getCurrentPosition().sqrdist(mobility->getCurrentPosition());
-            unsigned int k = floor(sqrd/(pdrDistanceStep*pdrDistanceStep));
+            unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
             if (k < pdrNumberIntervals){
                 //Check if previously this node was in other interval and if true remove it and then add it to the new interval
                 for (int i = 0; i < nodesInPdrIntervals.size(); i++) {
@@ -244,7 +245,6 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
 }
 
 void MgmtMCO::finish() {
-    for (int i = 0; i < numChannels; i++) getMeasuredCBT(cbtWindow.dbl(), i);
     computePDR();
 }
 
@@ -323,7 +323,12 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 //Our transmission has started
                 auto ct = check_and_cast<const physicallayer::ITransmission*>(obj);
                 const Packet* pkt = ct->getPacket();
-                auto p = pkt->peekDataAt<MCOPacket>(B(31)); //PhyHeader(5)+MACHeader(24)+LLCEDP(2), there is a trail afterwards
+
+                auto p = pkt->peekDataAt<MCOPacket>(B(33)); //PhyHeader(5)+MACHeader(24+2(QoS))+LLCEDP(2), there is a trail afterwards
+
+                //If the frame aggregation is activated, now in one transmission we have more than one packet and also one extra header for every packet.
+                //So that if we want frame aggregation we have to change the following code to register all the packets.
+                //auto p = pkt->peekDataAt<MCOPacket>(B(47)); //PhyHeader(5)+MACHeader(24+2(QoS))+MSDUSubFrameHeader(14)+LLCEDP(2), there is a trail afterwards
 
                 PDR pdr;
                 pdr.insertTime = simTime();
@@ -348,7 +353,7 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
             auto f = pdrAtChannel[i].find(info->sequenceNumber);
             if (f != pdrAtChannel[i].end()) {
                 double sqrd = mob->getCurrentPosition().sqrdist(info->position);
-                unsigned int k = floor(sqrd/(pdrDistanceStep*pdrDistanceStep));
+                unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
                 if (k < pdrNumberIntervals) {
                     f->second.received[k]++; //FIXME: Could produce an NaN value if the reception node change the interval between the transmission and reception
                 }
@@ -393,6 +398,9 @@ Packet* MgmtMCO::createMCOPacket(Packet* packet, int channel) {
     newpacket->addTagIfAbsent<MacAddressReq>()->setDestAddress(MacAddress::BROADCAST_ADDRESS);
     //Should put something sensible here. Keep this to prevent LlcEpd from complaining
     newpacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
+    //Next tag is necessary to have a Best Effort QoS
+    newpacket->addTagIfAbsent<UserPriorityReq>()->setUserPriority(0);
+
     return newpacket;
 }
 

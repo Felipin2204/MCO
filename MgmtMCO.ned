@@ -26,13 +26,13 @@ simple MgmtMCO like IMgmtMCO
         double pdrWindow @unit(s) = default(0.1s);
         double pdrUpdate @unit(s) = default(0.1s);
         double pdrDistanceStep @unit(m) = default(100m);
-        int pdrNumberIntervals = default(10);      
+        int pdrNumberIntervals = default(10);
         
         @signal[cbt*](type=double);
         @signal[pdr*_*-*](type=double);
         @signal[MCOPacketReceived];
   
-		@statisticTemplate[cbt](record=mean);
+		@statisticTemplate[cbt](record=mean,vector);
         @statisticTemplate[pdr](record=mean,vector);
         
     gates:
