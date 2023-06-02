@@ -42,8 +42,7 @@ module TrafficGeneratorHost
         
         //Settings for a Best Effort Acess Category
         wlan*.mac.qosStation = true;
-        //If the next parameters are not set, they are determined by the module
-        wlan*.mac.hcf.edca.edcaf[1].aifsn = 3; // aifsn = 3 (correct value) => aifs = 71us, aifsn = 6 => aifs = 110us (TR time)
+        wlan*.mac.hcf.edca.edcaf[1].aifsn = 6; //AIFS = AIFSN[AC=BE] * SlotTime + SIFS = 6 * 13us + 32us = 110us. 
         wlan*.mac.hcf.edca.edcaf[1].cwMin = 15;
         wlan*.mac.hcf.edca.edcaf[1].cwMax = 1023;
         
@@ -53,6 +52,9 @@ module TrafficGeneratorHost
         
         //IEEE 802.11 Frame Aggregation is turned off
         wlan*.mac.hcf.originatorMacDataService.msduAggregationPolicy.typename = "";
+        
+        //Backoff optimization is also turned off
+        wlan*.mac.hcf.edca.contention.edcaf*.contention.backoffOptimization = false;
         
 //        wlan*.mac.dcf.rateSelection.multicastFrameBitrate = 6Mbps;
 //        wlan*.mac.dcf.rateSelection.dataFrameBitrate = 6Mbps;
@@ -68,8 +70,8 @@ module TrafficGeneratorHost
         wlan*.radio.antenna.mobilityModule = absPath(".mobility");
         //The antenna gain value should be 3 dB only at the receiver (transmitter power -3dB)
         wlan*.radio.antenna.gain = 3dB;
-        //For a QPSK modulation the SNR threshold is 6 dB but in order to shape the noise figure whose value is 6dB, we set a 12dB SNR threshold (6dB + 6dB = 12 dB)
-        wlan*.radio.receiver.snirThreshold = 12 dB;
+        //For a QPSK modulation the SNR threshold is 6 dB
+        wlan*.radio.receiver.snirThreshold = 6 dB;
         wlan*.radio.*.modulation = "QPSK"; //Transmitter and receiver
 		
 		//In the HighwayMobility case, these values don't overwrite the predefined ones.
