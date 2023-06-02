@@ -59,9 +59,8 @@ void TrafficGenerator::initialize(int stage){
         if(appId == -1) appId = getIndex();
 
     } else if(stage == INITSTAGE_APPLICATION_LAYER) {
-        double aux = par("timeBetweenPackets");
-        timeBetweenPackets = simtime_t(aux);
-        emit(timeBetweenPacketsSignal, aux);
+        timeBetweenPackets = par("timeBetweenPackets");
+        emit(timeBetweenPacketsSignal, timeBetweenPackets);
 
         packetGenerationTimer = new cMessage();
         scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
@@ -71,9 +70,8 @@ void TrafficGenerator::initialize(int stage){
 void TrafficGenerator::handleMessage(cMessage *packet){
     if(packet->isSelfMessage()) {
         sendPacket();
-        double aux = par("timeBetweenPackets");
-        timeBetweenPackets = simtime_t(aux);
-        emit(timeBetweenPacketsSignal, aux);
+        timeBetweenPackets = par("timeBetweenPackets");
+        emit(timeBetweenPacketsSignal, timeBetweenPackets);
         scheduleAt(simTime()+timeBetweenPackets, packet);
     } else {
         receivePacket(packet);

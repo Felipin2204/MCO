@@ -40,23 +40,36 @@ module TrafficGeneratorHost
         wlan*.opMode = "p";
         wlan*.bitrate = 6Mbps;
         
-        wlan*.mac.dcf.rateSelection.multicastFrameBitrate = 6Mbps;
-        wlan*.mac.dcf.rateSelection.dataFrameBitrate = 6Mbps;
-        wlan*.mac.dcf.rateSelection.dataFrameBandwidth = 20MHz;        
-        //wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
-        //wlan*.mac.dcf.rateControl.typename = "MCORateControl";
+        //Settings for a Best Effort Acess Category
+        wlan*.mac.qosStation = true;
+        //If the next parameters are not set, they are determined by the module
+        wlan*.mac.hcf.edca.edcaf[1].aifsn = 3; // aifsn = 3 (correct value) => aifs = 71us, aifsn = 6 => aifs = 110us (TR time)
+        wlan*.mac.hcf.edca.edcaf[1].cwMin = 15;
+        wlan*.mac.hcf.edca.edcaf[1].cwMax = 1023;
+        
+        wlan*.mac.hcf.rateSelection.multicastFrameBitrate = 6Mbps;
+        wlan*.mac.hcf.rateSelection.dataFrameBitrate = 6Mbps;
+        wlan*.mac.hcf.rateSelection.dataFrameBandwidth = 20MHz;
+        
+        //IEEE 802.11 Frame Aggregation is turned off
+        wlan*.mac.hcf.originatorMacDataService.msduAggregationPolicy.typename = "";
+        
+//        wlan*.mac.dcf.rateSelection.multicastFrameBitrate = 6Mbps;
+//        wlan*.mac.dcf.rateSelection.dataFrameBitrate = 6Mbps;
+//        wlan*.mac.dcf.rateSelection.dataFrameBandwidth = 20MHz;
+//        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
+//        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
 
-        //wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
-        //wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
+//        wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
+//        wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
         //Radio channel number initilizated in the submodules block
         wlan*.radio.antenna.typename = "ConstantGainAntenna";
         wlan*.radio.antenna.mobilityModule = absPath(".mobility");
+        //The antenna gain value should be 3 dB only at the receiver (transmitter power -3dB)
         wlan*.radio.antenna.gain = 3dB;
-        //We want that gain only in the receiver so the transmission power is going to be tx_power = 23dBm - 3dB = 20 dBm = 0.1W
-        wlan*.radio.transmitter.power = 0.1W;
-        wlan*.radio.receiver.energyDetection = -85dBm;
-        wlan*.radio.receiver.sensitivity = -65dBm;
+        //For a QPSK modulation the SNR threshold is 6 dB but in order to shape the noise figure whose value is 6dB, we set a 12dB SNR threshold (6dB + 6dB = 12 dB)
+        wlan*.radio.receiver.snirThreshold = 12 dB;
         wlan*.radio.*.modulation = "QPSK"; //Transmitter and receiver
 		
 		//In the HighwayMobility case, these values don't overwrite the predefined ones.

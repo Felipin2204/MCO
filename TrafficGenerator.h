@@ -24,7 +24,7 @@ using namespace omnetpp;
 
 namespace inet {
 
-class TrafficGenerator: public cSimpleModule {
+class TrafficGenerator : public cSimpleModule {
 protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
@@ -36,14 +36,14 @@ protected:
     int lowerLayerIn;
     int lowerLayerOut;
 
-    //The parameters are illustrative in this module
+    //These parameters are illustrative in this module
     int totalPacketsPerSecond;
     int minPacketsPerSecond;
     double packetRate;
 
     int packetLength;
     int appId;
-    simtime_t timeBetweenPackets;
+    double timeBetweenPackets;
 
     int generatedPackets;
     int receivedPackets;
