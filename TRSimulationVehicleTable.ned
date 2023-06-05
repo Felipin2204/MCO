@@ -15,8 +15,17 @@
 
 package inet.applications.vehicular;
 
-moduleinterface IVehicleTable
+simple TRSimulationVehicleTable like IVehicleTable
 {
     parameters:
-        @display("i=block/control");
+        double updateTime @unit(s) = default(1s);
+        bool persistent = default(false);
+        
+        double irtRange @unit(m) = default(200m);
+        
+        @signal[neighbors](type=unsigned int);
+        @signal[irt](type=double);
+        
+        @statistic[neighbors](record=mean);
+        @statistic[irt](record=mean,histogram,vector);
 }

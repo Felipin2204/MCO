@@ -13,37 +13,33 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_
-#define INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_
+#ifndef INET_APPLICATIONS_VEHICULAR_TRSIMULATIONVEHICLEINFO_H_
+#define INET_APPLICATIONS_VEHICULAR_TRSIMULATIONVEHICLEINFO_H_
 
 #include "inet/common/INETDefs.h"
 #include "inet/common/geometry/common/Coord.h"
 
 namespace inet {
 
-class INET_API VehicleInfo : public cObject {
+class INET_API TRSimulationVehicleInfo : public cObject {
   public:
-    VehicleInfo(int id, int appId, Coord pos);
-    VehicleInfo(const VehicleInfo &info);
-    virtual ~VehicleInfo();
-
-    //In INET4.4, the IEEE802.11p standard has 7 channels
-    static const int maxNumberOfChannels = 7;
+    TRSimulationVehicleInfo(int id, int appId, Coord pos);
+    TRSimulationVehicleInfo(const TRSimulationVehicleInfo &info);
+    virtual ~TRSimulationVehicleInfo();
 
     int id;
     int appId;
-    int channelNumberLastUpdate;
     Coord pos;
 
-    std::vector<simtime_t> last_update;
+    simtime_t last_update;
     simtime_t init;
 
     int beaconsReceived;
 
-    friend std::ostream& operator<<(std::ostream& out, const VehicleInfo& inf);
+    friend std::ostream& operator<<(std::ostream& out, const TRSimulationVehicleInfo& inf);
     virtual std::string toString() const;
 };
 
 } /* namespace inet */
 
-#endif /* INET_APPLICATIONS_VEHICULAR_VEHICLEINFO_H_ */
+#endif /* INET_APPLICATIONS_VEHICULAR_TRSIMULATIONVEHICLEINFO_H_ */

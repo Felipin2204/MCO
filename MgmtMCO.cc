@@ -228,7 +228,7 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
                 }
                 nodesInPdrIntervals[k].push_back(source);
             } else {
-                //Have to remove vehicles out of range
+                //Remove vehicles out of range
                 for (int i = 0; i < nodesInPdrIntervals.size(); i++) {
                     for (auto it = nodesInPdrIntervals[i].begin(); it != nodesInPdrIntervals[i].end(); ++it) {
                         if ((*it) == source) {

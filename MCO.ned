@@ -47,8 +47,8 @@ module MCO like IMCO
         mgmt: <default("MgmtMCO")> like IMgmtMCO {
             parameters:
                 @display("p=199,289");
-                numChannels = parent.numChannels;
                 numApplications = parent.numApplications;
+                numChannels = parent.numChannels;
         }
         interferenceMonitor: <default("AdjacentChannelInterferenceMonitor")> like IInterferenceMonitor if typename != "" {
             parameters:

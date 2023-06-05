@@ -32,7 +32,7 @@ void HighwayMobility::initialize(int stage)
     if (stage == INITSTAGE_LOCAL) {
         speed = par("speed");
         stationary = (speed == 0);
-        
+
         //The heading parameter depends on the Y position
         rad heading = par("initialY").doubleValue() > 12.0 ? deg(0) : deg(180);
 

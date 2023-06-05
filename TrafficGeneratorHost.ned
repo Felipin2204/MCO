@@ -92,7 +92,7 @@ module TrafficGeneratorHost
         }
         wlan[numChannels]: <default("Ieee80211Interface")> like IWirelessInterface {
             @display("p=375,616");
-            radio.channelNumber = index;
+            radio.channelNumber = default(index);
         }
         mobility: <default("StationaryMobility")> like IMobility {
             @display("p=125,160");

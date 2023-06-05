@@ -15,8 +15,17 @@
 
 package inet.applications.vehicular;
 
-moduleinterface IVehicleTable
+import inet.physicallayer.wireless.common.analogmodel.packetlevel.ScalarAnalogModel;
+
+//
+// A module that takes into account the adjacent channel interference in the reception (SNIR)
+//
+
+module ScalarAnalogModelAdjacentInterference extends ScalarAnalogModel
 {
     parameters:
-        @display("i=block/control");
+        //Set of losses due to ACL and ACS adjacent channels
+        string adjacentLoss = default("25.9 40.6"); //EIRP = 23dBm
+        
+       @class(ScalarAnalogModelAdjacentInterference);
 }
