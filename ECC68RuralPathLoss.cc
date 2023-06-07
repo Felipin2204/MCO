@@ -23,7 +23,9 @@ ECC68RuralPathLoss::ECC68RuralPathLoss() :
         n0(0.0),
         n1(0.0),
         breakpointDistance0(0.0),
-        breakpointDistance1(0.0)
+        breakpointDistance1(0.0),
+        useFading(false),
+        shapeFactor(1.0)
 {
 }
 
@@ -34,6 +36,8 @@ void ECC68RuralPathLoss::initialize(int stage)
         n1 = par("n1");
         breakpointDistance0 = par("breakpointDistance0");
         breakpointDistance1 = par("breakpointDistance1");
+        useFading = par("useFading");
+        shapeFactor = par("shapeFactor");
     }
 }
 
@@ -44,29 +48,52 @@ std::ostream& ECC68RuralPathLoss::printToStream(std::ostream& stream, int level,
         stream << EV_FIELD(n0)
                << EV_FIELD(n1)
                << EV_FIELD(breakpointDistance0)
-               << EV_FIELD(breakpointDistance1);
+               << EV_FIELD(breakpointDistance1)
+               << EV_FIELD(useFading)
+               << EV_FIELD(shapeFactor);
     return stream;
 }
 
 double ECC68RuralPathLoss::computePathLoss(mps propagationSpeed, Hz frequency, m distance) const
 {
     m waveLength = propagationSpeed / frequency;
-    if (distance.get() <= breakpointDistance0)
-    {
-        return distance.get() == 0.0 ? 1.0 :
-               (waveLength * waveLength).get() /
-               (16 * M_PI * M_PI * distance.get() * distance.get());
-    }
-    else if (distance.get() <= breakpointDistance1)
-    {
-        return ((waveLength * waveLength).get() * pow(breakpointDistance0, n0)) /
-               (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(distance.get(), n0));
-    }
-    else
-    {
-        return distance.get() == INFINITY ? 0.0 :
-               ((waveLength * waveLength).get() * pow(breakpointDistance0, n0) * pow(breakpointDistance1, n1)) /
-               (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(breakpointDistance1, n0) * pow(distance.get(), n1));
+    if (useFading) {
+        double ECC68RuralPathLoss = 0.0;
+        if (distance.get() <= breakpointDistance0)
+        {
+            if (distance.get() == 0.0) return 1.0;
+            ECC68RuralPathLoss = (waveLength * waveLength).get() /
+                                 (16 * M_PI * M_PI * distance.get() * distance.get());
+        }
+        else if (distance.get() <= breakpointDistance1)
+        {
+            ECC68RuralPathLoss = ((waveLength * waveLength).get() * pow(breakpointDistance0, n0)) /
+                                 (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(distance.get(), n0));
+        }
+        else
+        {
+            ECC68RuralPathLoss = ((waveLength * waveLength).get() * pow(breakpointDistance0, n0) * pow(breakpointDistance1, n1)) /
+                                 (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(breakpointDistance1, n0) * pow(distance.get(), n1));
+        }
+        return gamma_d(shapeFactor, ECC68RuralPathLoss / 1000.0 / shapeFactor) * 1000.0;
+
+    } else {
+        if (distance.get() <= breakpointDistance0)
+        {
+            return distance.get() == 0.0 ? 1.0 :
+                   (waveLength * waveLength).get() /
+                   (16 * M_PI * M_PI * distance.get() * distance.get());
+        }
+        else if (distance.get() <= breakpointDistance1)
+        {
+            return ((waveLength * waveLength).get() * pow(breakpointDistance0, n0)) /
+                   (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(distance.get(), n0));
+        }
+        else
+        {
+            return ((waveLength * waveLength).get() * pow(breakpointDistance0, n0) * pow(breakpointDistance1, n1)) /
+                   (16 * M_PI * M_PI * breakpointDistance0 * breakpointDistance0 * pow(breakpointDistance1, n0) * pow(distance.get(), n1));
+        }
     }
 }
 

@@ -28,6 +28,9 @@ class ECC68RuralPathLoss : public physicallayer::PathLossBase
     double breakpointDistance0;
     double breakpointDistance1;
 
+    bool useFading;
+    double shapeFactor;
+
   protected:
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override {return NUM_INIT_STAGES;}
