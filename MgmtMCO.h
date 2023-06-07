@@ -27,7 +27,7 @@ using namespace omnetpp;
 namespace inet {
 
 struct PDR {
-    std::vector<int> vehicles, received;
+    std::map<int,int> vehicles, received;
     simtime_t insertTime;
 };
 

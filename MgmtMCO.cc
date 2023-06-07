@@ -83,7 +83,7 @@ void MgmtMCO::initialize(int stage)
 
             for (int j = 0; j < pdrNumberIntervals; j++) {
                 std::string sname("pdr");
-                sname += std::to_string(i) + "_0-" + std::to_string((j+1)*(int)pdrDistanceStep);
+                sname += std::to_string(i) + "_" + std::to_string(j*(int)pdrDistanceStep) + "-" + std::to_string((j+1)*(int)pdrDistanceStep);
                 pdrSignals[i][j] = registerSignal(sname.c_str());
                 statisticTemplate = getProperties()->get("statisticTemplate", "pdr");
                 getEnvir()->addResultRecorders(this, pdrSignals[i][j], sname.c_str(), statisticTemplate);
@@ -310,6 +310,16 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
     if (signalID == transmissionStartedSignal) {
         for (int i = 0; i < numChannels; i++) {
             if (source == radios[i]) {
+                //If there aren't vehicles in any of the intervals don't consider this transmission for PDR
+                bool vehiclesAround = false;
+                for (int j = 0; j < nodesInPdrIntervals.size(); j++) {
+                    if (!nodesInPdrIntervals[j].empty()) {
+                        vehiclesAround = true;
+                        break;
+                    }
+                }
+                if (!vehiclesAround) return;
+
                 //Our transmission has started
                 auto ct = check_and_cast<const physicallayer::ITransmission*>(obj);
                 const Packet* pkt = ct->getPacket();
@@ -322,14 +332,12 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
 
                 PDR pdr;
                 pdr.insertTime = simTime();
-                pdr.received.resize(pdrNumberIntervals);
-                pdr.vehicles.resize(pdrNumberIntervals);
 
-                for (int aux = 0; aux < pdrNumberIntervals; aux++) {
-                    pdr.received[aux] = 0;
-                    pdr.vehicles[aux] = 0; //Initialization
-                    for (int j = 0; j <= aux; j++)
-                        pdr.vehicles[aux] += nodesInPdrIntervals[j].size();
+                for (int j = 0; j < nodesInPdrIntervals.size(); j++) {
+                    if (!nodesInPdrIntervals[j].empty()) {
+                        pdr.vehicles[j] = nodesInPdrIntervals[j].size();
+                        pdr.received[j] = 0;
+                    }
                 }
 
                 //Insert in map
@@ -347,8 +355,7 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 double sqrd = mob->getCurrentPosition().sqrdist(info->position);
                 unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
                 if (k < pdrNumberIntervals) {
-                    for(int aux = k; aux < pdrNumberIntervals; aux++)
-                        f->second.received[aux]++;
+                    f->second.received[k]++; //FIXME: Could produce an NaN value if the reception node change the interval between the transmission and reception
                 }
             }
         }
@@ -359,11 +366,11 @@ void MgmtMCO::computePDR() {
     for (int i = 0; i < pdrAtChannel.size(); ++i) {
         for (auto it = pdrAtChannel[i].begin(); it != pdrAtChannel[i].end();) {
             if ((simTime()-it->second.insertTime) >= pdrWindow) {
-                for (int aux = 0; aux < pdrNumberIntervals; aux++) {
-                    int received = it->second.received[aux];
-                    int vehicles = it->second.vehicles[aux];
-                    if (vehicles != 0)
-                        emit(pdrSignals[i][aux], ((double)received/vehicles));
+                for (auto v = it->second.vehicles.begin(); v != it->second.vehicles.end(); v++) {
+                    int received = it->second.received[v->first];
+                    int vehicles = v->second;
+                    double value = ((double)received/vehicles);
+                    emit(pdrSignals[i][v->first], value);
                 }
                 it = pdrAtChannel[i].erase(it);
             } else ++it;
