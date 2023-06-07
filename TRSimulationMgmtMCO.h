@@ -27,7 +27,7 @@ using namespace omnetpp;
 
 namespace inet {
 
-struct PDR {
+struct TRSimulationPDR {
     std::map<int,int> vehicles, received;
     simtime_t insertTime;
 };
@@ -103,7 +103,7 @@ public:
     std::vector<simsignal_t> pdrSignals;
 
     cMessage* pdrSampleTimer;
-    std::map<int,PDR> pdrAtChannel;
+    std::map<int,TRSimulationPDR> pdrAtChannel;
     std::vector<std::vector<cComponent*>> nodesInPdrIntervals;
 };
 

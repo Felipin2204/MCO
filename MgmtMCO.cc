@@ -355,7 +355,7 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 double sqrd = mob->getCurrentPosition().sqrdist(info->position);
                 unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
                 if (k < pdrNumberIntervals) {
-                    f->second.received[k]++; //FIXME: Could produce an NaN value if the reception node change the interval between the transmission and reception
+                    f->second.received[k]++;
                 }
             }
         }
@@ -369,8 +369,8 @@ void MgmtMCO::computePDR() {
                 for (auto v = it->second.vehicles.begin(); v != it->second.vehicles.end(); v++) {
                     int received = it->second.received[v->first];
                     int vehicles = v->second;
-                    double value = ((double)received/vehicles);
-                    emit(pdrSignals[i][v->first], value);
+                    if (vehicles != 0)
+                        emit(pdrSignals[i][v->first], ((double)received/vehicles));
                 }
                 it = pdrAtChannel[i].erase(it);
             } else ++it;
