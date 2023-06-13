@@ -24,7 +24,7 @@ import inet.applications.vehicular.TrafficGenerator;
 simple DCCTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        timeBetweenPackets = uniform(0.095, 0.105);
+        timeBetweenPackets = uniform(0.099, 0.101);
         
         @class(DCCTrafficGenerator);
 }

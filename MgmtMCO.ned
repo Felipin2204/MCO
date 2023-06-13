@@ -22,6 +22,7 @@ simple MgmtMCO like IMgmtMCO
 		
         int numChannels;
         int numApplications;
+        
         double cbtWindow @unit(s) = default(0.1s); //Tcbr-itsg5
         double pdrWindow @unit(s) = default(0.1s);
         double pdrUpdate @unit(s) = default(0.1s);

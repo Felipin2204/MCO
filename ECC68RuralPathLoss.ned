@@ -26,7 +26,7 @@ module ECC68RuralPathLoss like IPathLoss
         double breakpointDistance1 @unit(m) = default(512m);
         
         bool useFading = default(false);
-        double shapeFactor = default(1.0); 
+        double shapeFactor = default(1.0);
         
         @class(ECC68RuralPathLoss);
         @display("i=block/control");

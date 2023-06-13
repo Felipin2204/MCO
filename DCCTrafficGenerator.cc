@@ -27,8 +27,7 @@ DCCTrafficGenerator::~DCCTrafficGenerator() {}
 
 void DCCTrafficGenerator::initialize(int stage) {
     if (stage == INITSTAGE_LINK_LAYER) {
-        std::string signal = "cbt" + std::to_string(getModuleByPath("^.wlan[0].radio")->par("channelNumber").intValue());
-        getParentModule()->subscribe(signal.c_str(), this);
+        getParentModule()->subscribe("cbt", this);
 
     } else if (stage == INITSTAGE_APPLICATION_LAYER) {
         timeBetweenPackets = par("timeBetweenPackets");
