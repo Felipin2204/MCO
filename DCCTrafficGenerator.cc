@@ -19,7 +19,11 @@ namespace inet {
 
 Define_Module(DCCTrafficGenerator);
 
-DCCTrafficGenerator::DCCTrafficGenerator() : DCCMode(false) {}
+DCCTrafficGenerator::DCCTrafficGenerator() {
+    packetGenerationTimer = nullptr;
+}
+
+DCCTrafficGenerator::~DCCTrafficGenerator() {}
 
 void DCCTrafficGenerator::initialize(int stage) {
     if (stage == INITSTAGE_LINK_LAYER) {
@@ -38,7 +42,6 @@ void DCCTrafficGenerator::initialize(int stage) {
 void DCCTrafficGenerator::handleMessage(cMessage *msg) {
     if(msg->isSelfMessage()) {
         sendPacket();
-        if (!DCCMode) timeBetweenPackets = par("timeBetweenPackets");
         emit(timeBetweenPacketsSignal, timeBetweenPackets);
         scheduleAt(simTime()+timeBetweenPackets, msg);
     } else {
@@ -47,9 +50,8 @@ void DCCTrafficGenerator::handleMessage(cMessage *msg) {
 }
 
 void DCCTrafficGenerator::receiveSignal(cComponent *source, simsignal_t signalID, double d, cObject *details) {
-    DCCMode = false;
+    timeBetweenPackets = par("timeBetweenPackets");
     if (d >= 0.62) {
-        DCCMode = true;
         double aux = ((par("packetLength").intValue()*8)/6E+6)*(4000*((d-0.62)/d)-1);
         timeBetweenPackets = aux < 1 ? aux : 1;
     }

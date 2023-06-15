@@ -27,5 +27,5 @@ simple TRSimulationVehicleTable like IVehicleTable
         @signal[irt](type=double);
         
         @statistic[neighbors](record=mean);
-        @statistic[irt](record=vector);
+        @statistic[irt](record=histogram,vector);
 }

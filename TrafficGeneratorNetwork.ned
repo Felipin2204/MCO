@@ -16,7 +16,7 @@
 package inet.applications.vehicular;
 
 import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
-
+import inet.visualizer.contract.IIntegratedVisualizer;
 
 network TraficGeneratorNetwork
 {

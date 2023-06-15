@@ -27,10 +27,9 @@ class DCCTrafficGenerator : public TrafficGenerator, public cListener {
     virtual void handleMessage(cMessage *msg) override;
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, double d, cObject *details) override;
 
-    bool DCCMode;
-
   public:
     DCCTrafficGenerator();
+    virtual ~DCCTrafficGenerator();
 };
 
 } /* namespace inet */

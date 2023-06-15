@@ -33,8 +33,8 @@ simple MgmtMCO like IMgmtMCO
         @signal[pdr*_*-*](type=double);
         @signal[MCOPacketReceived];
   
-		@statisticTemplate[cbt](record=mean);
-        @statisticTemplate[pdr](record=vector);
+		@statisticTemplate[cbt](record=mean,vector);
+        @statisticTemplate[pdr](record=mean,vector);
         
     gates:
         input inQueue[numChannels];
