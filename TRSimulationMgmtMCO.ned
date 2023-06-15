@@ -32,8 +32,8 @@ simple TRSimulationMgmtMCO like IMgmtMCO
         @signal[pdr*-*](type=double);
         @signal[MCOPacketReceived];
   
-		@statistic[cbt](record=mean,vector);
-        @statisticTemplate[pdr](record=mean,vector);
+		@statistic[cbt](record=mean);
+        @statisticTemplate[pdr](record=vector);
         
     gates:
         input inQueue[numChannels];
