@@ -33,7 +33,7 @@ simple TrafficGenerator like IApp
 	    @signal[timeBetweenPackets](type=double);
 	    @signal[generatedPackets](type=int);
 	    @signal[receivedPackets](type=int);
-	    @statistic[timeBetweenPackets](record=vector,histogram);
+	    @statistic[timeBetweenPackets](record=vector);
 		@statistic[generatedPackets](source=count(generatedPackets); record=last);
 		@statistic[receivedPackets](source=count(receivedPackets); record=last);
 	    

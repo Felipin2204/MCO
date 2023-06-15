@@ -17,14 +17,13 @@ package inet.applications.vehicular;
 
 import inet.queueing.common.PacketMultiplexer;
 import inet.queueing.contract.IPacketClassifier;
-import inet.queueing.contract.IPacketQueue;
-import inet.queueing.contract.IPacketScheduler;
+
 
 module MCO like IMCO
 {
     parameters:
         @display("i=block/cogwheel");
-        
+
         int numApplications;
         int numChannels;
 
@@ -56,7 +55,7 @@ module MCO like IMCO
                 numChannels = parent.numChannels;
         }
         vehicleTable: <default("VehicleTable")> like IVehicleTable {
-  			parameters:
+            parameters:
                 @display("p=450,200");
                 numChannels = parent.numChannels;
         }

@@ -27,6 +27,6 @@ simple VehicleTable like IVehicleTable
         @signal[neighbors](type=unsigned int);
         @signal[irt*](type=double);
         
-        @statistic[neighbors](title="neighbors"; record=mean);
-        @statisticTemplate[irt](record=mean,histogram,vector);
+        @statistic[neighbors](record=mean);
+        @statisticTemplate[irt](record=vector);
 }

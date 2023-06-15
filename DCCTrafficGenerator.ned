@@ -14,17 +14,10 @@
 // 
 
 package inet.applications.vehicular;
-import inet.applications.vehicular.TrafficGenerator;
-
-//
-// Decentralized congestion control (DCC)
-// This traffic generator is intended for the TR simulations. Here we assume that the nodes only transmit on a single channel.
-//
-
 simple DCCTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        timeBetweenPackets = uniform(0.099, 0.101);
-        
+        timeBetweenPackets = uniform(0.0, 0.2);
+
         @class(DCCTrafficGenerator);
 }
