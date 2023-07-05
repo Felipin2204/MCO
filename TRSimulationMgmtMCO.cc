@@ -81,16 +81,12 @@ void TRSimulationMgmtMCO::initialize(int stage)
         setCbtWindow(cbtWindow);
 
         pdrSampleTimer = new cMessage("PDR Timer");
-        scheduleAt(simTime() + pdrUpdate, pdrSampleTimer);
+        scheduleAfter(pdrUpdate, pdrSampleTimer);
         nodesInPdrIntervals.resize(pdrNumberIntervals);
 
     } else if(stage == INITSTAGE_PHYSICAL_ENVIRONMENT) {
         mob = check_and_cast<IMobility*>(getModuleByPath("^.^.mobility"));
         vehicleTable = check_and_cast<TRSimulationVehicleTable*>(getModuleByPath("^.vehicleTable"));
-
-        //Have to register to mobility before is initialized, otherwise we miss mobility events.
-        //This signal is used to update the nodes in the PDR intervals.
-        getSimulation()->getSystemModule()->subscribe(IMobility::mobilityStateChangedSignal, this);
 
     } else if(stage == INITSTAGE_LINK_LAYER) {
         outAppId = gate("outApp", 0)->getId();
@@ -108,8 +104,8 @@ void TRSimulationMgmtMCO::initialize(int stage)
         macDcaf = check_and_cast<ieee80211::Dcaf*>(getModuleByPath(d.c_str()));
 
         //CBT measurement
-        radio->subscribe(physicallayer::IRadio::receptionStateChangedSignal, this); //Emited by the radio
-        radio->subscribe(physicallayer::IRadio::transmissionStateChangedSignal, this); //Emited by the radio
+        radio->subscribe(physicallayer::IRadio::receptionStateChangedSignal, this); //Emitted by the radio
+        radio->subscribe(physicallayer::IRadio::transmissionStateChangedSignal, this); //Emitted by the radio
 
         cbt_idletime = 0.0;
         lu_idletime = simTime();
@@ -117,10 +113,12 @@ void TRSimulationMgmtMCO::initialize(int stage)
         lastTransmissionState = check_and_cast<physicallayer::IRadio*>(radio)->getTransmissionState();
 
         //PDR measurement
-        radio->subscribe(transmissionStartedSignal, this); //Emited by the radio
+        std::string s = "^.^.^.radioMedium.neighborCache";
+        neighborCache = check_and_cast<VehiclesNeighborCache*>(getModuleByPath(s.c_str()));
+        //neighborCache->addRadio(radio); //All the radios are added to the neighborCache in Radio.cc
 
-        //PDR measurement
-        getSimulation()->getSystemModule()->subscribe(MCOReceivedSignal, this); //Emited in the receiveMCOPacket function
+        radio->subscribe(transmissionStartedSignal, this); //Emitted by the radio
+        getSimulation()->getSystemModule()->subscribe(MCOReceivedSignal, this); //Emitted in the receiveMCOPacket function
 
         //MCO module is subscribed to this signal which is emitted when a packet is pushed into one of the queues of the MCO
         getParentModule()->subscribe(packetPushEndedSignal, this);
@@ -132,10 +130,10 @@ void TRSimulationMgmtMCO::handleMessage(cMessage *msg)
     if (msg->isSelfMessage()) {
         if (msg == cbtSampleTimer) {
             getMeasuredCBT(cbtWindow.dbl());
-            scheduleAt(simTime()+cbtWindow, cbtSampleTimer);
+            scheduleAfter(cbtWindow, cbtSampleTimer);
         } else if (msg == pdrSampleTimer) {
             computePDR();
-            scheduleAt(simTime()+pdrUpdate, pdrSampleTimer);
+            scheduleAfter(pdrUpdate, pdrSampleTimer);
         }
     } else receiveMCOPacket(msg);
 }
@@ -161,41 +159,7 @@ void TRSimulationMgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID
             delete packet;
             send(newpacket, outWlanId);
         }
-    //Here we check if the vehicles are in the PDR range
-    } else if (signalID == IMobility::mobilityStateChangedSignal) {
-        auto mobility = check_and_cast<IMobility*>(source);
-        int channelNumber = source->getParentModule()->getSubmodule("wlan", 0)->getSubmodule("radio")->par("channelNumber");
-        if (mobility != mob && channel == channelNumber) {
-            double sqrd = mob->getCurrentPosition().sqrdist(mobility->getCurrentPosition());
-            unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
-            if (k < pdrNumberIntervals){
-                //Check if previously this node was in other interval and if true remove it and then add it to the new interval
-                for (int i = 0; i < nodesInPdrIntervals.size(); i++) {
-                    for (auto it = nodesInPdrIntervals[i].begin(); it != nodesInPdrIntervals[i].end(); ++it) {
-                        if ((*it) == source) {
-                            if (i != k) {
-                                nodesInPdrIntervals[i].erase(it);
-                                nodesInPdrIntervals[k].push_back(source);
-                            }
-                            return;
-                        }
-                    }
-                }
-                nodesInPdrIntervals[k].push_back(source);
-            } else {
-                //Remove vehicles out of range
-                for (int i = 0; i < nodesInPdrIntervals.size(); i++) {
-                    for (auto it = nodesInPdrIntervals[i].begin(); it != nodesInPdrIntervals[i].end(); ++it) {
-                        if ((*it) == source) {
-                            nodesInPdrIntervals[i].erase(it);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else {
+    } else {
         processPDRSignal(source, signalID, obj, details);
     }
 }
@@ -246,22 +210,27 @@ void TRSimulationMgmtMCO::setCbtWindow(const simtime_t& cbtWindow, double offset
     this->cbtWindow = cbtWindow;
     if (cbtSampleTimer->isScheduled()) cancelEvent(cbtSampleTimer);
 
-    if (offset>0) scheduleAt(simTime() + offset + cbtWindow, cbtSampleTimer);
-    else scheduleAt(simTime()+cbtWindow, cbtSampleTimer);
+    if (offset>0) scheduleAfter(offset+cbtWindow, cbtSampleTimer);
+    else scheduleAfter(cbtWindow, cbtSampleTimer);
 }
 
 void TRSimulationMgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) {
     //PDR Measurement
     if (signalID == transmissionStartedSignal) {
-        //If there aren't vehicles in any of the intervals don't consider this transmission for PDR
-        bool vehiclesAround = false;
-        for (int j = 0; j < nodesInPdrIntervals.size(); j++) {
-            if (!nodesInPdrIntervals[j].empty()) {
-                vehiclesAround = true;
-                break;
-            }
+
+        //Clear nodesInPdrIntervals vector
+        for (int j = 0; j < nodesInPdrIntervals.size(); j++)
+            nodesInPdrIntervals[j] = 0;
+
+        //Refresh the number of nodes in each distance interval in nodesInPdrIntervals vector
+        neighborCache->updateNeighborLists();
+        auto neighborList = neighborCache->getNeighbors(radio);
+        for (int j = 0; j < neighborList.size(); j++) {
+            double sqrd = mob->getCurrentPosition().sqrdist(neighborList[j]->getAntenna()->getMobility()->getCurrentPosition());
+            unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
+            if (k < pdrNumberIntervals)
+                nodesInPdrIntervals[k]++;
         }
-        if (!vehiclesAround) return;
 
         //Our transmission has started
         auto ct = check_and_cast<const physicallayer::ITransmission*>(obj);
@@ -277,8 +246,8 @@ void TRSimulationMgmtMCO::processPDRSignal(cComponent *source, simsignal_t signa
         pdr.insertTime = simTime();
 
         for (int j = 0; j < nodesInPdrIntervals.size(); j++) {
-            if (!nodesInPdrIntervals[j].empty()) {
-                pdr.vehicles[j] = nodesInPdrIntervals[j].size();
+            if (nodesInPdrIntervals[j] != 0) {
+                pdr.vehicles[j] = nodesInPdrIntervals[j];
                 pdr.received[j] = 0;
             }
         }
@@ -293,9 +262,8 @@ void TRSimulationMgmtMCO::processPDRSignal(cComponent *source, simsignal_t signa
             if (f != pdrAtChannel.end()) {
                 double sqrd = mob->getCurrentPosition().sqrdist(info->position);
                 unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
-                if (k < pdrNumberIntervals) {
+                if (k < pdrNumberIntervals)
                     f->second.received[k]++;
-                }
             }
         }
     }

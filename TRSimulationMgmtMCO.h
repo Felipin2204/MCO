@@ -22,6 +22,7 @@
 #include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
 #include "TRSimulationVehicleInfo.h"
 #include "TRSimulationVehicleTable.h"
+#include "VehiclesNeighborCache.h"
 
 using namespace omnetpp;
 
@@ -104,7 +105,8 @@ public:
 
     cMessage* pdrSampleTimer;
     std::map<int,TRSimulationPDR> pdrAtChannel;
-    std::vector<std::vector<cComponent*>> nodesInPdrIntervals;
+    std::vector<int> nodesInPdrIntervals;
+    VehiclesNeighborCache* neighborCache;
 };
 
 } /* namespace inet */
