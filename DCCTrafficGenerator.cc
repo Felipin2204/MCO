@@ -30,7 +30,7 @@ void DCCTrafficGenerator::initialize(int stage) {
         emit(timeBetweenPacketsSignal, timeBetweenPackets);
 
         packetGenerationTimer = new cMessage();
-        scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
+        scheduleAfter(timeBetweenPackets, packetGenerationTimer);
 
     } else TrafficGenerator::initialize(stage);
 }
@@ -38,9 +38,10 @@ void DCCTrafficGenerator::initialize(int stage) {
 void DCCTrafficGenerator::handleMessage(cMessage *msg) {
     if(msg->isSelfMessage()) {
         sendPacket();
-        if (!DCCMode) timeBetweenPackets = par("timeBetweenPackets");
+        if (!DCCMode)
+            timeBetweenPackets = par("timeBetweenPackets");
         emit(timeBetweenPacketsSignal, timeBetweenPackets);
-        scheduleAt(simTime()+timeBetweenPackets, msg);
+        scheduleAfter(timeBetweenPackets, msg);
     } else {
         receivePacket(msg);
     }
@@ -50,7 +51,8 @@ void DCCTrafficGenerator::receiveSignal(cComponent *source, simsignal_t signalID
     DCCMode = false;
     if (d >= 0.62) {
         DCCMode = true;
-        double aux = ((par("packetLength").intValue()*8)/6E+6)*(4000*((d-0.62)/d)-1);
+        double tPack = (par("packetLength").intValue()*8)/6E+3;
+        double aux = tPack*4*((d-0.62)/d);
         timeBetweenPackets = aux < 1 ? aux : 1;
     }
 }
