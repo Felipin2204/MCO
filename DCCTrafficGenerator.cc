@@ -53,9 +53,9 @@ void DCCTrafficGenerator::receiveSignal(cComponent *source, simsignal_t signalID
         DCCMode = true;
         double tOn = (par("packetLength").intValue()*8)/6E+6;
         timeBetweenPackets = tOn*(4000*((d-0.62)/d)-1);
-        if (aux < 0.025)
+        if (timeBetweenPackets < 0.025)
             timeBetweenPackets = 0.025;
-        else if (aux > 1.0)
+        else if (timeBetweenPackets > 1.0)
             timeBetweenPackets = 1.0;
     }
 }
