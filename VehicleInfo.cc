@@ -17,10 +17,10 @@
 
 namespace inet {
 
-VehicleInfo::VehicleInfo(int id, int appId, Coord pos) {
+VehicleInfo::VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord pos) {
   this->id = id;
   this->appId = appId;
-  this->channelNumberLastUpdate = 0;
+  this->channelNumberLastUpdate = channelNumberLastUpdate;
   this->pos = pos;
   last_update.resize(maxNumberOfChannels);
   for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();
@@ -31,7 +31,7 @@ VehicleInfo::VehicleInfo(int id, int appId, Coord pos) {
 VehicleInfo::VehicleInfo(const VehicleInfo &info) {
     this->id = info.id;
     this->appId = info.appId;
-    this->channelNumberLastUpdate = 0;
+    this->channelNumberLastUpdate = info.channelNumberLastUpdate;
     this->pos = info.pos;
     last_update.resize(maxNumberOfChannels);
     for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();

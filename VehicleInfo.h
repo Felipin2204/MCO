@@ -23,7 +23,7 @@ namespace inet {
 
 class INET_API VehicleInfo : public cObject {
   public:
-    VehicleInfo(int id, int appId, Coord pos);
+    VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord pos);
     VehicleInfo(const VehicleInfo &info);
     virtual ~VehicleInfo();
 

@@ -21,6 +21,7 @@
 #include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
 #include "VehicleInfo.h"
 #include "VehicleTable.h"
+#include "VehiclesNeighborCache.h"
 
 using namespace omnetpp;
 
@@ -104,7 +105,8 @@ class MgmtMCO : public cSimpleModule, public cListener {
 
     cMessage* pdrSampleTimer;
     std::vector<std::map<int,PDR>> pdrAtChannel;
-    std::vector<std::vector<cComponent*>> nodesInPdrIntervals;
+    std::vector<std::vector<int>> nodesInPdrIntervals;
+    VehiclesNeighborCache* neighborCache;
 };
 
 } /* namespace inet */
