@@ -18,6 +18,8 @@ package inet.applications.vehicular;
 import inet.queueing.queue.PacketQueue;
 import inet.queueing.queue.DropTailQueue;
 
+//Priority Classifier pushes packets into the first non-full among its connected queues.
+
 module MCOSequencialFilling extends MCO
 {
     parameters:

@@ -15,8 +15,6 @@
 
 package inet.applications.vehicular;
 
-//This module finally is not used because it produces lower generation intervals times 
-
 simple DCCTrafficGenerator extends TrafficGenerator
 {
     parameters:
