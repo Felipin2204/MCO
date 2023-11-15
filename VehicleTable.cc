@@ -135,9 +135,9 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
     emit(neighbors, vt.size());
     VTable::iterator it = vt.find(info->id);
     if (it == vt.end()) {
-        VehicleInfo* newNeigbor = new VehicleInfo(*info);
-        newNeigbor->beaconsReceived++;
-        vt.insert(it, std::pair<int, VehicleInfo*>(info->id, newNeigbor));
+        VehicleInfo* newNeighbor = new VehicleInfo(*info);
+        newNeighbor->beaconsReceived++;
+        vt.insert(it, std::pair<int, VehicleInfo*>(info->id, newNeighbor));
         return 1;
     } else {
         double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
@@ -148,10 +148,11 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
         if (distance <= irtRange)
             emit(irtSignals[info->channelNumberLastUpdate], irt_time);
 
-        (*it->second) = *info;
-        int brp = it->second->beaconsReceived;
-        it->second->beaconsReceived = brp++;
+        it->second->appId = info->appId;
+        it->second->channelNumberLastUpdate = info->channelNumberLastUpdate;
+        it->second->pos = info->pos;
         it->second->last_update[info->channelNumberLastUpdate] = simTime();
+        it->second->beaconsReceived++;
 
         return 0;
     }
