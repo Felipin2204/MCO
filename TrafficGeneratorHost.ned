@@ -41,7 +41,7 @@ module TrafficGeneratorHost
         wlan*.bitrate = 6Mbps;
 
         //Settings for a Best Effort Acess Category
-        wlan*.mac.qosStation = true;
+        //wlan*.mac.qosStation = true;
         wlan*.mac.hcf.edca.edcaf[1].aifsn = 6; //AIFS = AIFSN[AC=BE] * SlotTime + SIFS = 6 * 13us + 32us = 110us. 
         wlan*.mac.hcf.edca.edcaf[1].cwMin = 15;
         wlan*.mac.hcf.edca.edcaf[1].cwMax = 1023;

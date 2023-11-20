@@ -179,6 +179,7 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
                 if(queue->isVector()) qIndex = queue->getIndex();
                 else qIndex = numChannels-1;
 
+                //TODO: If we want to use Best Effort access category, we have to change this code.
                 //Dequeue packet if the Dcf don't have a frame to transmit(Dcf::hasFrameToTransmit)
                 if (macDcaf[qIndex]->getPendingQueue()->isEmpty() && !macDcaf[qIndex]->getInProgressFrames()->hasInProgressFrames()){
                     auto packet = queue->dequeuePacket();

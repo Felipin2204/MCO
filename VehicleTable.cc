@@ -97,7 +97,7 @@ void VehicleTable::initialize()
     irtRange = par("irtRange");
     updateTimer = new cMessage("VTable update", UPDATE_TO);
     if (!persistent) scheduleAt(simTime()+updateTime, updateTimer);
-    irthist = new IRTHistogram(50, 10.0);
+    irthist = new IRTHistogram(101, 10.0);
     WATCH_PTR(irthist);
     mob = check_and_cast<IMobility*>(getModuleByPath("^.^.mobility"));
     WATCH_PTRMAP(vt);
@@ -123,7 +123,7 @@ void VehicleTable::handleMessage(cMessage *msg)
 }
 
 void VehicleTable::finish() {
-    recordScalar("irt_irtRange", irthist->meanLessDistance(irtRange));
+    //recordScalar("irt_irtRange", irthist->meanLessDistance(irtRange));
 }
 
 VehicleTable::~VehicleTable() {
@@ -142,7 +142,7 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
     } else {
         double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
         double distance = mob->getCurrentPosition().distance(info->pos);
-        irthist->collect(irt_time, distance);
+        //irthist->collect(irt_time, distance);
 
         //Emit IRT if the node is in the irtRange
         if (distance <= irtRange)
