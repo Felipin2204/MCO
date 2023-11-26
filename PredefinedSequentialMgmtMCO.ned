@@ -20,4 +20,5 @@ simple PredefinedSequentialMgmtMCO extends MgmtMCO
     parameters:
         @class(PredefinedSequentialMgmtMCO);
         string channelMaxCapacity = default("0.62 0.62 0.62 0.62 0.62 0.62 0.62"); //MaxCapacity per channel
+        double maxChannelCapacityReduction = default(0.1);
 }

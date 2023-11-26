@@ -33,7 +33,7 @@ simple MgmtMCO like IMgmtMCO
         @signal[pdr*_*-*](type=double);
         @signal[MCOPacketReceived];
   
-		@statisticTemplate[cbt](record=mean);
+		@statisticTemplate[cbt](record=vector);
         @statisticTemplate[pdr](record=vector);
         
     gates:
