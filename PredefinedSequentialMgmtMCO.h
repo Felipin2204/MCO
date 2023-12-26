@@ -28,7 +28,7 @@ class PredefinedSequentialMgmtMCO : public MgmtMCO
   protected:
     virtual void initialize(int stage) override;
     virtual void handleMessage(cMessage *msg) override;
-    std::vector<double> channelMaxCapacity;
+    std::vector<double> maxChannelCapacity;
     PredefinedPriorityClassifier* classifier;
 };
 

@@ -23,16 +23,18 @@ void PredefinedSequentialMgmtMCO::initialize(int stage)
 {
     MgmtMCO::initialize(stage);
     if(stage == INITSTAGE_LOCAL) {
-        const char *cstr = par("channelMaxCapacity").stringValue();
-        channelMaxCapacity = cStringTokenizer(cstr).asDoubleVector();
-        if (channelMaxCapacity.size() != numChannels) {
-            throw cRuntimeError("channelMaxCapacity size has to be equal to numChannels");
+        const char *cstr = par("maxChannelCapacity").stringValue();
+        maxChannelCapacity = cStringTokenizer(cstr).asDoubleVector();
+        if (maxChannelCapacity.size() != numChannels) {
+            throw cRuntimeError("maxChannelCapacity size has to be equal to numChannels");
         }
-        //Lowered maximum channel capacities through randomized adjustments
-        double maxChannelCapacityReduction = par("maxChannelCapacityReduction").doubleValue();
-        for(size_t i=0; i<channelMaxCapacity.size(); i++)
-            channelMaxCapacity[i] -= uniform(0.0, maxChannelCapacityReduction);
-        WATCH_VECTOR(channelMaxCapacity);
+        if (par("adjustMaxChannelCapacity").boolValue()) {
+            //Lowered maximum channel capacities through randomized adjustments
+            double maxChannelCapacityReduction = par("maxChannelCapacityReduction").doubleValue();
+            for(size_t i=0; i<maxChannelCapacity.size(); i++)
+                maxChannelCapacity[i] -= uniform(0.0, maxChannelCapacityReduction);
+            WATCH_VECTOR(maxChannelCapacity);
+        }
     } else if(stage == INITSTAGE_LINK_LAYER) {
         classifier = check_and_cast<PredefinedPriorityClassifier*>(getModuleByPath("^.classifier"));
     }
@@ -44,7 +46,7 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
         if (msg == cbtSampleTimer) {
             for (int i=0; i<numChannels; i++) {
                 double cbt = getMeasuredCBT(cbtWindow.dbl(), i);
-                if (cbt > channelMaxCapacity[i])
+                if (cbt > maxChannelCapacity[i])
                     classifier->setState(i, true);
                 else
                     classifier->setState(i, false);
