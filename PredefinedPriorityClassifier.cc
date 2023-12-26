@@ -43,12 +43,13 @@ int PredefinedPriorityClassifier::classifyPacket(Packet *packet) {
             }
         }
     }
-    //If we are here, all channels are congested, we should probably drop the packet, but it is left to the queue
+    //If we are here, all channels are congested, we should probably drop the packet, but it is left to the queue.
+    //FIXME: The queue doesn't drop the packet unless it's full (dropTailQueue).
     //TODO: queues should have a capacity equal to the max load but the inet API does not allow to set dynamically the max capacity
     //so we have to do a custom queue. In any case we would have to adapt it to the measured load...difficult
 
     //Just return a random channel
-    return getOutputGateIndex(intuniform(0,sequence.size()-1));
+    return getOutputGateIndex(intuniform(0,sequence.size()-1)); //The packet is going to be transmitted by a random channel, although this channel is congested
 }
 
 void PredefinedPriorityClassifier::setState(int c, bool state) {

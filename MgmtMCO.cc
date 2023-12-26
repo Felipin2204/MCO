@@ -74,6 +74,11 @@ void MgmtMCO::initialize(int stage)
         for (int i = 0; i < numChannels; i++)
             pdrSignals[i].resize(pdrNumberIntervals);
 
+        receivedPacketCountSignals.resize(numChannels);
+        receivedPacketCount.resize(numChannels);
+        for (int i = 0; i < numChannels; i++)
+            receivedPacketCount[i] = 0;
+
         //Statistics recording for dynamically registered signals
         for (int i = 0; i < numChannels; i++) {
             std::string tname("cbt");
@@ -89,6 +94,12 @@ void MgmtMCO::initialize(int stage)
                 statisticTemplate = getProperties()->get("statisticTemplate", "pdr");
                 getEnvir()->addResultRecorders(this, pdrSignals[i][j], sname.c_str(), statisticTemplate);
             }
+
+            std::string pname("receivedPacketCount");
+            pname += std::to_string(i);
+            receivedPacketCountSignals[i] = registerSignal(pname.c_str());
+            statisticTemplate = getProperties()->get("statisticTemplate", "receivedPacketCount");
+            getEnvir()->addResultRecorders(this, receivedPacketCountSignals[i], pname.c_str(), statisticTemplate);
         }
 
         cbtSampleTimer = new cMessage("CBT Timer", CBT_TO);
@@ -384,6 +395,12 @@ void MgmtMCO::receiveMCOPacket(cMessage* msg) {
     updateVehicleInfo(pkt);
 
     auto p = pkt->peekAtFront<MCOPacket>(pkt->getDataLength());
+
+    //Update the number of packets received per channel
+    receivedPacketCount[p->getChannel()]++;
+    emit(receivedPacketCountSignals[p->getChannel()], receivedPacketCount[p->getChannel()]);
+
+    //MCOPacketReceived signal
     MCOReceivedInfo* ci = new MCOReceivedInfo();
     ci->id = myId;
     ci->appId = p->getAppIdentifier();

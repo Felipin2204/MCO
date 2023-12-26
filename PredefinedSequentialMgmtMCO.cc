@@ -28,12 +28,12 @@ void PredefinedSequentialMgmtMCO::initialize(int stage)
         if (maxChannelCapacity.size() != numChannels) {
             throw cRuntimeError("maxChannelCapacity size has to be equal to numChannels");
         }
+        WATCH_VECTOR(maxChannelCapacity);
         if (par("adjustMaxChannelCapacity").boolValue()) {
             //Lowered maximum channel capacities through randomized adjustments
             double maxChannelCapacityReduction = par("maxChannelCapacityReduction").doubleValue();
             for(size_t i=0; i<maxChannelCapacity.size(); i++)
                 maxChannelCapacity[i] -= uniform(0.0, maxChannelCapacityReduction);
-            WATCH_VECTOR(maxChannelCapacity);
         }
     } else if(stage == INITSTAGE_LINK_LAYER) {
         classifier = check_and_cast<PredefinedPriorityClassifier*>(getModuleByPath("^.classifier"));

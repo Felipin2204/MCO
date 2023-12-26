@@ -107,6 +107,9 @@ class MgmtMCO : public cSimpleModule, public cListener {
     std::vector<std::map<int,PDR>> pdrAtChannel;
     std::vector<std::vector<int>> nodesInPdrIntervals;
     VehiclesNeighborCache* neighborCache;
+
+    std::vector<int> receivedPacketCount;
+    std::vector<simsignal_t> receivedPacketCountSignals;
 };
 
 } /* namespace inet */
