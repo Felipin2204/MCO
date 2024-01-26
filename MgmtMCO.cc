@@ -228,6 +228,10 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
 
 void MgmtMCO::finish() {
     computePDR();
+
+    //To avoid NaN values in these signals
+    for (int i = 0; i < numChannels; i++)
+        emit(receivedPacketCountSignals[i], receivedPacketCount[i]);
 }
 
 void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signal, intval_t value, cObject *details) {
