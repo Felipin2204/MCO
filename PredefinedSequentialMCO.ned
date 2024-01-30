@@ -26,7 +26,13 @@ module PredefinedSequentialMCO extends MCO
         queue[numChannels]: DropTailQueue {
             parameters:
                 @display("p=76,289");
-                packetCapacity = default(1000);
+        }
+        //In this module we are going to use one queue to drop leftover packets
+        binQueue: DropTailQueue {
+            parameters:
+                @display("p=37,228");
+                packetCapacity = 0;
+                
         }
 
     connections allowunconnected:
@@ -34,4 +40,6 @@ module PredefinedSequentialMCO extends MCO
             classifier.out++ --> queue[i].in;
             queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
         }
+        //Connection for the bin queue
+        classifier.out++ --> binQueue.in;
 }

@@ -24,7 +24,7 @@ void PredefinedPriorityClassifier::initialize(int stage) {
     if (stage == INITSTAGE_LOCAL) {
         const char *cstr = par("sequence").stringValue();
         sequence = cStringTokenizer(cstr).asIntVector();
-        if (sequence.size() != consumers.size()) {
+        if (sequence.size() != consumers.size()-1) {
             throw cRuntimeError("The  sequence size has to be equal to the number of queues/consumers");
         }
         for (size_t i = 0; i < sequence.size(); ++i){
@@ -43,13 +43,9 @@ int PredefinedPriorityClassifier::classifyPacket(Packet *packet) {
             }
         }
     }
-    //If we are here, all channels are congested, we should probably drop the packet, but it is left to the queue.
-    //FIXME: The queue doesn't drop the packet unless it's full (dropTailQueue).
-    //TODO: queues should have a capacity equal to the max load but the inet API does not allow to set dynamically the max capacity
-    //so we have to do a custom queue. In any case we would have to adapt it to the measured load...difficult
-
-    //Just return a random channel
-    return getOutputGateIndex(intuniform(0,sequence.size()-1)); //The packet is going to be transmitted by a random channel, although this channel is congested
+    //If we are here, all channels are congested, we should probably drop the packet.
+    //Return the index of the bin queue in order to drop the packet
+    return getOutputGateIndex(sequence.size());
 }
 
 void PredefinedPriorityClassifier::setState(int c, bool state) {
