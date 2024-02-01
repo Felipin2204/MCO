@@ -20,7 +20,7 @@ if len(sys.argv) == 3:
     vectorReceivedPacketCount=np.zeros(7)
     for i in range(7):
         columnsReceivedPacketCount+='receivedPacketCount' + str(i) + ','
-        receivedPacketCount=get_scalars("module=~TraficGeneratorNetwork.node[*].MCO.mgmt AND name=~receivedPacketCount" + str(i) + ":last")["value"].to_numpy()
+        receivedPacketCount=get_scalars("name=~receivedPacketCount" + str(i) + ":last")["value"].to_numpy()
         vectorReceivedPacketCount[i]=receivedPacketCount.mean()
     columnsReceivedPacketCount=columnsReceivedPacketCount[:-1]
     file.write(columnsReceivedPacketCount + "\n")
@@ -35,7 +35,7 @@ if len(sys.argv) == 3:
     vectorCBT=np.zeros(7)
     for i in range(7):
         columnsCBT+='cbt' + str(i) + ','
-        aux=get_vectors("module=~TraficGeneratorNetwork.node[*].MCO.mgmt AND name=~cbt" + str(i) + ":vector")["vecvalue"].to_numpy()
+        aux=get_vectors("name=~cbt" + str(i) + ":vector")["vecvalue"].to_numpy()
         cbt=np.concatenate(aux)
         vectorCBT[i]=cbt.mean()
     columnsCBT=columnsCBT[:-1]
@@ -48,7 +48,7 @@ if len(sys.argv) == 3:
     vectorIRT=np.zeros(7)
     for i in range(7):
         columnsIRT+='irt' + str(i) + ','
-        aux=get_vectors("module=~TraficGeneratorNetwork.node[*].MCO.vehicleTable AND name=~irt" + str(i) + ":vector")["vecvalue"].to_numpy()
+        aux=get_vectors("name=~irt" + str(i) + ":vector")["vecvalue"].to_numpy()
         irt=np.concatenate(aux)
         vectorIRT[i]=np.percentile(irt, 99)
     columnsIRT=columnsIRT[:-1]
@@ -62,7 +62,7 @@ if len(sys.argv) == 3:
         vectorPDR=np.zeros(20)
         for j in range(20):
             columnsPDR+="PDR" + str(i) + "_" + str(j*100) + "-" + str((j+1)*100) + ","
-            aux=get_vectors("module=~TraficGeneratorNetwork.node[*].MCO.mgmt AND name=~pdr" + str(i) + "_" + str(j*100) + "-" + str((j+1)*100) + ":vector")["vecvalue"].to_numpy()
+            aux=get_vectors("name=~pdr" + str(i) + "_" + str(j*100) + "-" + str((j+1)*100) + ":vector")["vecvalue"].to_numpy()
             if aux.size != 0:
                 pdr=np.concatenate(aux)
                 vectorPDR[j]=pdr.mean()
