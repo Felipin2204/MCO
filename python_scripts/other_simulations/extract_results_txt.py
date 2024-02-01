@@ -2,8 +2,8 @@ import sys
 import os
 from omnetpp.scave.results import *
 
-#First argument - Name of the results file (with extension)
-#Second argument - Name of the data file (without the extension)
+#First argument - Output: Name of the results file (with extension(.txt))
+#Second argument - Input: Name of the data file (without the extension)
 
 if len(sys.argv) == 3:
     
