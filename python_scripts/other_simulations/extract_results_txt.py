@@ -2,18 +2,18 @@ import sys
 import os
 from omnetpp.scave.results import *
 
-#First argument - Output: Name of the results file (with extension(.txt))
-#Second argument - Input: Name of the data file (without the extension)
+#First argument - Input: Name of the data file (without the extension)
+#Second argument - Output: Name of the results file (with extension(.txt))
 
 if len(sys.argv) == 3:
     
-    if(os.path.exists(sys.argv[1])):
-        os.remove(sys.argv[1])
+    if(os.path.exists(sys.argv[2])):
+        os.remove(sys.argv[2])
         
-    file=open(sys.argv[1], 'a')
+    file=open(sys.argv[2], 'a')
     
     #Scalar values
-    set_inputs(sys.argv[2] + ".sca")
+    set_inputs(sys.argv[1] + ".sca")
     
     #Received packets per channel
     columnsReceivedPacketCount=''
@@ -28,7 +28,7 @@ if len(sys.argv) == 3:
     print('ReceivedPacketCount processed')
     
     #Vector values
-    set_inputs(sys.argv[2] + ".vec")
+    set_inputs(sys.argv[1] + ".vec")
     
     #CBT
     columnsCBT=''
