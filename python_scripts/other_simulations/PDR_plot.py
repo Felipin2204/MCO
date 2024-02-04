@@ -7,12 +7,15 @@ from matplotlib import pyplot as plt
 
 if len(sys.argv) == 3: 
     
-    #Vector values
-    set_inputs(sys.argv[1] + ".vec")
+    #Set of simulation result files to use as input
+    set_inputs([sys.argv[1] + ".sca", sys.argv[1] + ".vec"])
+    
+    #Getting the number of channels used in the simulation
+    numChannels=int(get_parameters("module=~TraficGeneratorNetwork.node[0] AND name=~numChannels")["value"].pop(0))
     
     #PDR
-    matrixPDR=np.zeros((7,20))
-    for i in range(7):
+    matrixPDR=np.zeros((numChannels,20))
+    for i in range(numChannels):
         for j in range(20):
             aux=get_vectors("name=~pdr" + str(i) + "_" + str(j*100) + "-" + str((j+1)*100) + ":vector")["vecvalue"].to_numpy()
             if aux.size != 0:
@@ -25,13 +28,13 @@ if len(sys.argv) == 3:
     #Plotting PDR
     fig,ax=plt.subplots()
 
-    #Getting some parameters values
-    set_inputs(sys.argv[1] + ".sca")
-    numberNodes=get_parameters("name=~nodes")["value"].pop(0)
+    #Getting some parameters values for the figure title
+    numberNodes=int(get_parameters("name=~nodes")["value"].pop(0))
     typenameMCO=get_parameters("module=~TraficGeneratorNetwork.node[0].MCO AND name=~typename")["value"].pop(0)
     typenameMCO=typenameMCO.split(".")[-1][:-1]
+    numApplications=int(get_parameters("module=~TraficGeneratorNetwork.node[0] AND name=~numApplications")["value"].pop(0))
 
-    ax.set_title("PRR vs. distance, "+typenameMCO+", nodes="+str(numberNodes), fontweight='bold')
+    ax.set_title("PRR, "+typenameMCO+", nodes="+str(numberNodes)+", apps="+str(numApplications), fontweight='bold')
     ax.set_xlabel("Distance [m]")
     ax.set_ylabel("PRR")
     ax.axis([0, 2000, 0, 1])
@@ -41,7 +44,7 @@ if len(sys.argv) == 3:
     #Plots
     x=np.arange(100, 2100, 100)
 
-    for i in range(7):
+    for i in range(numChannels):
         ax.plot(x, matrixPDR[i], label='Channel '+str(i))
 
     ax.legend(loc='lower left', fontsize='x-small')
