@@ -17,6 +17,8 @@
 
 namespace inet {
 
+simsignal_t PredefinedSequentialMgmtMCO::currentUsedChannelSignal = SIMSIGNAL_NULL;
+
 Define_Module(PredefinedSequentialMgmtMCO);
 
 void PredefinedSequentialMgmtMCO::initialize(int stage)
@@ -35,6 +37,7 @@ void PredefinedSequentialMgmtMCO::initialize(int stage)
             for(size_t i=0; i<maxChannelCapacity.size(); i++)
                 maxChannelCapacity[i] -= uniform(0.0, maxChannelCapacityReduction);
         }
+        currentUsedChannelSignal = registerSignal("currentUsedChannel");
     } else if(stage == INITSTAGE_LINK_LAYER) {
         classifier = check_and_cast<PredefinedPriorityClassifier*>(getModuleByPath("^.classifier"));
     }
@@ -50,6 +53,7 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
                     classifier->setState(i, true);
                 else
                     classifier->setState(i, false);
+                emit(currentUsedChannelSignal, getCurrentUsedChannel());
             }
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else {
@@ -58,6 +62,17 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
     } else {
         MgmtMCO::handleMessage(msg);
     }
+}
+
+int PredefinedSequentialMgmtMCO::getCurrentUsedChannel()
+{
+    std::vector<int> sequence = classifier->getSequence();
+    for (int i=0; i>numChannels; i++) {
+        if (!classifier->isCongested(sequence[i])){
+            return sequence[i];
+        }
+    }
+    return -1;
 }
 
 } //namespace

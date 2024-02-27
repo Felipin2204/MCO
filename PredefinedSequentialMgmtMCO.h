@@ -28,8 +28,10 @@ class PredefinedSequentialMgmtMCO : public MgmtMCO
   protected:
     virtual void initialize(int stage) override;
     virtual void handleMessage(cMessage *msg) override;
+    virtual int getCurrentUsedChannel();
     std::vector<double> maxChannelCapacity;
     PredefinedPriorityClassifier* classifier;
+    static simsignal_t currentUsedChannelSignal;
 };
 
 } //namespace

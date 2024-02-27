@@ -23,4 +23,7 @@ simple PredefinedSequentialMgmtMCO extends MgmtMCO
         
         bool adjustMaxChannelCapacity = default(false);
         double maxChannelCapacityReduction = default(0.1);
+        
+        @signal[currentUsedChannel](type=int);
+        @statistic[currentUsedChannel](record=vector);
 }

@@ -35,8 +35,9 @@ protected:
     std::vector<int> sequence;
     std::vector<bool> congested;
 public:
-    virtual bool isCongested(int c) const { return congested[c];};
+    virtual bool isCongested(int c) const { return congested[c]; };
     virtual void setState(int c, bool state);
+    virtual std::vector<int> getSequence() { return sequence; };
 };
 } //namespace
 
