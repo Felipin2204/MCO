@@ -53,8 +53,8 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
                     classifier->setState(i, true);
                 else
                     classifier->setState(i, false);
-                emit(currentUsedChannelSignal, getCurrentUsedChannel());
             }
+            emit(currentUsedChannelSignal, getCurrentUsedChannel());
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else {
             MgmtMCO::handleMessage(msg);
@@ -67,7 +67,7 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
 int PredefinedSequentialMgmtMCO::getCurrentUsedChannel()
 {
     std::vector<int> sequence = classifier->getSequence();
-    for (int i=0; i>numChannels; i++) {
+    for (int i=0; i<numChannels; i++) {
         if (!classifier->isCongested(sequence[i])){
             return sequence[i];
         }
