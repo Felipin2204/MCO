@@ -19,8 +19,8 @@ import inet.queueing.queue.DropTailQueue;
 module PredefinedSequentialMCO extends MCO
 {
     parameters:
-        mgmt.typename = "PredefinedSequentialMgmtMCO";
-        classifier.typename = "PredefinedPriorityClassifier";
+        mgmt.typename = default("PredefinedSequentialMgmtMCO");
+        classifier.typename = default("PredefinedPriorityClassifier");
 
     submodules:
         queue[numChannels]: DropTailQueue {
