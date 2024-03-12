@@ -37,8 +37,9 @@ protected:
 public:
     virtual bool isCongested(int c) const { return congested[c]; };
     virtual void setState(int c, bool state);
-    virtual std::vector<int> getSequence() { return sequence; };
+    virtual int getCurrentUsedChannel();
 };
+
 } //namespace
 
 #endif

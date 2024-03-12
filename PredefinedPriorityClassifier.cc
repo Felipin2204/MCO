@@ -52,4 +52,15 @@ void PredefinedPriorityClassifier::setState(int c, bool state) {
     congested[c] = state;
 }
 
+int PredefinedPriorityClassifier::getCurrentUsedChannel()
+{
+    for (int i = 0; i < sequence.size(); i++) {
+        if (!congested[sequence[i]]){
+            return sequence[i];
+        }
+    }
+    //Bin queue
+    return -1;
+}
+
 } //namespace

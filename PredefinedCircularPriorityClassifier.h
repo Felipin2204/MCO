@@ -33,7 +33,10 @@ protected:
     virtual void initialize(int stage) override;
     virtual int classifyPacket(Packet *packet) override;
     int lastClassifiedChannelIndex;
+public:
+    virtual int getCurrentUsedChannel() override;
 };
+
 } //namespace
 
 #endif

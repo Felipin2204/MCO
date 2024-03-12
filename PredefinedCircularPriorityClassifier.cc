@@ -43,4 +43,17 @@ int PredefinedCircularPriorityClassifier::classifyPacket(Packet *packet) {
     return getOutputGateIndex(sequence.size());
 }
 
+int PredefinedCircularPriorityClassifier::getCurrentUsedChannel()
+{
+    for (size_t i = 0; i < sequence.size(); i++) {
+        size_t nextChannelIndex = (lastClassifiedChannelIndex + i) % sequence.size();
+        size_t outputGateIndex = getOutputGateIndex(sequence[nextChannelIndex]);
+        if (congested[outputGateIndex] == false) {
+            return sequence[nextChannelIndex];
+        }
+    }
+    //Bin queue
+    return -1;
+}
+
 } //namespace

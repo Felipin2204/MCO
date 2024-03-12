@@ -54,7 +54,7 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
                 else
                     classifier->setState(i, false);
             }
-            emit(currentUsedChannelSignal, getCurrentUsedChannel());
+            emit(currentUsedChannelSignal, classifier->getCurrentUsedChannel());
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else {
             MgmtMCO::handleMessage(msg);
@@ -62,17 +62,6 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
     } else {
         MgmtMCO::handleMessage(msg);
     }
-}
-
-int PredefinedSequentialMgmtMCO::getCurrentUsedChannel()
-{
-    std::vector<int> sequence = classifier->getSequence();
-    for (int i=0; i<numChannels; i++) {
-        if (!classifier->isCongested(sequence[i])){
-            return sequence[i];
-        }
-    }
-    return -1;
 }
 
 } //namespace
