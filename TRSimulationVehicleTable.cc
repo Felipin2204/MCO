@@ -95,7 +95,7 @@ void TRSimulationVehicleTable::initialize()
     EV_INFO << "Initializing Vehicle Table with update time=" << updateTime << endl;
     persistent = par("persistent");
     irtRange = par("irtRange");
-    updateTimer = new cMessage("VTable update", UPDATE_TO);
+    updateTimer = new cMessage("TRVTable update", UPDATE_TO);
     if (!persistent) scheduleAt(simTime()+updateTime, updateTimer);
     irthist = new TRSimulationIRTHistogram(50, 10.0);
     WATCH_PTR(irthist);
@@ -126,7 +126,7 @@ TRSimulationVehicleTable::~TRSimulationVehicleTable() {
 
 int  TRSimulationVehicleTable::insertOrUpdate(TRSimulationVehicleInfo* info) {
     emit(neighbors, vt.size());
-    VTable::iterator it = vt.find(info->id);
+    TRVTable::iterator it = vt.find(info->id);
     if (it == vt.end()) {
         TRSimulationVehicleInfo* newNeigbor = new TRSimulationVehicleInfo(*info);
         newNeigbor->beaconsReceived++;
@@ -150,7 +150,7 @@ int  TRSimulationVehicleTable::insertOrUpdate(TRSimulationVehicleInfo* info) {
 
 void TRSimulationVehicleTable::refreshTable() {
     emit(neighbors, vt.size());
-    VTable::iterator it = vt.begin();
+    TRVTable::iterator it = vt.begin();
     while(it != vt.end()) {
         if (simTime()-it->second->last_update >= updateTime) {
             delete(it->second);
@@ -164,7 +164,7 @@ void TRSimulationVehicleTable::refreshTable() {
 
 void TRSimulationVehicleTable::refreshTable(double ut) {
     emit(neighbors, vt.size());
-    VTable::iterator it = vt.begin();
+    TRVTable::iterator it = vt.begin();
     while(it != vt.end()) {
         if (simTime()-it->second->last_update >= ut) {
             delete(it->second);

@@ -390,6 +390,9 @@ Packet* MgmtMCO::createMCOPacket(Packet* packet, int channel) {
     //Next tag is necessary to have a Best Effort QoS
     newpacket->addTagIfAbsent<UserPriorityReq>()->setUserPriority(0);
 
+    //Representation of packet fields
+    //std::cout << "MCOPacket representation: " << newpacket->getCompleteStringRepresentation() << endl;
+
     return newpacket;
 }
 
