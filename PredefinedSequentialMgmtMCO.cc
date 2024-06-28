@@ -54,6 +54,10 @@ void PredefinedSequentialMgmtMCO::handleMessage(cMessage *msg)
                 else
                     classifier->setState(i, false);
             }
+            if (cbtFirstSample) {
+                cbtFirstSample = false;
+                cbtWindow = par("cbtWindow");
+            }
             emit(currentUsedChannelSignal, classifier->getCurrentUsedChannel());
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else {

@@ -24,6 +24,7 @@ simple MgmtMCO like IMgmtMCO
         int numApplications;
         
         double cbtWindow @unit(s) = default(0.1s); //Tcbr-itsg5
+        double cbtJitter @unit(s) = default(uniform(0s, 0.1s)); // In order to avoid that all the nodes sample at the same time intervals
         double pdrWindow @unit(s) = default(0.1s);
         double pdrUpdate @unit(s) = default(0.1s);
         double pdrDistanceStep @unit(m) = default(100m);

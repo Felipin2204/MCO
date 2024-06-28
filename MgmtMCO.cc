@@ -62,7 +62,6 @@ void MgmtMCO::initialize(int stage)
             outWlanId.push_back(gate(baseIdOut+i)->getId());
         }
 
-        cbtWindow = par("cbtWindow");
         cbtSignals.resize(numChannels);
 
         pdrWindow = par("pdrWindow");
@@ -103,6 +102,8 @@ void MgmtMCO::initialize(int stage)
         }
 
         cbtSampleTimer = new cMessage("CBT Timer", CBT_TO);
+        cbtWindow = par("cbtJitter");
+        cbtFirstSample = true;
         setCbtWindow(cbtWindow);
 
         pdrSampleTimer = new cMessage("PDR Timer");
@@ -169,6 +170,10 @@ void MgmtMCO::handleMessage(cMessage *msg)
         if (msg == cbtSampleTimer) {
             for (int i = 0; i < numChannels; i++) {
                 getMeasuredCBT(cbtWindow.dbl(), i);
+            }
+            if (cbtFirstSample) {
+                cbtFirstSample = false;
+                cbtWindow = par("cbtWindow");
             }
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else if (msg == pdrSampleTimer) {

@@ -45,6 +45,10 @@ void MCOLoadBalancingCCMgmt::handleMessage(cMessage *msg)
                 else
                     classifier->setState(i, false);
             }
+            if (cbtFirstSample) {
+                cbtFirstSample = false;
+                cbtWindow = par("cbtWindow");
+            }
             scheduleAfter(cbtWindow, cbtSampleTimer);
         } else {
             MgmtMCO::handleMessage(msg);

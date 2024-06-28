@@ -88,6 +88,7 @@ class MgmtMCO : public cSimpleModule, public cListener {
 
     //CBT measurement
     simtime_t cbtWindow;
+    bool cbtFirstSample;
     std::vector<simsignal_t> cbtSignals;
 
     cMessage* cbtSampleTimer;
