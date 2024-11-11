@@ -18,7 +18,7 @@ package inet.applications.vehicular;
 import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
 
 
-network TraficGeneratorNetwork
+network TrafficGeneratorNetwork
 {
     parameters:
         int nodes;
