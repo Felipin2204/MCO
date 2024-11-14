@@ -140,13 +140,15 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
         vt.insert(it, std::pair<int, VehicleInfo*>(info->id, newNeighbor));
         return 1;
     } else {
-        double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
-        double distance = mob->getCurrentPosition().distance(info->pos);
-        //irthist->collect(irt_time, distance);
+        if (last_update[info->channelNumberLastUpdate] != SIMTIME_ZERO) {
+            double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
+            double distance = mob->getCurrentPosition().distance(info->pos);
+            //irthist->collect(irt_time, distance);
 
-        //Emit IRT if the node is in the irtRange
-        if (distance <= irtRange)
-            emit(irtSignals[info->channelNumberLastUpdate], irt_time);
+            //Emit IRT if the node is in the irtRange
+            if (distance <= irtRange)
+                emit(irtSignals[info->channelNumberLastUpdate], irt_time);
+        }
 
         it->second->appId = info->appId;
         it->second->channelNumberLastUpdate = info->channelNumberLastUpdate;

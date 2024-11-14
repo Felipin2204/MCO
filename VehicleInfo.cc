@@ -23,7 +23,8 @@ VehicleInfo::VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord p
   this->channelNumberLastUpdate = channelNumberLastUpdate;
   this->pos = pos;
   last_update.resize(maxNumberOfChannels);
-  for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();
+  for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
+  this->last_update[channelNumberLastUpdate] = simTime();
   this->init = simTime();
   this->beaconsReceived = 0;
 }
@@ -34,7 +35,8 @@ VehicleInfo::VehicleInfo(const VehicleInfo &info) {
     this->channelNumberLastUpdate = info.channelNumberLastUpdate;
     this->pos = info.pos;
     last_update.resize(maxNumberOfChannels);
-    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = simTime();
+    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
+    this->last_update[info.channelNumberLastUpdate] = simTime();
     this->init = simTime();
     this->beaconsReceived = 0;
 }
