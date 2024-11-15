@@ -37,6 +37,7 @@ class INET_API VehicleInfo : public cObject {
 
     std::vector<simtime_t> last_update;
     simtime_t init;
+    simtime_t lastUpdatePeriodic;
 
     int beaconsReceived;
 

@@ -23,6 +23,7 @@ namespace inet {
 Define_Module(VehicleTable);
 
 simsignal_t VehicleTable::neighbors = SIMSIGNAL_NULL;
+simsignal_t VehicleTable::irtPeriodic = SIMSIGNAL_NULL;
 
 IRTHistogram::IRTHistogram(int cells, double size) : irts(cells+1, 0.0), samples(cells+1, 0) {
     cellsize = size;
@@ -95,6 +96,7 @@ void VehicleTable::initialize()
     EV_INFO << "Initializing Vehicle Table with update time=" << updateTime << endl;
     persistent = par("persistent");
     irtRange = par("irtRange");
+    enableIrtPeriodic = par("enableIrtPeriodic");
     updateTimer = new cMessage("VTable update", UPDATE_TO);
     if (!persistent) scheduleAt(simTime()+updateTime, updateTimer);
     irthist = new IRTHistogram(101, 10.0);
@@ -112,6 +114,7 @@ void VehicleTable::initialize()
         cProperty *statisticTemplate = getProperties()->get("statisticTemplate", "irt");
         getEnvir()->addResultRecorders(this, irtSignals[i], tname.c_str(), statisticTemplate);
     }
+    irtPeriodic = registerSignal("irtPeriodic");
 }
 
 void VehicleTable::handleMessage(cMessage *msg)
@@ -131,7 +134,7 @@ VehicleTable::~VehicleTable() {
     delete irthist;
 }
 
-int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
+int VehicleTable::insertOrUpdate(VehicleInfo* info) {
     emit(neighbors, vt.size());
     VTable::iterator it = vt.find(info->id);
     if (it == vt.end()) {
@@ -140,14 +143,25 @@ int  VehicleTable::insertOrUpdate(VehicleInfo* info) {
         vt.insert(it, std::pair<int, VehicleInfo*>(info->id, newNeighbor));
         return 1;
     } else {
-        if (last_update[info->channelNumberLastUpdate] != SIMTIME_ZERO) {
+        double distance = mob->getCurrentPosition().distance(info->pos);
+        if (it->second->last_update[info->channelNumberLastUpdate] != SIMTIME_ZERO) {
             double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
-            double distance = mob->getCurrentPosition().distance(info->pos);
             //irthist->collect(irt_time, distance);
 
             //Emit IRT if the node is in the irtRange
             if (distance <= irtRange)
                 emit(irtSignals[info->channelNumberLastUpdate], irt_time);
+        }
+
+        if (enableIrtPeriodic && info->appId == 0) {
+            if (it->second->lastUpdatePeriodic != SIMTIME_ZERO) {
+                double irt_time_periodic = (simTime()-it->second->lastUpdatePeriodic).dbl();
+
+                //Emit IRT if the node is in the irtRange
+                if (distance <= irtRange)
+                    emit(irtPeriodic, irt_time_periodic);
+            }
+            it->second->lastUpdatePeriodic = simTime();
         }
 
         it->second->appId = info->appId;

@@ -18,15 +18,17 @@
 namespace inet {
 
 VehicleInfo::VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord pos) {
-  this->id = id;
-  this->appId = appId;
-  this->channelNumberLastUpdate = channelNumberLastUpdate;
-  this->pos = pos;
-  last_update.resize(maxNumberOfChannels);
-  for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
-  this->last_update[channelNumberLastUpdate] = simTime();
-  this->init = simTime();
-  this->beaconsReceived = 0;
+    this->id = id;
+    this->appId = appId;
+    this->channelNumberLastUpdate = channelNumberLastUpdate;
+    this->pos = pos;
+    last_update.resize(maxNumberOfChannels);
+    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
+    this->last_update[channelNumberLastUpdate] = simTime();
+    this->init = simTime();
+    this->beaconsReceived = 0;
+    this->lastUpdatePeriodic = SIMTIME_ZERO;
+    if (appId == 0) this->lastUpdatePeriodic = simTime();
 }
 
 VehicleInfo::VehicleInfo(const VehicleInfo &info) {
@@ -39,6 +41,8 @@ VehicleInfo::VehicleInfo(const VehicleInfo &info) {
     this->last_update[info.channelNumberLastUpdate] = simTime();
     this->init = simTime();
     this->beaconsReceived = 0;
+    this->lastUpdatePeriodic = SIMTIME_ZERO;
+    if (appId == 0) this->lastUpdatePeriodic = simTime();
 }
 
 VehicleInfo::~VehicleInfo() {}

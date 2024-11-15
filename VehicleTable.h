@@ -54,12 +54,14 @@ class VehicleTable : public cSimpleModule {
     double updateTime;
     bool persistent;
     double irtRange;
+    bool enableIrtPeriodic;
     cMessage* updateTimer;
     IRTHistogram* irthist;
     IMobility* mob;
 
     static simsignal_t neighbors;
     std::vector<simsignal_t> irtSignals;
+    static simsignal_t irtPeriodic;
 
   public:
     virtual ~VehicleTable();

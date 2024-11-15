@@ -24,9 +24,13 @@ simple VehicleTable like IVehicleTable
         
         double irtRange @unit(m) = default(200m);
         
+        bool enableIrtPeriodic = default(false);
+        
         @signal[neighbors](type=unsigned int);
         @signal[irt*](type=double);
+        @signal[irtPeriodic](type=double);
         
         @statistic[neighbors](record=mean);
         @statisticTemplate[irt](record=vector);
+		@statistic[irtPeriodic](record=vector);
 }
