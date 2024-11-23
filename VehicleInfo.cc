@@ -23,12 +23,14 @@ VehicleInfo::VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord p
     this->channelNumberLastUpdate = channelNumberLastUpdate;
     this->pos = pos;
     last_update.resize(maxNumberOfChannels);
-    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
-    this->last_update[channelNumberLastUpdate] = simTime();
+    for (int i = 0; i < last_update.size(); i++) {
+        if (i != channelNumberLastUpdate) this->last_update[i] = SIMTIME_ZERO;
+        else this->last_update[channelNumberLastUpdate] = simTime(); 
+    }
     this->init = simTime();
     this->beaconsReceived = 0;
-    this->lastUpdatePeriodic = SIMTIME_ZERO;
-    if (appId == 0) this->lastUpdatePeriodic = simTime();
+    if (appId != 0) this->lastUpdatePeriodic = SIMTIME_ZERO;
+    else this->lastUpdatePeriodic = simTime();
 }
 
 VehicleInfo::VehicleInfo(const VehicleInfo &info) {
@@ -37,12 +39,14 @@ VehicleInfo::VehicleInfo(const VehicleInfo &info) {
     this->channelNumberLastUpdate = info.channelNumberLastUpdate;
     this->pos = info.pos;
     last_update.resize(maxNumberOfChannels);
-    for (int i = 0; i < last_update.size(); i++) this->last_update[i] = SIMTIME_ZERO;
-    this->last_update[info.channelNumberLastUpdate] = simTime();
+    for (int i = 0; i < last_update.size(); i++) {
+        if (i != info.channelNumberLastUpdate) this->last_update[i] = SIMTIME_ZERO;
+        else this->last_update[info.channelNumberLastUpdate] = simTime();
+    }
     this->init = simTime();
     this->beaconsReceived = 0;
-    this->lastUpdatePeriodic = SIMTIME_ZERO;
-    if (appId == 0) this->lastUpdatePeriodic = simTime();
+    if (info.appId != 0) this->lastUpdatePeriodic = SIMTIME_ZERO;
+    else this->lastUpdatePeriodic = simTime();
 }
 
 VehicleInfo::~VehicleInfo() {}
