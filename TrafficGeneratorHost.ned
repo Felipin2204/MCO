@@ -82,6 +82,10 @@ module TrafficGeneratorHost
 
         MCO.numApplications = this.numApplications;
         MCO.numChannels = this.numChannels;
+        
+        // The packetDroppedSignal is emitted at the Rx module, which is a submodule of the Ieee80211Mac
+        // With this statistic we can know the number of packets dropped due to an error in the reception (interference or other cause)
+        @statistic[droppedPacketsByFCS](source=packetDropped; record=count); //FCS = Frame Check Sequence
 
     gates:
         input radioIn[numChannels] @directIn;
