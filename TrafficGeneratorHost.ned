@@ -71,6 +71,7 @@ module TrafficGeneratorHost
         //The antenna gain value should be 3 dB only at the receiver (transmitter power -3dB)
         wlan*.radio.antenna.gain = 3dB;
         wlan*.radio.receiver.snirThreshold = 3.1dB;
+        wlan*.radio.receiver.energyDetection = -98dBm;
         wlan*.radio.receiver.sensitivity = -98dBm;
         wlan*.radio.*.modulation = "QPSK"; //Transmitter and receiver
 
