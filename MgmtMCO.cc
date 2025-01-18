@@ -127,6 +127,7 @@ void MgmtMCO::initialize(int stage)
         WATCH_MAP(outAppId);
 
         for (int i = 0; i < numChannels; i++) {
+            //Collecting all the WLAN radios connected to this module
             std::string r = "^.^.wlan[" + std::to_string(i) + "].radio";
             auto radio = check_and_cast<cComponent*>(getModuleByPath(r.c_str()));
             radios.push_back(radio);
@@ -134,9 +135,10 @@ void MgmtMCO::initialize(int stage)
             //Radio module is subscribed to this other signal which is emitted by himself when a transmission is finished
             radio->subscribe(transmissionEndedSignal, this);
 
-            //Changed to collect all the queues in the MCOSequencialFilling case
+            //Collecting all the queues connected to this module (this could be done the same way as we collected the radios, this is another way)
             queues.push_back(findConnectedModule<queueing::PacketQueue>(gate("inQueue", i)));
 
+            //Collecting all the WLAN macDcafs connected to this module
             std::string d = "^.^.wlan[" + std::to_string(i) + "].mac.dcf.channelAccess";
             macDcaf.push_back(check_and_cast<ieee80211::Dcaf*>(getModuleByPath(d.c_str())));
 
@@ -190,10 +192,7 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
         for (auto c : queues) {
             if (source == c) {
                 queueing::PacketQueue* queue = check_and_cast<queueing::PacketQueue*>(c);
-
-                //Necessary for the MCOSequencialFilling case
-                if(queue->isVector()) qIndex = queue->getIndex();
-                else qIndex = numChannels-1;
+                qIndex = queue->getIndex();
 
                 //TODO: If we want to use Best Effort access category, we have to change this code.
                 //Dequeue packet if the Dcf don't have a frame to transmit(Dcf::hasFrameToTransmit)

@@ -42,9 +42,9 @@ int WrrClassifierCC::classifyPacket(Packet *packet)
             }
         }
     }
-    //If we are here, all channels are congested or can't push a packet, so we should probably drop the packet.
-    //Return the index of the bin queue in order to drop the packet.
     if (isEmpty){
+        //If we are here, all channels are congested or can't push a packet, so we should probably drop the packet.
+        //Return the index of the bin queue in order to drop the packet.
         return ((int)consumers.size() - 1);
     }
 
