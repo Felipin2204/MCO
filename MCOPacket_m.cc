@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.0 from inet/applications/vehicular/MCOPacket.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.1 from inet/applications/vehicular/MCOPacket.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -468,7 +468,7 @@ std::string MCOPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, 
         case FIELD_source: return long2string(pp->getSource());
         case FIELD_sequenceNumber: return long2string(pp->getSequenceNumber());
         case FIELD_channel: return long2string(pp->getChannel());
-        case FIELD_position: return "";
+        case FIELD_position: return pp->getPosition().str();
         default: return "";
     }
 }

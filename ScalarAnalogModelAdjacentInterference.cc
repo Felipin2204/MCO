@@ -18,6 +18,8 @@
 
 namespace inet {
 
+namespace physicallayer {
+
 Define_Module(ScalarAnalogModelAdjacentInterference);
 
 void ScalarAnalogModelAdjacentInterference::initialize(int stage)
@@ -29,23 +31,23 @@ void ScalarAnalogModelAdjacentInterference::initialize(int stage)
     }
 }
 
-const physicallayer::INoise *ScalarAnalogModelAdjacentInterference::computeNoise(const physicallayer::IListening *listening, const physicallayer::IInterference *interference) const
+const INoise *ScalarAnalogModelAdjacentInterference::computeNoise(const IListening *listening, const IInterference *interference) const
 {
-    const physicallayer::BandListening *bandListening = check_and_cast<const physicallayer::BandListening *>(listening);
+    const BandListening *bandListening = check_and_cast<const BandListening *>(listening);
     Hz commonCenterFrequency = bandListening->getCenterFrequency();
     Hz commonBandwidth = bandListening->getBandwidth();
     simtime_t noiseStartTime = SimTime::getMaxTime();
     simtime_t noiseEndTime = 0;
-    std::map<simtime_t, W> *powerChanges = new std::map<simtime_t, W>();
-    const std::vector<const physicallayer::IReception *> *interferingReceptions = interference->getInterferingReceptions();
+    std::map<simtime_t, W> powerChanges;
+    powerChanges[math::getLowerBound<simtime_t>()] = W(0);
+    powerChanges[math::getUpperBound<simtime_t>()] = W(0);
+    const std::vector<const IReception *> *interferingReceptions = interference->getInterferingReceptions();
     for (auto reception : *interferingReceptions) {
-        const physicallayer::ISignalAnalogModel *signalAnalogModel = reception->getAnalogModel();
-        const physicallayer::INarrowbandSignal *narrowbandSignalAnalogModel = check_and_cast<const physicallayer::INarrowbandSignal *>(signalAnalogModel);
+        const ISignalAnalogModel *signalAnalogModel = reception->getAnalogModel();
+        const INarrowbandSignal *narrowbandSignalAnalogModel = check_and_cast<const INarrowbandSignal *>(signalAnalogModel);
         Hz signalCenterFrequency = narrowbandSignalAnalogModel->getCenterFrequency();
         Hz signalBandwidth = narrowbandSignalAnalogModel->getBandwidth();
-        //std::cout<<"Interfering reception with power"<<narrowbandSignalAnalogModel->computeMinPower(listening->getStartTime(),listening->getEndTime())<<std::endl;
         if (commonCenterFrequency == signalCenterFrequency && commonBandwidth >= signalBandwidth) {
-            //std::cout<<"Added interfering reception with power"<<narrowbandSignalAnalogModel->computeMinPower(listening->getStartTime(),listening->getEndTime())<<std::endl;
             addReception(reception, noiseStartTime, noiseEndTime, powerChanges);
         } else {
             //std::cout<<"Interfering reception with frequency"<<signalCenterFrequency<<";BW="<<commonBandwidth<<";my freq="<<commonCenterFrequency<<std::endl;
@@ -63,7 +65,7 @@ const physicallayer::INoise *ScalarAnalogModelAdjacentInterference::computeNoise
             }
         }
     }
-    const physicallayer::ScalarNoise *scalarBackgroundNoise = dynamic_cast<const physicallayer::ScalarNoise *>(interference->getBackgroundNoise());
+    const ScalarNoise *scalarBackgroundNoise = dynamic_cast<const ScalarNoise *>(interference->getBackgroundNoise());
     if (scalarBackgroundNoise) {
         if (commonCenterFrequency == scalarBackgroundNoise->getCenterFrequency() && commonBandwidth >= scalarBackgroundNoise->getBandwidth())
             addNoise(scalarBackgroundNoise, noiseStartTime, noiseEndTime, powerChanges);
@@ -71,39 +73,43 @@ const physicallayer::INoise *ScalarAnalogModelAdjacentInterference::computeNoise
             throw cRuntimeError("Partially interfering background noise is not supported by ScalarAnalogModel, enable ignorePartialInterference to avoid this error!");
     }
     EV_TRACE << "Noise power begin " << endl;
-    //std::cout << "Noise power begin " << endl;
-    W noise = W(0);
-    for (std::map<simtime_t, W>::const_iterator it = powerChanges->begin(); it != powerChanges->end(); it++) {
-        noise += it->second;
-        EV_TRACE << "Noise at " << it->first << " = " << noise << endl;
-        //std::cout << "Noise at " << it->first << " = " << noise << endl;
+    W power = W(0);
+    for (auto & it : powerChanges) {
+        power += it.second;
+        it.second = power;
+        EV_TRACE << "Noise at " << it.first << " = " << power << endl;
     }
     EV_TRACE << "Noise power end" << endl;
-    //std::cout << "Noise power end" << endl;
-    return new physicallayer::ScalarNoise(noiseStartTime, noiseEndTime, commonCenterFrequency, commonBandwidth, powerChanges);
+    const auto& powerFunction = makeShared<math::Interpolated1DFunction<W, simtime_t>>(powerChanges, &math::LeftInterpolator<simtime_t, W>::singleton);
+    return new ScalarNoise(noiseStartTime, noiseEndTime, commonCenterFrequency, commonBandwidth, powerFunction);
 }
 
-void ScalarAnalogModelAdjacentInterference::addAdjacentReception(const physicallayer::IReception *reception, simtime_t &noiseStartTime, simtime_t &noiseEndTime, std::map<simtime_t, W> *powerChanges, int channelDistance) const {
-    W powersignal = check_and_cast<const physicallayer::IScalarSignal *>(reception->getAnalogModel())->getPower();
+void ScalarAnalogModelAdjacentInterference::addAdjacentReception(const IReception *reception, simtime_t &noiseStartTime, simtime_t &noiseEndTime, std::map<simtime_t, W> &powerChanges, int channelDistance) const
+{
+    W powersignal = check_and_cast<const IScalarSignal *>(reception->getAnalogModel())->getPower();
+
     //Apply ACS and ACL losses
     double dBW = 10.0*log10(powersignal.get());
     W power(pow(10.0, (dBW-adjacentLoss[channelDistance-1])/10.0));
     simtime_t startTime = reception->getStartTime();
     simtime_t endTime = reception->getEndTime();
-    auto itStartTime = powerChanges->find(startTime);
-    if (itStartTime != powerChanges->end())
+    std::map<simtime_t, W>::iterator itStartTime = powerChanges.find(startTime);
+    if (itStartTime != powerChanges.end())
         itStartTime->second += power;
     else
-        powerChanges->insert(std::pair<simtime_t, W>(startTime, power));
-    auto itEndTime = powerChanges->find(endTime);
-    if (itEndTime != powerChanges->end())
+        powerChanges.insert(std::pair<simtime_t, W>(startTime, power));
+    std::map<simtime_t, W>::iterator itEndTime = powerChanges.find(endTime);
+    if (itEndTime != powerChanges.end())
         itEndTime->second -= power;
     else
-        powerChanges->insert(std::pair<simtime_t, W>(endTime, -power));
+        powerChanges.insert(std::pair<simtime_t, W>(endTime, -power));
     if (reception->getStartTime() < noiseStartTime)
         noiseStartTime = reception->getStartTime();
     if (reception->getEndTime() > noiseEndTime)
         noiseEndTime = reception->getEndTime();
+    //std::cout<<simTime()<<"ScalarAnalogModelBase::addAdjacentReception "<<noiseStartTime<<","<<noiseEndTime<<"p="<<power<<std::endl;
 }
 
-} //namespace inet
+}//namespace physicallayer
+
+}//namespace inet

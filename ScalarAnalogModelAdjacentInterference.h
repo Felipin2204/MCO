@@ -23,7 +23,9 @@ using namespace omnetpp;
 
 namespace inet {
 
-class ScalarAnalogModelAdjacentInterference : public physicallayer::ScalarAnalogModel
+namespace physicallayer {
+
+class ScalarAnalogModelAdjacentInterference : public ScalarAnalogModel
 {
   protected:
     virtual void initialize(int stage) override;
@@ -31,9 +33,11 @@ class ScalarAnalogModelAdjacentInterference : public physicallayer::ScalarAnalog
     std::vector<double> adjacentLoss;
 
   public:
-    virtual const physicallayer::INoise *computeNoise(const physicallayer::IListening *listening, const physicallayer::IInterference *interference) const override;
-    virtual void addAdjacentReception(const physicallayer::IReception *reception, simtime_t& noiseStartTime, simtime_t& noiseEndTime, std::map<simtime_t, W> *powerChanges, int channelDistance) const;
+    virtual const INoise *computeNoise(const IListening *listening, const IInterference *interference) const override;
+    virtual void addAdjacentReception(const IReception *reception, simtime_t &noiseStartTime, simtime_t &noiseEndTime, std::map<simtime_t, W> &powerChanges, int channelDistance) const;
 };
+
+} //namespace physicallayer
 
 } //namespace inet
 

@@ -85,7 +85,7 @@ void TrafficGenerator::sendPacket() {
 
 //    auto data = makeShared<ByteCountChunk>(B(packetLength), 0);
 
-    data->enableImplicitChunkSerialization = true;
+//    data->enableImplicitChunkSerialization = true;
 
     char buffer [20];
     sprintf(buffer, "App%d-Packet%d", appId, generatedPackets);
