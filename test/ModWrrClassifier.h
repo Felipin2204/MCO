@@ -13,25 +13,27 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef __INET4_4_MODPREDEFINEDPRIORITYCLASSIFIER_H_
+#define __INET4_4_MODPREDEFINEDPRIORITYCLASSIFIER_H_
 
-import inet.queueing.queue.DropTailQueue;
+#include <omnetpp.h>
+#include "inet/queueing/classifier/WrrClassifier.h"
+using namespace omnetpp;
 
-module MCOLoadBalancing extends MCO
+namespace inet {
+
+/*
+ * This classifier pushes packets to consumers in a weighted round robin mode, where the sequence of the consumers is random for every instance.
+ */
+
+class ModWrrClassifier : public queueing::WrrClassifier
 {
-    parameters:
-        classifier.typename = default("WrrClassifier");
+protected:
+    virtual void initialize(int stage) override;
+    virtual int classifyPacket(Packet *packet) override;
+    std::vector<int> sequence;
+};
 
-    submodules:
-        queue[numChannels]: DropTailQueue {
-            parameters:
-                @display("p=76,289");
-				packetCapacity = 100;
-        }
+} //namespace
 
-    connections allowunconnected:
-        for i=0..numChannels-1 {
-            classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
-        }
-}
+#endif
