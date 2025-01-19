@@ -2,6 +2,6 @@ results/
 .qtenvrc
 .cmdenv-log
 *.anf
-
 *_m.h
 *_m.cc
+test.ini
