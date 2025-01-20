@@ -80,6 +80,7 @@ module TrafficGeneratorHost
         mobility.initialY = this.initialY;
         mobility.initialZ = 2m;
         mobility.initFromDisplayString = false;
+        mobility.updateInterval = 0s;
 
         MCO.numApplications = this.numApplications;
         MCO.numChannels = this.numChannels;
