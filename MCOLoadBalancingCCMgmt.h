@@ -18,7 +18,6 @@
 
 #include <omnetpp.h>
 #include "MgmtMCO.h"
-#include "inet/queueing/classifier/WrrClassifier.h"
 #include "classifier/IWrrClassifierCC.h"
 using namespace omnetpp;
 
