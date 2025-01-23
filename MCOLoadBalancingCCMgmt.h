@@ -18,7 +18,8 @@
 
 #include <omnetpp.h>
 #include "MgmtMCO.h"
-#include "WrrClassifierCC.h"
+#include "inet/queueing/classifier/WrrClassifier.h"
+#include "classifier/IWrrClassifierCC.h"
 using namespace omnetpp;
 
 namespace inet {
@@ -29,7 +30,7 @@ class MCOLoadBalancingCCMgmt : public MgmtMCO
     virtual void initialize(int stage) override;
     virtual void handleMessage(cMessage *msg) override;
     std::vector<double> maxChannelCapacity;
-    WrrClassifierCC* classifier;
+    IWrrClassifierCC* classifier;
 };
 
 } //namespace

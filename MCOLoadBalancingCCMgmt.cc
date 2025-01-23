@@ -30,7 +30,7 @@ void MCOLoadBalancingCCMgmt::initialize(int stage)
         }
         WATCH_VECTOR(maxChannelCapacity);
     } else if(stage == INITSTAGE_LINK_LAYER) {
-        classifier = check_and_cast<WrrClassifierCC*>(getModuleByPath("^.classifier"));
+        classifier = check_and_cast<IWrrClassifierCC*>(getModuleByPath("^.classifier"));
     }
 }
 

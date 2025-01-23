@@ -23,7 +23,7 @@ module MCOLoadBalancingCC extends MCO
 {
     parameters:
         mgmt.typename = "MCOLoadBalancingCCMgmt";
-        classifier.typename = "WrrClassifierCC";
+        classifier.typename = default("WrrClassifierCC");
 
     submodules:
         queue[numChannels]: DropTailQueue {

@@ -13,27 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "ApplicationIdToQueueClassifier.h"
-#include "TrafficPacket_m.h"
+package inet.applications.vehicular.classifier;
 
-namespace inet {
-
-Register_Class(ApplicationIdToQueueClassifier);
-
-ApplicationIdToQueueClassifier::ApplicationIdToQueueClassifier() {
-
+//Slightly changed version of PredefinedPriorityClassifier. Once the classifier changes the consumer, the latter is not queued until the classifier completes a full circular round.
+simple PredefinedCircularPriorityClassifier extends PredefinedPriorityClassifier
+{
+    parameters:
+        @class(PredefinedCircularPriorityClassifier);
 }
-
-ApplicationIdToQueueClassifier::~ApplicationIdToQueueClassifier() {
-
-}
-
-int ApplicationIdToQueueClassifier::classifyPacket(Packet *packet) const {
-    Packet *pkt = static_cast<Packet*>(packet);
-    auto p = pkt->peekData<TrafficPacket>();
-    EV << packet->getName() << "(" << pkt->getDataLength() << ") arrived from application with index="
-            << p->getAppIdentifier() <<". \n";
-    return p->getAppIdentifier();
-}
-
-} /* namespace inet */

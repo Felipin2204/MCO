@@ -13,26 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-#define __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
+package inet.applications.vehicular.classifier;
+import inet.queueing.classifier.PriorityClassifier;
 
-#include <omnetpp.h>
-#include "MgmtMCO.h"
-#include "classifier/PredefinedPriorityClassifier.h"
-using namespace omnetpp;
-
-namespace inet {
-
-class PredefinedSequentialMgmtMCO : public MgmtMCO
+// This classifier pushes packets to consumers in a predefined order(sequence), changing to next in sequence only when the corresponding state of the consumer is congested
+simple PredefinedPriorityClassifier extends PriorityClassifier
 {
-  protected:
-    virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *msg) override;
-    std::vector<double> maxChannelCapacity;
-    PredefinedPriorityClassifier* classifier;
-    static simsignal_t currentUsedChannelSignal;
-};
-
-} //namespace
-
-#endif
+    parameters:
+        @class(PredefinedPriorityClassifier);
+        //Use the channels in order of: SCH0, SCH1, SCH2, SCH5, SCH4, SCH3 for V2X and SCH6 only for I2V 
+        //and testing in a predefined area non-interfering with Urban-Rail.
+        string sequence = default("4 2 3 5 0 1 6"); //7 channels
+}

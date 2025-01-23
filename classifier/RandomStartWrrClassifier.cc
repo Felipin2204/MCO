@@ -13,30 +13,35 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "ModWrrClassifier.h"
+#include "../classifier/RandomStartWrrClassifier.h"
+
 #include <random>
 #include <algorithm>
 
 namespace inet {
 
-Define_Module(ModWrrClassifier);
+Define_Module(RandomStartWrrClassifier);
 
-void ModWrrClassifier::initialize(int stage) {
+void RandomStartWrrClassifier::initialize(int stage) {
     queueing::WrrClassifier::initialize(stage);
     if (stage == INITSTAGE_LOCAL) {
-        for (int i = 0; i < consumers.size(); ++i) {
-            sequence.push_back(i);
+        const char *cstr = par("sequence").stringValue();
+        sequence = cStringTokenizer(cstr).asIntVector();
+        if (sequence.size() != consumers.size()) {
+            throw cRuntimeError("The  sequence size has to be equal to the number of queues/consumers");
         }
 
         std::random_device rd;
         std::mt19937 g(rd());
-        std::shuffle(sequence.begin(), sequence.end(), g);
+        std::uniform_int_distribution<size_t> dist(0, sequence.size() - 1);
+        size_t shift = dist(g);
+        std::rotate(sequence.begin(), sequence.begin() + shift, sequence.end());
 
         WATCH_VECTOR(sequence);
     }
 }
 
-int ModWrrClassifier::classifyPacket(Packet *packet)
+int RandomStartWrrClassifier::classifyPacket(Packet *packet)
 {
     bool isEmpty = true;
     for (int i = 0; i < (int)consumers.size(); ++i) {

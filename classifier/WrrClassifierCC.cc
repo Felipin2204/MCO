@@ -22,7 +22,7 @@ Define_Module(WrrClassifierCC);
 void WrrClassifierCC::initialize(int stage) {
     queueing::WrrClassifier::initialize(stage);
     if (stage == INITSTAGE_LOCAL) {
-        for (size_t i = 0; i < (int)consumers.size(); ++i){
+        for (size_t i = 0; i < (int)consumers.size() - 1; ++i){
             congested.push_back(false);
         }
         WATCH_VECTOR(congested);
@@ -32,7 +32,7 @@ void WrrClassifierCC::initialize(int stage) {
 int WrrClassifierCC::classifyPacket(Packet *packet)
 {
     bool isEmpty = true;
-    for (int i = 0; i < (int)consumers.size(); ++i) {
+    for (int i = 0; i < (int)consumers.size() - 1; ++i) {
         if (consumers[i]->canPushSomePacket(outputGates[i]->getPathEndGate())) {
             if (congested[i]) continue;
             isEmpty = false;
@@ -49,7 +49,7 @@ int WrrClassifierCC::classifyPacket(Packet *packet)
     }
 
     int result = ((int)consumers.size() - 1);
-    for (int i = 0; i < (int)consumers.size(); ++i) {
+    for (int i = 0; i < (int)consumers.size() - 1; ++i) {
         if (!congested[i]) {
             buckets[i] = weights[i];
             if (result == ((int)consumers.size() - 1) && buckets[i] > 0 && consumers[i]->canPushSomePacket(outputGates[i]->getPathEndGate())) {

@@ -13,25 +13,30 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_MODPREDEFINEDPRIORITYCLASSIFIER_H_
-#define __INET4_4_MODPREDEFINEDPRIORITYCLASSIFIER_H_
+#ifndef __INET4_4_RANDOMSTARTCCPREDEFINEDPRIORITYCLASSIFIER_H_
+#define __INET4_4_RANDOMSTARTCCPREDEFINEDPRIORITYCLASSIFIER_H_
 
 #include <omnetpp.h>
 #include "inet/queueing/classifier/WrrClassifier.h"
+#include "IWrrClassifierCC.h"
 using namespace omnetpp;
 
 namespace inet {
 
 /*
- * This classifier pushes packets to consumers in a weighted round robin mode, where the sequence of the consumers is random for every instance.
+ * This classifier pushes packets to consumers in a weighted round robin mode, avoiding the congested ones and where the initial consumer is chosen randomly for every instance.
  */
 
-class ModWrrClassifier : public queueing::WrrClassifier
+class RandomStartWrrClassifierCC : public queueing::WrrClassifier, public virtual IWrrClassifierCC
 {
 protected:
     virtual void initialize(int stage) override;
     virtual int classifyPacket(Packet *packet) override;
     std::vector<int> sequence;
+    std::vector<bool> congested;
+public:
+    virtual bool isCongested(int c) const override { return congested[c]; };
+    virtual void setState(int c, bool state) override;
 };
 
 } //namespace

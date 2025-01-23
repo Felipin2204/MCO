@@ -13,24 +13,25 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-#define __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
+#ifndef __INET4_4_RANDOMSEQUENCEPREDEFINEDPRIORITYCLASSIFIER_H_
+#define __INET4_4_RANDOMSEQUENCEPREDEFINEDPRIORITYCLASSIFIER_H_
 
 #include <omnetpp.h>
-#include "MgmtMCO.h"
-#include "classifier/PredefinedPriorityClassifier.h"
+#include "inet/queueing/classifier/WrrClassifier.h"
 using namespace omnetpp;
 
 namespace inet {
 
-class PredefinedSequentialMgmtMCO : public MgmtMCO
+/*
+ * This classifier pushes packets to consumers in a weighted round robin mode, where the sequence of the consumers is random for every instance.
+ */
+
+class RandomSequenceWrrClassifier : public queueing::WrrClassifier
 {
-  protected:
+protected:
     virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *msg) override;
-    std::vector<double> maxChannelCapacity;
-    PredefinedPriorityClassifier* classifier;
-    static simsignal_t currentUsedChannelSignal;
+    virtual int classifyPacket(Packet *packet) override;
+    std::vector<int> sequence;
 };
 
 } //namespace

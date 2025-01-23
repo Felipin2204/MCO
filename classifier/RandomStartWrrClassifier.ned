@@ -13,11 +13,16 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.classifier;
 import inet.queueing.classifier.WrrClassifier;
 
-simple WrrClassifierCC extends WrrClassifier
+
+//This classifier pushes packets to consumers in a weighted round robin mode, where the initial consumer is chosen randomly for every instance.
+simple RandomStartWrrClassifier extends WrrClassifier
 {
     parameters:
-        @class(WrrClassifierCC);
+        @class(RandomStartWrrClassifier);
+        //Use the channels in order of: SCH0, SCH1, SCH2, SCH5, SCH4, SCH3 for V2X and SCH6 only for I2V 
+        //and testing in a predefined area non-interfering with Urban-Rail.
+        string sequence = default("4 2 3 5 0 1 6"); //7 channels
 }

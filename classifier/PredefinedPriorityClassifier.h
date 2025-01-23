@@ -13,28 +13,30 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
-#define __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
+#ifndef __INET4_4_PREDEFINEDPRIORITYCLASSIFIER_H_
+#define __INET4_4_PREDEFINEDPRIORITYCLASSIFIER_H_
 
 #include <omnetpp.h>
-#include "PredefinedPriorityClassifier.h"
+#include "inet/queueing/classifier/PriorityClassifier.h"
 using namespace omnetpp;
 
 namespace inet {
 
 /*
- * Slightly changed version of PredefinedPriorityClassifier.
- * Once the classifier changes the consumer, the latter is not queued until the classifier completes a full circular round.
+ * This classifier pushes packets to consumers in a predefined order(sequence), changing to next in sequence only when the corresponding state of the consumer is congested
  */
 
-class PredefinedCircularPriorityClassifier : public PredefinedPriorityClassifier
+class PredefinedPriorityClassifier : public queueing::PriorityClassifier
 {
 protected:
     virtual void initialize(int stage) override;
     virtual int classifyPacket(Packet *packet) override;
-    int lastClassifiedChannelIndex;
+    std::vector<int> sequence;
+    std::vector<bool> congested;
 public:
-    virtual int getCurrentUsedChannel() override;
+    virtual bool isCongested(int c) const { return congested[c]; };
+    virtual void setState(int c, bool state);
+    virtual int getCurrentUsedChannel();
 };
 
 } //namespace

@@ -17,27 +17,25 @@
 #define __INET4_4_PREDEFINEDPRIORITYCLASSIFIER_H_
 
 #include <omnetpp.h>
-#include "inet/queueing/classifier/PriorityClassifier.h"
+#include "inet/queueing/classifier/WrrClassifier.h"
+#include "IWrrClassifierCC.h"
 using namespace omnetpp;
 
 namespace inet {
 
 /*
- * This classifier pushes packets to consumers in a predefined order(sequence), changing to next in sequence only when
- * the corresponding state of the consumer is congested
+ * This classifier pushes packets to consumers in a weighted round robin mode, avoiding the congested ones.
  */
 
-class PredefinedPriorityClassifier : public queueing::PriorityClassifier
+class WrrClassifierCC : public queueing::WrrClassifier, public virtual IWrrClassifierCC
 {
 protected:
     virtual void initialize(int stage) override;
     virtual int classifyPacket(Packet *packet) override;
-    std::vector<int> sequence;
     std::vector<bool> congested;
 public:
-    virtual bool isCongested(int c) const { return congested[c]; };
-    virtual void setState(int c, bool state);
-    virtual int getCurrentUsedChannel();
+    virtual bool isCongested(int c) const override { return congested[c]; };
+    virtual void setState(int c, bool state) override;
 };
 
 } //namespace

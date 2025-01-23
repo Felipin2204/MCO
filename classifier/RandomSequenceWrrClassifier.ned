@@ -13,11 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular.test;
+package inet.applications.vehicular.classifier;
 import inet.queueing.classifier.WrrClassifier;
 
-simple ModWrrClassifier extends WrrClassifier
+//This classifier pushes packets to consumers in a weighted round robin mode, where the sequence of the consumers is random for every instance.
+simple RandomSequenceWrrClassifier extends WrrClassifier
 {
     parameters:
-        @class(ModWrrClassifier);
+        @class(RandomSequenceWrrClassifier);
 }

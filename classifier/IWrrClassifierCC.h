@@ -13,26 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-#define __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-
-#include <omnetpp.h>
-#include "MgmtMCO.h"
-#include "classifier/PredefinedPriorityClassifier.h"
-using namespace omnetpp;
+#ifndef INET_APPLICATIONS_VEHICULAR_CLASSIFIER_IWRRCLASSIFIERCC_H_
+#define INET_APPLICATIONS_VEHICULAR_CLASSIFIER_IWRRCLASSIFIERCC_H_
 
 namespace inet {
 
-class PredefinedSequentialMgmtMCO : public MgmtMCO
-{
-  protected:
-    virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *msg) override;
-    std::vector<double> maxChannelCapacity;
-    PredefinedPriorityClassifier* classifier;
-    static simsignal_t currentUsedChannelSignal;
+//Interface for the Wrr classifiers of the congestion control case.
+
+class IWrrClassifierCC {
+public:
+    virtual ~IWrrClassifierCC() {};
+    virtual bool isCongested(int c) const = 0;
+    virtual void setState(int c, bool state) = 0;
 };
 
-} //namespace
+} /* namespace inet */
 
-#endif
+#endif /* INET_APPLICATIONS_VEHICULAR_CLASSIFIER_IWRRCLASSIFIERCC_H_ */
