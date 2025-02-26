@@ -24,13 +24,16 @@ simple TrafficGenerator like IApp
 	    //These parameters are illustrative in this module
 	    int totalPacketsPerSecond = default(100);
 	    int minPacketsPerSecond = default(0);
+	    double minNormalizedLoad = default(0);
 	    double packetRate = default(100);
-	    
+	    double normalizedLoadb = default(1);
+	    double measurementPeriod = default(1);
 	    int packetLength @unit(byte) = default(500B);
 	    int appId = default(-1);
 	    volatile double timeBetweenPackets = default(exponential(1/packetRate));
+	    bool jitter = default(false);
 	    
-	    @signal[timeBetweenPackets](type=double);
+	    @signal[timeBetweenPackets](type=simtime_t);
 	    @signal[generatedPackets](type=int);
 	    @signal[receivedPackets](type=int);
 	    @statistic[timeBetweenPackets](record=vector);

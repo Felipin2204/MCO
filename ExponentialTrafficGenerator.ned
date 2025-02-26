@@ -15,9 +15,14 @@
 
 package inet.applications.vehicular;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+//
+// A particularization of the TrafficGenerator for exponential interpacket generation time
+// A simple version could have been implemented just using a exponential function in the ini
+// But with this implementation we let the MCO set the packet rate
+//
+
+simple ExponentialTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        @class(DCCTrafficGenerator);
+        @class(ExponentialTrafficGenerator);    
 }

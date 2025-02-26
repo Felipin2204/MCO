@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// // A particularization of the TrafficGenerator for peridic traffic
+//
 simple PeriodicTrafficGenerator extends TrafficGenerator
 {
     parameters:

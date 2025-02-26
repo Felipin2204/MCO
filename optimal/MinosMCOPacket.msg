@@ -13,11 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
-{
-    parameters:
-        @class(DCCTrafficGenerator);
+import inet.applications.vehicular.MCOPacket;
+namespace inet;
+
+class MinosMCOPacket extends MCOPacket {
+    double channelWeigths[];
+    double channelCBT[];
 }

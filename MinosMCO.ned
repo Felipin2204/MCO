@@ -14,10 +14,26 @@
 // 
 
 package inet.applications.vehicular;
+import inet.queueing.queue.PacketQueue;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+module MinosMCO extends MCO
 {
     parameters:
-        @class(DCCTrafficGenerator);
+    
+    	mgmt.typename=default("MinosMgmtMCO");
+    
+    submodules:
+        queue[numChannels]: PacketQueue {
+            parameters:
+                @display("p=500,109");
+				packetCapacity = default(1000);
+				dropperClass = default("inet::queueing::PacketAtCollectionEndDropper");
+        }
+
+    connections allowunconnected:
+        for i=0..numChannels-1 {
+            classifier.out++ --> queue[i].in;
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+        }
+    
 }

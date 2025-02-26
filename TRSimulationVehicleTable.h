@@ -24,6 +24,8 @@ using namespace omnetpp;
 
 namespace inet {
 
+typedef std::map<int, TRSimulationVehicleInfo*> TRVTable;
+
 class TRSimulationIRTHistogram : public cObject {
   public:
     TRSimulationIRTHistogram(int cells, double size);
@@ -44,8 +46,6 @@ class TRSimulationIRTHistogram : public cObject {
 
 class TRSimulationVehicleTable : public cSimpleModule {
   protected:
-    typedef std::map<int, TRSimulationVehicleInfo*> TRVTable;
-
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
     virtual void finish();

@@ -14,33 +14,28 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.queueing.queue.PacketQueue;
-import inet.queueing.queue.DropTailQueue;
 
-//Priority Classifier pushes packets into the first non-full among its connected queues.
+//
+// Module to perform basic tests on generic MCO
+//
 
-module MCOSequencialFilling extends MCO
+module TestMCO extends MCO
 {
-    parameters:
-        classifier.typename = "PriorityClassifier";
-
+  parameters:
+    
+    	mgmt.typename=default("MgmtMCO");
+    
     submodules:
-        queue[numChannels-1]: PacketQueue {
+        queue[numChannels]: PacketQueue {
             parameters:
-                @display("p=76,289");
-                packetCapacity = 100;
-        }
-        dropTailQueue: DropTailQueue {
-            parameters:
-                @display("p=133,221");
+                @display("p=500,109");
+				packetCapacity = default(1000);
         }
 
     connections allowunconnected:
-        for i=0..numChannels-2 {
+        for i=0..numChannels-1 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
-        }
-        classifier.out++ --> dropTailQueue.in;
-        dropTailQueue.out --> mgmt.inQueue[numChannels-1]; //Symbolic connection
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+        }  
 }

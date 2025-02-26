@@ -13,11 +13,27 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef __INET4_4_MINOSVEHICLETABLE_H_
+#define __INET4_4_MINOSVEHICLETABLE_H_
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+#include <omnetpp.h>
+
+#include "MinosVehicleInfo.h"
+#include "../VehicleTable.h"
+
+using namespace omnetpp;
+
+namespace inet {
+
+/**
+ * TODO - Generated class
+ */
+class MinosVehicleTable : public VehicleTable
 {
-    parameters:
-        @class(DCCTrafficGenerator);
-}
+  public:
+    virtual int insertOrUpdate(MinosVehicleInfo* info);
+};
+
+} //namespace
+
+#endif

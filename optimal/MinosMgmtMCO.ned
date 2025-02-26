@@ -13,11 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
-
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+package inet.applications.vehicular.optimal;
+import inet.applications.vehicular.MgmtMCO;
+//
+// TODO auto-generated module
+//
+simple MinosMgmtMCO extends OptimalMgmtMCOBase
 {
     parameters:
-        @class(DCCTrafficGenerator);
+        @class(MinosMgmtMCO);
+        double p=default(1); //Probability of slot interference
+        int maxInnerIterations=default(1000);
+        double innerGamma=default(1e-5);
+        double innerEpsilon=default(1e-7);
+       
+        double range=default(150);
+    
 }

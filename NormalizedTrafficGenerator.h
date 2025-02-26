@@ -13,23 +13,35 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
-#define __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
+#ifndef __INET4_5_NORMALIZEDTRAFFICGENERATOR_H_
+#define __INET4_5_NORMALIZEDTRAFFICGENERATOR_H_
 
 #include <omnetpp.h>
-#include "PredefinedPriorityClassifier.h"
+#include "TrafficGenerator.h"
+#include "MgmtMCO.h"
 using namespace omnetpp;
 
 namespace inet {
 
-class PredefinedCircularPriorityClassifier : public PredefinedPriorityClassifier
+class NormalizedTrafficGenerator : public TrafficGenerator, public cListener
 {
+public:
+    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) override;
+    virtual void resetPeriod() override;
+
 protected:
     virtual void initialize(int stage) override;
-    virtual int classifyPacket(Packet *packet) override;
-    int lastClassifiedChannelIndex;
-public:
-    virtual int getCurrentUsedChannel() override;
+    virtual void handleMessage(cMessage *msg) override;
+
+    std::vector<int> messageSizes;
+    double generatedLoad;
+    double averagePacketDuration;
+    double contentionTime;
+    MCOChannelConfig channelConfig;
+    static simsignal_t generatedLoadSignal;
+    static simsignal_t packetDurationSignal;
+
+    virtual void sendPacket() override;
 };
 
 } //namespace

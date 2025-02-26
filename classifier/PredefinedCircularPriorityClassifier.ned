@@ -16,6 +16,7 @@
 package inet.applications.vehicular.classifier;
 
 //Slightly changed version of PredefinedPriorityClassifier. Once the classifier changes the consumer, the latter is not queued until the classifier completes a full circular round.
+
 simple PredefinedCircularPriorityClassifier extends PredefinedPriorityClassifier
 {
     parameters:

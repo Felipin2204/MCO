@@ -14,6 +14,7 @@
 // 
 
 package inet.applications.vehicular.classifier;
+
 import inet.queueing.classifier.WrrClassifier;
 
 //This classifier pushes packets to consumers in a weighted round robin mode, avoiding the congested ones.

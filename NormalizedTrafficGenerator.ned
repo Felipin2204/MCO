@@ -15,9 +15,18 @@
 
 package inet.applications.vehicular;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+//
+// A particularization of the TrafficGenerator 
+// With this implementation we let the MCO set the maximum normalized load that the generator can send to the channel
+// In addition, we select message sizes from a set of fixed sizes
+//
+
+simple NormalizedTrafficGenerator extends TrafficGenerator
 {
-    parameters:
-        @class(DCCTrafficGenerator);
+     @class(NormalizedTrafficGenerator);
+     string messageSizes=default("200 300 360 455");  //Message sizes in bytes
+     @signal[generatedLoad](type=double);
+     @statistic[generatedLoad](record=vector);
+     @signal[packetDuration](type=double);
+     @statistic[packetDuration](record=mean);
 }

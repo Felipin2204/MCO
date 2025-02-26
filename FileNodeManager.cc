@@ -24,7 +24,7 @@ Define_Module(FileNodeManager);
 
 void FileNodeManager::initialize(int stage)
 {
-    if (stage == INITSTAGE_LAST) {
+    if (stage == INITSTAGE_LOCAL) {
         moduleType = par("moduleType").stdstringValue();
         moduleName = par("moduleName").stdstringValue();
         moduleDisplayString = par("moduleDisplayString").stdstringValue();
@@ -41,11 +41,13 @@ void FileNodeManager::initialize(int stage)
         cModule* parentmod = getParentModule();
         if (!parentmod) error("Parent Module not found");
 
-        std::vector<cModule*> nodes;
+
+
         while (std::getline(in, line))
         {
             double xc;
             double yc;
+            double zc;
             std::string delimiters("\t");
             std::istringstream iline;
             std::string val;
@@ -57,6 +59,9 @@ void FileNodeManager::initialize(int stage)
 
             getline(iline,val,'\t');
             yc = std::stof(val);
+
+            getline(iline,val,'\t');
+            zc = std::stof(val);
 
             cModuleType* nodeType = cModuleType::get(moduleType.c_str());
             if (!nodeType) error("Module Type \"%s\" not found", moduleType.c_str());
@@ -73,6 +78,9 @@ void FileNodeManager::initialize(int stage)
             cPar& x = mod->par("initialX");
             x.setDoubleValue(xc);
 
+            cPar& z = mod->par("initialZ");
+            z.setDoubleValue(zc);
+
             mod->finalizeParameters();
             mod->getDisplayString().parse(moduleDisplayString.c_str());
             mod->buildInside();
@@ -82,14 +90,22 @@ void FileNodeManager::initialize(int stage)
             nodeVectorIndex++;
         }
 
-        //Now we have to initialize them in order
-        for (int i=0; i<numInitStages(); ++i) {
-            for (auto mod : nodes) {
+        for (int i=0; i<=INITSTAGE_LOCAL; ++i) {
+            //std::cout<<"Initializing nodes: stage "<<i<<std::endl;
+            for (auto mod: nodes) {
                 mod->callInitialize(i);
             }
         }
+
         in.close();
     }
+
+    for (auto mod: nodes) {
+        //std::cout<<"Initializing nodes: stage "<<stage<<std::endl;
+        mod->callInitialize(stage);
+    }
+
+
 }
 
 int FileNodeManager::getNumberOfNodes() {

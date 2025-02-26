@@ -19,6 +19,8 @@ import inet.linklayer.contract.IWirelessInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.applications.contract.IApp;
+//import inet.veneris.opal.OpalNodeInfo;
+//import inet.veneris.opal.IOpalNode;
 
 module TrafficGeneratorHost
 {
@@ -32,6 +34,7 @@ module TrafficGeneratorHost
         //These parameters are used when we use the FileNodeManager
         double initialX @unit(m) = default(0m);
         double initialY @unit(m) = default(0m);
+        double initialZ @unit(m) = default(0m);
 
         wlan*.agent.typename = "";
         wlan*.mgmt.typename = "Ieee80211MgmtAdhoc";
@@ -41,6 +44,7 @@ module TrafficGeneratorHost
         wlan*.bitrate = 6Mbps;
 
         //Settings for a Best Effort Acess Category
+        //Only used if QoS is needed
         //wlan*.mac.qosStation = true;
         wlan*.mac.hcf.edca.edcaf[1].aifsn = 6; //AIFS = AIFSN[AC=BE] * SlotTime + SIFS = 6 * 13us + 32us = 110us. 
         wlan*.mac.hcf.edca.edcaf[1].cwMin = 15;
@@ -63,24 +67,19 @@ module TrafficGeneratorHost
 //        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
 
         //        wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
-        //        wlan*.radio.bandwidth = 10MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
+        wlan*.radio.bandwidth = 20MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
         //Radio channel number initilizated in the submodules block
-        wlan*.radio.antenna.typename = "ConstantGainAntenna";
         wlan*.radio.antenna.mobilityModule = absPath(".mobility");
-        //The antenna gain value should be 3 dB only at the receiver (transmitter power -3dB)
-        wlan*.radio.antenna.gain = 3dB;
         wlan*.radio.receiver.snirThreshold = 3.1dB;
-        wlan*.radio.receiver.energyDetection = -85dBm;
         wlan*.radio.receiver.sensitivity = -98dBm;
         wlan*.radio.*.modulation = "QPSK"; //Transmitter and receiver
 
 		//In the HighwayMobility case, these values don't overwrite the predefined ones.
         mobility.initialX = this.initialX;
         mobility.initialY = this.initialY;
-        mobility.initialZ = 2m;
+        mobility.initialZ = this.initialZ;
         mobility.initFromDisplayString = false;
-        mobility.updateInterval = 0s;
 
         MCO.numApplications = this.numApplications;
         MCO.numChannels = this.numChannels;

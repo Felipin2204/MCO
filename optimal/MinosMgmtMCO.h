@@ -13,23 +13,45 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
-#define __INET4_4_PREDEFINEDCIRCULARPRIORITYCLASSIFIER_H_
+#ifndef __INET4_4_MINOSMCO_H_
+#define __INET4_4_MINOSMCO_H_
 
 #include <omnetpp.h>
-#include "PredefinedPriorityClassifier.h"
+
+#include "OptimalMgmtMCOBase.h"
+
 using namespace omnetpp;
 
 namespace inet {
 
-class PredefinedCircularPriorityClassifier : public PredefinedPriorityClassifier
+/**
+ * TODO - Generated class
+ */
+class MinosMgmtMCO : public OptimalMgmtMCOBase
 {
+
+
 protected:
+
     virtual void initialize(int stage) override;
-    virtual int classifyPacket(Packet *packet) override;
-    int lastClassifiedChannelIndex;
-public:
-    virtual int getCurrentUsedChannel() override;
+    virtual void handleMessage(cMessage *msg) override;
+    virtual void computeSubgradient();
+    virtual void updateWeights();
+    virtual void solveInnerProblem();
+    virtual int getSequenceNumber(const Packet* pkt ) override;
+
+    double p; //Minos use a probability of interference per slot
+    //Configuration of the local minimization (inner problem of the dual);
+    int maxInnerIterations;
+    double innerGamma;
+    double innerEpsilon;
+    std::vector<double> normalizedRatePerChannel;
+
+    double sqrRange;
+
+
+
+
 };
 
 } //namespace

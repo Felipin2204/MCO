@@ -36,6 +36,7 @@ protected:
     std::string moduleDisplayString; /**< module displayString to be used in the simulation for each managed vehicle */
 
     int nodeVectorIndex;
+    std::vector<cModule*> nodes;
 };
 
 } /* namespace inet */

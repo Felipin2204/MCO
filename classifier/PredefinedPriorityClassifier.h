@@ -22,10 +22,6 @@ using namespace omnetpp;
 
 namespace inet {
 
-/*
- * This classifier pushes packets to consumers in a predefined order(sequence), changing to next in sequence only when the corresponding state of the consumer is congested
- */
-
 class PredefinedPriorityClassifier : public queueing::PriorityClassifier
 {
 protected:

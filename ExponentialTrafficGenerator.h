@@ -13,11 +13,23 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef __INET4_4_EXPONENTIALTRAFFICGENERATOR_H_
+#define __INET4_4_EXPONENTIALTRAFFICGENERATOR_H_
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+#include <omnetpp.h>
+#include "TrafficGenerator.h"
+
+using namespace omnetpp;
+
+namespace inet {
+
+class ExponentialTrafficGenerator : public TrafficGenerator
 {
-    parameters:
-        @class(DCCTrafficGenerator);
-}
+  protected:
+    virtual void initialize(int stage) override;
+    virtual void handleMessage(cMessage *msg) override;
+};
+
+} //namespace
+
+#endif

@@ -49,7 +49,7 @@ module MCO like IMCO
                 numApplications = parent.numApplications;
                 numChannels = parent.numChannels;
         }
-        interferenceMonitor: <default("")> like IInterferenceMonitor if typename != "" {
+        interferenceMonitor: <default("AdjacentChannelInterferenceMonitor")> like IInterferenceMonitor if typename != "" {
             parameters:
                 @display("p=300,200");
                 numChannels = parent.numChannels;

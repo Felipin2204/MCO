@@ -22,6 +22,7 @@
 #include "VehicleInfo.h"
 #include "VehicleTable.h"
 #include "VehiclesNeighborCache.h"
+#include "MCOPacket_m.h"
 
 using namespace omnetpp;
 
@@ -42,10 +43,18 @@ class MCOReceivedInfo: public cObject, noncopyable {
     Coord position;
 };
 
+struct MCOChannelConfig {
+    const physicallayer::Ieee80211ModeSet* mode;
+    bps bitrate;
+    Hz bw;
+};
+
 class MgmtMCO : public cSimpleModule, public cListener {
   public:
     MgmtMCO();
     virtual ~MgmtMCO();
+    virtual MCOChannelConfig getChannelConfig(int channel);
+    virtual int getCw(int channel);
 
   protected:
     virtual void initialize(int stage) override;
@@ -66,6 +75,7 @@ class MgmtMCO : public cSimpleModule, public cListener {
     //MCOPacket
     virtual Packet* createMCOPacket(Packet* packet, int channel);
     virtual void receiveMCOPacket(cMessage *msg);
+    virtual int getSequenceNumber(const Packet* pkt ) ;
 
     virtual void updateVehicleInfo(Packet* p);
 
@@ -78,6 +88,7 @@ class MgmtMCO : public cSimpleModule, public cListener {
     VehicleTable* vehicleTable;
 
     static simsignal_t MCOReceivedSignal;
+    static simsignal_t droppedPacketSourceSignal;
 
     std::vector<int> inWlanId;
     std::vector<int> outWlanId;
@@ -85,12 +96,12 @@ class MgmtMCO : public cSimpleModule, public cListener {
     std::vector<cComponent*> radios;
     std::vector<cComponent*> queues;
     std::vector<ieee80211::Dcaf*> macDcaf;
+    std::vector<MCOChannelConfig> ieeeModes;
 
     //CBT measurement
     simtime_t cbtWindow;
-    bool cbtFirstSample;
     std::vector<simsignal_t> cbtSignals;
-
+    bool cbtFirstSample;
     cMessage* cbtSampleTimer;
     std::vector<simtime_t> cbt_idletime;
     std::vector<simtime_t> lu_idletime; //lu = last update
@@ -110,6 +121,7 @@ class MgmtMCO : public cSimpleModule, public cListener {
     VehiclesNeighborCache* neighborCache;
 
     std::vector<int> receivedPacketCount;
+    std::vector<int> lastPacketCount;
     std::vector<simsignal_t> receivedPacketCountSignals;
 };
 

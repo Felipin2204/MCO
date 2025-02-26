@@ -36,14 +36,17 @@ protected:
     int lowerLayerIn;
     int lowerLayerOut;
 
-    //These parameters are illustrative in this module
+    //These parameters are illustrative in this module. They are used by the MCOs algorithms to control the loads to generate when necessary
     int totalPacketsPerSecond;
     int minPacketsPerSecond;
     double packetRate;
+    double measurementPeriod;
+    double normalizedLoad;
+    double minNormalizedLoad;
 
     int packetLength;
     int appId;
-    double timeBetweenPackets;
+    simtime_t timeBetweenPackets;
 
     int generatedPackets;
     int receivedPackets;
@@ -56,10 +59,20 @@ protected:
 public:
     TrafficGenerator();
     virtual ~TrafficGenerator();
+
+    //The following functions are used by the MCO to set the loads to generate
     virtual int getAppId() const {return appId;};
     virtual double getTrafficDemand() const {return ((double) totalPacketsPerSecond);};
-    virtual double getMinimumTrafficDemand() const {return ((double) minPacketsPerSecond);};
+    virtual int getMinimumTrafficDemand() const {return  minPacketsPerSecond;}; //Minimum demand in packets/s
+    virtual double getMinimumNormalizedLoad() const {return  minNormalizedLoad;}; //Minimum demand in normalized load
     virtual void setPacketRate(double rate) {packetRate = rate;};
+    virtual void setNormalizedLoad(double load) {normalizedLoad = load;};
+    virtual void resetPeriod() {
+      //Used by MCOs to reset variables
+    };
+    virtual int getPacketLength() const {return packetLength;};
+    virtual double getPacketRate() const {return packetRate;};
+    virtual void setMeasurementPeriod(double period) {measurementPeriod = period;};
 };
 
 } /* namespace inet */

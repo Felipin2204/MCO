@@ -25,6 +25,7 @@
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolTag_m.h"
+#include "inet/common/packet/printer/PacketPrinter.h"
 #include "inet/linklayer/common/UserPriorityTag_m.h"
 #include <string>
 
@@ -35,12 +36,14 @@ namespace inet {
 Define_Module(MgmtMCO);
 
 simsignal_t MgmtMCO::MCOReceivedSignal = SIMSIGNAL_NULL;
+simsignal_t MgmtMCO::droppedPacketSourceSignal = SIMSIGNAL_NULL;
 
 MgmtMCO::MgmtMCO(): info(nullptr), mob(nullptr), vehicleTable(nullptr), cbtSampleTimer(nullptr), pdrSampleTimer(nullptr) {}
 
 MgmtMCO::~MgmtMCO() {
     if (cbtSampleTimer) cancelAndDelete(cbtSampleTimer);
     if (pdrSampleTimer) cancelAndDelete(pdrSampleTimer);
+    if (info) {delete info;}
 }
 
 void MgmtMCO::initialize(int stage)
@@ -54,7 +57,7 @@ void MgmtMCO::initialize(int stage)
         info = new VehicleInfo(-1, -1, -1, pos);
 
         MCOReceivedSignal = registerSignal("MCOPacketReceived");
-
+        droppedPacketSourceSignal= registerSignal("droppedPacketSource");
         int baseIdIn = gateBaseId("inWLAN");
         int baseIdOut = gateBaseId("outWLAN");
         for (int i = 0; i < gateSize("inWLAN"); i++) {
@@ -70,13 +73,17 @@ void MgmtMCO::initialize(int stage)
         pdrNumberIntervals = par("pdrNumberIntervals");
         //We have a PDR signal for every channel and for every distance interval
         pdrSignals.resize(numChannels);
+        ieeeModes.resize(numChannels);
         for (int i = 0; i < numChannels; i++)
             pdrSignals[i].resize(pdrNumberIntervals);
 
         receivedPacketCountSignals.resize(numChannels);
         receivedPacketCount.resize(numChannels);
-        for (int i = 0; i < numChannels; i++)
+        lastPacketCount.resize(numChannels);
+        for (int i = 0; i < numChannels; i++) {
             receivedPacketCount[i] = 0;
+            lastPacketCount[i] = 0;
+        }
 
         //Statistics recording for dynamically registered signals
         for (int i = 0; i < numChannels; i++) {
@@ -110,12 +117,32 @@ void MgmtMCO::initialize(int stage)
         scheduleAfter(pdrUpdate, pdrSampleTimer);
         pdrAtChannel.resize(numChannels);
         nodesInPdrIntervals.resize(numChannels);
-        for(int i = 0; i < numChannels; i++)
+        for(int i = 0; i < numChannels; i++) {
             nodesInPdrIntervals[i].resize(pdrNumberIntervals);
+        }
 
     } else if(stage == INITSTAGE_PHYSICAL_ENVIRONMENT) {
         mob = check_and_cast<IMobility*>(getModuleByPath("^.^.mobility"));
         vehicleTable = check_and_cast<VehicleTable*>(getModuleByPath("^.vehicleTable"));
+    } else if (stage == INITSTAGE_PHYSICAL_LAYER) {
+        for (int i = 0; i < numChannels; i++) {
+            //Collecting all the WLAN radios connected to this module
+            std::string r = "^.^.wlan[" + std::to_string(i) + "].radio";
+            auto radio = check_and_cast<cComponent*>(getModuleByPath(r.c_str()));
+            radios.push_back(radio);
+
+            //Radio module is subscribed to this other signal which is emitted by himself when a transmission is finished
+            radio->subscribe(transmissionEndedSignal, this);
+
+            radio->subscribe(transmissionStartedSignal, this); //Emitted by the radio
+            //Needed to compute the bitrate and duration of packets in case it is necessary
+            std::string m = "^.^.wlan[" + std::to_string(i) + "].mac";
+            auto mac = check_and_cast<cComponent*>(getModuleByPath(m.c_str()));
+            mac->subscribe(modesetChangedSignal, this);
+            std::string rm = "^.^.wlan[" + std::to_string(i) + "].mac.rx";
+            auto rxm = check_and_cast<cComponent*>(getModuleByPath(rm.c_str()));
+            rxm->subscribe(packetDroppedSignal, this);
+        }
 
     } else if(stage == INITSTAGE_LINK_LAYER) {
         int baseId = gateBaseId("outApp");
@@ -127,14 +154,6 @@ void MgmtMCO::initialize(int stage)
         WATCH_MAP(outAppId);
 
         for (int i = 0; i < numChannels; i++) {
-            //Collecting all the WLAN radios connected to this module
-            std::string r = "^.^.wlan[" + std::to_string(i) + "].radio";
-            auto radio = check_and_cast<cComponent*>(getModuleByPath(r.c_str()));
-            radios.push_back(radio);
-
-            //Radio module is subscribed to this other signal which is emitted by himself when a transmission is finished
-            radio->subscribe(transmissionEndedSignal, this);
-
             //Collecting all the queues connected to this module (this could be done the same way as we collected the radios, this is another way)
             queues.push_back(findConnectedModule<queueing::PacketQueue>(gate("inQueue", i)));
 
@@ -143,19 +162,19 @@ void MgmtMCO::initialize(int stage)
             macDcaf.push_back(check_and_cast<ieee80211::Dcaf*>(getModuleByPath(d.c_str())));
 
             //CBT measurement
-            radio->subscribe(physicallayer::IRadio::receptionStateChangedSignal, this); //Emitted by the radio
-            radio->subscribe(physicallayer::IRadio::transmissionStateChangedSignal, this); //Emitted by the radio
+            radios[i]->subscribe(physicallayer::IRadio::receptionStateChangedSignal, this); //Emitted by the radio
+            radios[i]->subscribe(physicallayer::IRadio::transmissionStateChangedSignal, this); //Emitted by the radio
 
             cbt_idletime.push_back(0.0);
             lu_idletime.push_back(simTime());
-            lastReceptionState.push_back(check_and_cast<physicallayer::IRadio*>(radio)->getReceptionState());
-            lastTransmissionState.push_back(check_and_cast<physicallayer::IRadio*>(radio)->getTransmissionState());
+            lastReceptionState.push_back(check_and_cast<physicallayer::IRadio*>(radios[i])->getReceptionState());
+            lastTransmissionState.push_back(check_and_cast<physicallayer::IRadio*>(radios[i])->getTransmissionState());
 
             //PDR measurement
+            //std::string s = "<root>.radioMedium.communicationCache";
             std::string s = "^.^.^.radioMedium.neighborCache";
             neighborCache = check_and_cast<VehiclesNeighborCache*>(getModuleByPath(s.c_str()));
             //neighborCache->addRadio(radio); //All the radios are added to the neighborCache in Radio.cc
-            radio->subscribe(transmissionStartedSignal, this); //Emitted by the radio
         }
 
         //PDR measurement
@@ -187,6 +206,21 @@ void MgmtMCO::handleMessage(cMessage *msg)
 
 void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) {
     Enter_Method("checking queues");
+    if (signalID == packetDroppedSignal) {
+        Packet* pkt = check_and_cast<Packet*>(obj);
+        //PacketPrinter printer;
+        //printer.printPacket(std::cout, pkt);
+
+        //const auto& ieee80211DataHeader = pkt->peekAtFront<ieee80211::Ieee80211DataHeader>();
+        //std::cout<<"Data header="<<ieee80211DataHeader->getChunkLength()<<endl;
+
+        //Since the packet comes from the MAC we still have the Ieee80211DataHeader (24B) plus the 80211Epd header (2B)
+        auto p = pkt->peekDataAt<MCOPacket>(B(26));
+        emit(droppedPacketSourceSignal, p->getSource());
+        //if (myId==10) {
+        //std::cout<<simTime()<<";"<<myId<<";source="<<p->getSource()<<";channel="<<p->getChannel()<<endl;
+        //}
+    }
     if (signalID == packetPushEndedSignal) {
         int qIndex = -1;
         for (auto c : queues) {
@@ -225,6 +259,21 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
                 break;
             }
         }
+    } else if (signalID == modesetChangedSignal)  {
+        const physicallayer::Ieee80211ModeSet* ms = check_and_cast<const physicallayer::Ieee80211ModeSet*>(obj);
+        for (int i=0; i<radios.size(); ++i) {
+            std::string m = "^.^.wlan[" + std::to_string(i) + "].mac";
+            auto mac = check_and_cast<cComponent*>(getModuleByPath(m.c_str()));
+            if (source == mac) {
+                MCOChannelConfig conf;
+                conf.mode = ms;
+                conf.bitrate = bps(mac->getParentModule()->par("bitrate"));
+                conf.bw = Hz(radios[i]->par("bandwidth"));
+                //std::cout<<"Getting radio config: "<<i<<"; mode"<<ms<<";bitrate="<<conf.bitrate<<";BW="<<conf.bw<<endl;
+                ieeeModes[i] = conf;
+                break;
+            }
+        }
     } else {
         processPDRSignal(source, signalID, obj, details);
     }
@@ -232,10 +281,6 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signalID, cObject *o
 
 void MgmtMCO::finish() {
     computePDR();
-
-    //To avoid NaN values in these signals
-    for (int i = 0; i < numChannels; i++)
-        emit(receivedPacketCountSignals[i], receivedPacketCount[i]);
 }
 
 void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signal, intval_t value, cObject *details) {
@@ -273,17 +318,19 @@ void MgmtMCO::receiveSignal(cComponent *source, simsignal_t signal, intval_t val
 }
 
 double MgmtMCO::getMeasuredCBT(double period, int channel) {
-        int i = channel;
-        auto radio = check_and_cast<physicallayer::Ieee80211Radio*>(radios[i]);
-        if (radio->getReceptionState() == physicallayer::IRadio::ReceptionState::RECEPTION_STATE_IDLE || radio->getTransmissionState() == physicallayer::IRadio::TransmissionState::TRANSMISSION_STATE_IDLE) {
-            cbt_idletime[i] += (simTime() - lu_idletime[i]);
-            lu_idletime[i] = simTime();
-        }
+    int i = channel;
+    auto radio = check_and_cast<physicallayer::Ieee80211Radio*>(radios[i]);
+    if (radio->getReceptionState() == physicallayer::IRadio::ReceptionState::RECEPTION_STATE_IDLE || radio->getTransmissionState() == physicallayer::IRadio::TransmissionState::TRANSMISSION_STATE_IDLE) {
+        cbt_idletime[i] += (simTime() - lu_idletime[i]);
+        lu_idletime[i] = simTime();
+    }
 
-        double mcbt = 1.0 - (cbt_idletime[i].dbl()/period);
-        emit(cbtSignals[i], mcbt);
-        cbt_idletime[i] = 0.0;
-        return mcbt;
+    double mcbt = 1.0 - (cbt_idletime[i].dbl()/period);
+    //std::cout<<simTime()<<":"<<myId<<":receivedPacketCount="<<receivedPacketCount[i]<<"; packets in period = "<<(receivedPacketCount[i]-lastPacketCount[i])<<endl;
+    lastPacketCount[i] = receivedPacketCount[i];
+    emit(cbtSignals[i], mcbt);
+    cbt_idletime[i] = 0.0;
+    return mcbt;
 }
 
 void MgmtMCO::setCbtWindow(const simtime_t& cbtWindow, double offset) {
@@ -293,6 +340,13 @@ void MgmtMCO::setCbtWindow(const simtime_t& cbtWindow, double offset) {
 
     if (offset>0) scheduleAfter(offset + cbtWindow, cbtSampleTimer);
     else scheduleAfter(cbtWindow, cbtSampleTimer);
+}
+
+int MgmtMCO::getSequenceNumber(const Packet* pkt ) {
+    auto p= pkt->peekDataAt<MCOPacket>(B(31));
+    return p->getSequenceNumber();
+
+
 }
 
 void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject *obj, cObject *details) {
@@ -310,6 +364,7 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 for (int j = 0; j < neighborList.size(); j++) {
                     double sqrd = mob->getCurrentPosition().sqrdist(neighborList[j]->getAntenna()->getMobility()->getCurrentPosition());
                     unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
+                    //TODO: for moving vehicles it is better to store the actual vehicle pointer
                     if (k < pdrNumberIntervals)
                         nodesInPdrIntervals[i][k]++;
                 }
@@ -318,12 +373,15 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 auto ct = check_and_cast<const physicallayer::ITransmission*>(obj);
                 const Packet* pkt = ct->getPacket();
 
-                auto p = pkt->peekDataAt<MCOPacket>(B(33)); //PhyHeader(5)+MACHeader(24+2(QoS))+LLCEDP(2), there is a trail afterwards
+                //auto p=getMCOPacket(pkt);
+                int sn=getSequenceNumber(pkt);
+                //auto p = pkt->peekDataAt<MCOPacket>(B(33)); //PhyHeader(5)+MACHeader(24+2(QoS))+LLCEDP(2), there is a trail afterwards
 
                 //If the frame aggregation is activated, now in one transmission we have more than one packet and also one extra header for every packet.
                 //So that if we want frame aggregation we have to change the following code to register all the packets.
                 //auto p = pkt->peekDataAt<MCOPacket>(B(47)); //PhyHeader(5)+MACHeader(24+2(QoS))+MSDUSubFrameHeader(14)+LLCEDP(2), there is a trail afterwards
 
+                //Details  can be found at Ieee80211Radio::encapsulate()
                 PDR pdr;
                 pdr.insertTime = simTime();
 
@@ -335,17 +393,22 @@ void MgmtMCO::processPDRSignal(cComponent *source, simsignal_t signalID, cObject
                 }
 
                 //Insert in map
-                pdrAtChannel[i][p->getSequenceNumber()] = pdr;
+                //pdrAtChannel[i][p->getSequenceNumber()] = pdr;
+                pdrAtChannel[i][sn] = pdr;
 
                 break;
             }
         }
     } else if (signalID == MCOReceivedSignal) {
+        //TODO: for moving vehicles, PDR may be > 1 because at the moment of reception (now) a
+        // vehicle may have crossed the distance interval it was when the signal started (above)
         MCOReceivedInfo* info = check_and_cast<MCOReceivedInfo*>(obj);
         if (info->source == myId) {
             int i = info->channel;
             auto f = pdrAtChannel[i].find(info->sequenceNumber);
             if (f != pdrAtChannel[i].end()) {
+                //This distance may be higher or lower that the distance we took for computing the number of vehicles for the PDR record
+                //The alternative is to actually store the potential vehicle id at the beginning of the signal
                 double sqrd = mob->getCurrentPosition().sqrdist(info->position);
                 unsigned int k = floor(pow(sqrd, 0.5) / pdrDistanceStep);
                 if (k < pdrNumberIntervals)
@@ -392,10 +455,7 @@ Packet* MgmtMCO::createMCOPacket(Packet* packet, int channel) {
     //Should put something sensible here. Keep this to prevent LlcEpd from complaining
     newpacket->addTagIfAbsent<PacketProtocolTag>()->setProtocol(&Protocol::ipv4);
     //Next tag is necessary to have a Best Effort QoS
-    newpacket->addTagIfAbsent<UserPriorityReq>()->setUserPriority(0);
-
-    //Representation of packet fields
-    //std::cout << "MCOPacket representation: " << newpacket->getCompleteStringRepresentation() << endl;
+    //newpacket->addTagIfAbsent<UserPriorityReq>()->setUserPriority(0);
 
     return newpacket;
 }
@@ -409,7 +469,8 @@ void MgmtMCO::receiveMCOPacket(cMessage* msg) {
 
     //Update the number of packets received per channel
     receivedPacketCount[p->getChannel()]++;
-    emit(receivedPacketCountSignals[p->getChannel()], receivedPacketCount[p->getChannel()]);
+    //emit(receivedPacketCountSignals[p->getChannel()], receivedPacketCount[p->getChannel()]);
+    emit(receivedPacketCountSignals[p->getChannel()], p->getSource());
 
     //MCOPacketReceived signal
     MCOReceivedInfo* ci = new MCOReceivedInfo();
@@ -424,13 +485,29 @@ void MgmtMCO::receiveMCOPacket(cMessage* msg) {
 
     auto s = outAppId.find(p->getAppIdentifier());
     if (s != outAppId.end()){
-        EV_INFO << "Received MCOPacket from node[" << p->getSource() << "] at channel " << p->getChannel()
-                << " with sequence number equals to " << p->getSequenceNumber() << ".\n";
+        EV_INFO << "Received MCOPacket from node[" << p->getSource() << "] at channel " << p->getChannel() << " with sequence number equals to " << p->getSequenceNumber() << ".\n";
         send(msg, s->second);
     } else {
         //drop packet
         EV_INFO << "Application " << p->getAppIdentifier() << " not found. Dropping packet" << endl;
         delete pkt;
+    }
+}
+
+MCOChannelConfig MgmtMCO::getChannelConfig(int channel) {
+    if (channel<ieeeModes.size()) {
+        return ieeeModes[channel];
+    } else {
+        MCOChannelConfig m;
+        return m;
+    }
+}
+
+int  MgmtMCO::getCw(int channel) {
+    if (channel<macDcaf.size()) {
+        return macDcaf[channel]->getCw();
+    } else {
+        return 1023;
     }
 }
 

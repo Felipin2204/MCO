@@ -34,10 +34,12 @@ simple MgmtMCO like IMgmtMCO
         @signal[pdr*_*-*](type=double);
         @signal[receivedPacketCount*](type=int);
         @signal[MCOPacketReceived];
+        @signal[droppedPacketSource](type=int);
   
-		@statisticTemplate[cbt](record=vector);
+		@statisticTemplate[cbt](record=vector, mean);
         @statisticTemplate[pdr](record=vector);
-        @statisticTemplate[receivedPacketCount](record=last);
+        @statisticTemplate[receivedPacketCount](record=count, histogram);
+        @statistic[droppedPacketSource](record=histogram);
         
     gates:
         input inQueue[numChannels];

@@ -53,17 +53,26 @@ void TrafficGenerator::initialize(int stage){
         totalPacketsPerSecond = par("totalPacketsPerSecond");
         minPacketsPerSecond = par("minPacketsPerSecond");
         packetRate = par("packetRate");
-
+        normalizedLoad = par("normalizedLoad");
+        measurementPeriod = par("measurementPeriod");
+        minNormalizedLoad = par("minNormalizedLoad");
         packetLength = par("packetLength");
         appId = par("appId");
         if(appId == -1) appId = getIndex();
+        WATCH(packetRate);
 
     } else if(stage == INITSTAGE_APPLICATION_LAYER) {
         timeBetweenPackets = par("timeBetweenPackets");
         emit(timeBetweenPacketsSignal, timeBetweenPackets);
 
         packetGenerationTimer = new cMessage();
-        scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
+        bool jitter = par("jitter");
+        if (jitter) {
+            scheduleAt(simTime()+uniform(0,1)+timeBetweenPackets, packetGenerationTimer);
+        } else {
+            scheduleAt(simTime()+timeBetweenPackets, packetGenerationTimer);
+        }
+
     }
 }
 

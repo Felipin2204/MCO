@@ -23,7 +23,13 @@ DCCTrafficGenerator::DCCTrafficGenerator() : DCCMode(false) {}
 
 void DCCTrafficGenerator::initialize(int stage) {
     if (stage == INITSTAGE_LINK_LAYER) {
-        getParentModule()->subscribe("cbt", this);
+        //To be used with multiple channels, the application can only use the cbt from a given channel, at least for a very simple implementation
+        //So we  subscribe to the channel with our own id
+        //getParentModule()->subscribe("cbt", this);
+        std::string tname("cbt");
+        tname += std::to_string(appId);
+        getParentModule()->subscribe(tname.c_str(), this);
+
 
     } else if (stage == INITSTAGE_APPLICATION_LAYER) {
         timeBetweenPackets = par("timeBetweenPackets");
@@ -48,6 +54,7 @@ void DCCTrafficGenerator::handleMessage(cMessage *msg) {
 }
 
 void DCCTrafficGenerator::receiveSignal(cComponent *source, simsignal_t signalID, double d, cObject *details) {
+
     DCCMode = false;
     if (d >= 0.62) {
         DCCMode = true;
@@ -57,6 +64,7 @@ void DCCTrafficGenerator::receiveSignal(cComponent *source, simsignal_t signalID
             timeBetweenPackets = 0.025;
         else if (timeBetweenPackets > 1.0)
             timeBetweenPackets = 1.0;
+
     }
 }
 

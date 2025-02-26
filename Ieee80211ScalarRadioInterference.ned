@@ -14,10 +14,12 @@
 // 
 
 package inet.applications.vehicular;
+import  inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadio;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+module Ieee80211ScalarRadioInterference extends Ieee80211ScalarRadio
 {
     parameters:
-        @class(DCCTrafficGenerator);
+    @class(physicallayer::Ieee80211ScalarRadioInterference);
+    @signal[receptionNotAttempted];
+    @signal[receptionAttempted];
 }

@@ -132,6 +132,11 @@ void VehicleTable::finish() {
 VehicleTable::~VehicleTable() {
     cancelAndDelete(updateTimer);
     delete irthist;
+    VTable::iterator it = vt.begin();
+    while(it != vt.end()) {
+        delete(it->second);
+        it = vt.erase(it);
+    }
 }
 
 int VehicleTable::insertOrUpdate(VehicleInfo* info) {
@@ -144,6 +149,7 @@ int VehicleTable::insertOrUpdate(VehicleInfo* info) {
         return 1;
     } else {
         double distance = mob->getCurrentPosition().distance(info->pos);
+        //irthist->collect(irt_time, distance);
         if (it->second->last_update[info->channelNumberLastUpdate] != SIMTIME_ZERO) {
             double irt_time = (simTime()-it->second->last_update[info->channelNumberLastUpdate]).dbl();
             //irthist->collect(irt_time, distance);

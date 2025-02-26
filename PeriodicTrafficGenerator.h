@@ -13,10 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef INET_APPLICATIONS_VEHICULAR_PERIODICTRAFFICGENERATOR_H_
-#define INET_APPLICATIONS_VEHICULAR_PERIODICTRAFFICGENERATOR_H_
+#ifndef __INET4_5_PERIODICTRAFFICGENERATOR_H_
+#define __INET4_5_PERIODICTRAFFICGENERATOR_H_
 
+#include <omnetpp.h>
 #include "TrafficGenerator.h"
+using namespace omnetpp;
 
 namespace inet {
 
@@ -35,4 +37,4 @@ public:
 
 } /* namespace inet */
 
-#endif /* INET_APPLICATIONS_VEHICULAR_PERIODICTRAFFICGENERATOR_H_ */
+#endif

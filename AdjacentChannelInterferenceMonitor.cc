@@ -167,7 +167,7 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
                             }
                             delete arrival;
                             delete reception;
-                        //Otherwise just compute the reciprocal interference power
+                            //Otherwise just compute the reciprocal interference power
                         } else {
                             interferencePower = getInterferencePower(radio, ieeeItransmission, medium, filterLoss);
                         }
@@ -181,9 +181,12 @@ void AdjacentChannelInterferenceMonitor::receiveSignal(cComponent *source, simsi
 
                         //Now we have here a problem: maybe this transmission is below the sensitivity and will never be received
                         //We should not count the interference in this case
-                        if (!radios[txChannel]->getReceiver()->computeIsReceptionPossible(medium->getListening(radios[txChannel], transmission), transmission)){
-                            //std::cout<<myNode<<"*"<<simTime()<<":"<<channel<<": transmission"<<transmission->getId()<<"will not be received"<<endl;
-                            continue;
+                        //The number of radios may not be equal for all vehicles
+                        if (txChannel<radios.size()) {
+                            if (!radios[txChannel]->getReceiver()->computeIsReceptionPossible(medium->getListening(radios[txChannel], transmission), transmission)){
+                                //std::cout<<myNode<<"*"<<simTime()<<":"<<channel<<": transmission"<<transmission->getId()<<"will not be received"<<endl;
+                                continue;
+                            }
                         }
 
                         if (interferencePower < 0.0) {
@@ -306,12 +309,12 @@ void AdjacentChannelInterferenceMonitor::createSignals() {
         interferenceCountSignals.insert({j,icv});
         interferencePowerSignals.insert({j,ipv});
     }
-//    std::cout << "signals for " << myNode << endl;
-//    for(auto a: interferenceFractionSignals) {
-//        for (auto s: a.second) {
-//            std::cout << a.first << "," << s.first << endl;
-//        }
-//    }
+    //    std::cout << "signals for " << myNode << endl;
+    //    for(auto a: interferenceFractionSignals) {
+    //        for (auto s: a.second) {
+    //            std::cout << a.first << "," << s.first << endl;
+    //        }
+    //    }
 
 }
 

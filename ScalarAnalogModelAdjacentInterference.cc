@@ -33,6 +33,8 @@ void ScalarAnalogModelAdjacentInterference::initialize(int stage)
 
 const INoise *ScalarAnalogModelAdjacentInterference::computeNoise(const IListening *listening, const IInterference *interference) const
 {
+
+
     const BandListening *bandListening = check_and_cast<const BandListening *>(listening);
     Hz commonCenterFrequency = bandListening->getCenterFrequency();
     Hz commonBandwidth = bandListening->getBandwidth();

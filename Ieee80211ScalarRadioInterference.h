@@ -13,11 +13,26 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+#ifndef __INET4_4_IEEE80211SCALARRADIOINTERFERENCE_H_
+#define __INET4_4_IEEE80211SCALARRADIOINTERFERENCE_H_
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+#include <omnetpp.h>
+#include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211Radio.h"
+using namespace omnetpp;
+
+namespace inet {
+namespace physicallayer {
+
+class Ieee80211ScalarRadioInterference : public Ieee80211Radio
 {
-    parameters:
-        @class(DCCTrafficGenerator);
+public:
+    static simsignal_t receptionAttemptedSignal;
+    static simsignal_t receptionNotAttemptedSignal;
+protected:
+    virtual void startReception(cMessage *timer, IRadioSignal::SignalPart part) override;
+
+};
+
+} //namespace
 }
+#endif

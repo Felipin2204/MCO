@@ -30,7 +30,7 @@ simple VehicleTable like IVehicleTable
         @signal[irt*](type=double);
         @signal[irtPeriodic](type=double);
         
-        @statistic[neighbors](record=mean);
+        @statistic[neighbors](record=mean,vector);
         @statisticTemplate[irt](record=vector);
 		@statistic[irtPeriodic](record=vector);
 }

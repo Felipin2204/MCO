@@ -13,8 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-#define __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
+#ifndef __INET4_5_MCOLOADBALANCINGCCMGMT_H_
+#define __INET4_5_MCOLOADBALANCINGCCMGMT_H_
 
 #include <omnetpp.h>
 #include "MgmtMCO.h"

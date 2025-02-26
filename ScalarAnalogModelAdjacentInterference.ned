@@ -27,5 +27,5 @@ module ScalarAnalogModelAdjacentInterference extends ScalarAnalogModel
         //Set of losses due to ACL and ACS adjacent channels
         string adjacentLoss = default("25.9 40.6"); //EIRP = 23dBm
         
-       @class(physicallayer::ScalarAnalogModelAdjacentInterference);
+        @class(physicallayer::ScalarAnalogModelAdjacentInterference);
 }

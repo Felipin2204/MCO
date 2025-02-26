@@ -27,12 +27,12 @@ namespace physicallayer {
 
 class ScalarAnalogModelAdjacentInterference : public ScalarAnalogModel
 {
-  protected:
+protected:
     virtual void initialize(int stage) override;
 
     std::vector<double> adjacentLoss;
 
-  public:
+public:
     virtual const INoise *computeNoise(const IListening *listening, const IInterference *interference) const override;
     virtual void addAdjacentReception(const IReception *reception, simtime_t &noiseStartTime, simtime_t &noiseEndTime, std::map<simtime_t, W> &powerChanges, int channelDistance) const;
 };
