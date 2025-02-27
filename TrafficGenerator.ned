@@ -26,7 +26,7 @@ simple TrafficGenerator like IApp
 	    int minPacketsPerSecond = default(0);
 	    double minNormalizedLoad = default(0);
 	    double packetRate = default(100);
-	    double normalizedLoadb = default(1);
+	    double normalizedLoad = default(1);
 	    double measurementPeriod = default(1);
 	    int packetLength @unit(byte) = default(500B);
 	    int appId = default(-1);
