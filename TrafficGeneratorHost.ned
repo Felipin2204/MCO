@@ -70,6 +70,8 @@ module TrafficGeneratorHost
         wlan*.radio.bandwidth = 20MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
         //Radio channel number initilizated in the submodules block
+        //wlan*.radio.antenna.typename = "ConstantGainAntenna"; Moved to the .ini file
+        //wlan*.radio.antenna.gain = 3dB; Moved to the .ini file
         wlan*.radio.antenna.mobilityModule = absPath(".mobility");
         wlan*.radio.receiver.snirThreshold = 3.1dB;
         wlan*.radio.receiver.sensitivity = -98dBm;
