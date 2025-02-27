@@ -13,7 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.tr;
+import inet.applications.vehicular.IMgmtMCO;
 
 simple TRSimulationMgmtMCO like IMgmtMCO
 {

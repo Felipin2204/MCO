@@ -13,29 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
-import inet.queueing.queue.PacketQueue;
+package inet.applications.vehicular.optimal;
+import inet.applications.vehicular.VehicleTable;
 
-//
-// Module to perform basic tests on generic MCO
-//
-
-module TestMCO extends MCO
+simple MinosVehicleTable extends VehicleTable
 {
-  parameters:
-    
-    	mgmt.typename=default("MgmtMCO");
-    
-    submodules:
-        queue[numChannels]: PacketQueue {
-            parameters:
-                @display("p=500,109");
-				packetCapacity = default(1000);
-        }
-
-    connections allowunconnected:
-        for i=0..numChannels-1 {
-            classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
-        }  
+    parameters:
+        @class(MinosVehicleTable);
 }

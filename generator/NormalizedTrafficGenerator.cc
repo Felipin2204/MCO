@@ -18,7 +18,7 @@
 #include "inet/physicallayer/wireless/common/contract/packetlevel/ITransmission.h"
 #include "inet/physicallayer/wireless/ieee80211/mode/IIeee80211Mode.h"
 #include "inet/physicallayer/wireless/ieee80211/mode/Ieee80211ModeSet.h"
-#include "TrafficPacket_m.h"
+#include "../TrafficPacket_m.h"
 
 namespace inet {
 

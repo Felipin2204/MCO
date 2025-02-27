@@ -16,8 +16,8 @@
 #include "MinosMgmtMCO.h"
 
 #include "MinosMCOPacket_m.h"
-#include "../TrafficGenerator.h"
-#include "../UniformSlottedTrafficGenerator.h"
+#include "../generator/TrafficGenerator.h"
+#include "../generator/UniformSlottedTrafficGenerator.h"
 
 
 

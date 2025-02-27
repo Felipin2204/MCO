@@ -13,19 +13,23 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MCO;
 import inet.queueing.queue.DropTailQueue;
 
-module PredefinedSequentialMCO extends MCO
+// MCOLoadBalancing with Congestion Control (CBT)
+
+module MCOLoadBalancingCC extends MCO
 {
     parameters:
-        mgmt.typename = default("PredefinedSequentialMgmtMCO");
-        classifier.typename = default("PredefinedPriorityClassifier");
+        mgmt.typename = "MCOLoadBalancingCCMgmt";
+        classifier.typename = default("WrrClassifierCC");
 
     submodules:
         queue[numChannels]: DropTailQueue {
             parameters:
                 @display("p=76,289");
+				packetCapacity = 100;
         }
         //In this module we are going to use one queue to drop leftover packets
         binQueue: DropTailQueue {
@@ -38,7 +42,7 @@ module PredefinedSequentialMCO extends MCO
     connections allowunconnected:
         for i=0..numChannels-1 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
         }
         //Connection for the bin queue
         classifier.out++ --> binQueue.in;

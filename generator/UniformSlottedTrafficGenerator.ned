@@ -13,11 +13,16 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.generator;
 
-//A simple DCC traffic generator. To be used with a MCO with several channels, every application must use a certain channel, so the MCO has to use a inet::ApplicationIdToQueueClassifier"
-simple DCCTrafficGenerator extends TrafficGenerator
+simple UniformSlottedTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        @class(DCCTrafficGenerator);
+        @class(UniformSlottedTrafficGenerator);
+
+        double minimumSlotDuration @unit(s) = default(1005us); //Time to transmit a packet (752us for 500B (537B with MAC and PHY), including IFS (58us) and cw*slot (slot=13us, 15*13=195us)
+        double generatePacketsFraction = default(0.5);
+        double generateSlotsPeriod @unit(s) = default(1s);
+        //double fractionDemand = default(0.1);
+        bool uniqueSlots = default(true); //Generate a set of unique slots
 }

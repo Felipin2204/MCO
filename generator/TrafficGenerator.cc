@@ -14,7 +14,7 @@
 // 
 
 #include "TrafficGenerator.h"
-#include "TrafficPacket_m.h"
+#include "../TrafficPacket_m.h"
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolTag_m.h"

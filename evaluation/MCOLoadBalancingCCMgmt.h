@@ -17,8 +17,8 @@
 #define __INET4_5_MCOLOADBALANCINGCCMGMT_H_
 
 #include <omnetpp.h>
-#include "MgmtMCO.h"
-#include "classifier/IWrrClassifierCC.h"
+#include "../MgmtMCO.h"
+#include "../classifier/IWrrClassifierCC.h"
 using namespace omnetpp;
 
 namespace inet {

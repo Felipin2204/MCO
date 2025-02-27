@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.generator;
 import inet.applications.contract.IApp;
 
 simple TrafficGenerator like IApp
@@ -34,11 +34,11 @@ simple TrafficGenerator like IApp
 	    bool jitter = default(false);
 	    
 	    @signal[timeBetweenPackets](type=simtime_t);
-	    @signal[generatedPackets](type=int);
-	    @signal[receivedPackets](type=int);
 	    @statistic[timeBetweenPackets](record=vector);
-		@statistic[generatedPackets](source=count(generatedPackets); record=last);
-		@statistic[receivedPackets](source=count(receivedPackets); record=last);
+	    @signal[generatedPackets](type=int);
+	    @statistic[generatedPackets](source=count(generatedPackets);record=last);
+	    @signal[receivedPackets](type=int);
+		@statistic[receivedPackets](source=count(receivedPackets);record=last);
 	    
 	gates:
 		input socketIn;

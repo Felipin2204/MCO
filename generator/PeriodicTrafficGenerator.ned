@@ -13,17 +13,16 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.generator;
 
 //
-// // A particularization of the TrafficGenerator for peridic traffic
+// A particularization of the TrafficGenerator for periodic traffic.
 //
 simple PeriodicTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        timeBetweenPackets = default(1/50);
+        @class(PeriodicTrafficGenerator);
         
         double initialOffset = default(uniform(0, timeBetweenPackets));
-        
-        @class(PeriodicTrafficGenerator);
+        timeBetweenPackets = default(1/50);
 }

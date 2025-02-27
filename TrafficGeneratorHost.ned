@@ -19,8 +19,6 @@ import inet.linklayer.contract.IWirelessInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.applications.contract.IApp;
-//import inet.veneris.opal.OpalNodeInfo;
-//import inet.veneris.opal.IOpalNode;
 
 module TrafficGeneratorHost
 {

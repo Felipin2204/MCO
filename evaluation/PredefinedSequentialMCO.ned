@@ -13,27 +13,34 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
-import inet.queueing.queue.PacketQueue;
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MCO;
+import inet.queueing.queue.DropTailQueue;
 
-module MinosMCO extends MCO
+module PredefinedSequentialMCO extends MCO
 {
     parameters:
-    
-    	mgmt.typename=default("MinosMgmtMCO");
-    
+        mgmt.typename = default("PredefinedSequentialMgmtMCO");
+        classifier.typename = default("PredefinedPriorityClassifier");
+
     submodules:
-        queue[numChannels]: PacketQueue {
+        queue[numChannels]: DropTailQueue {
             parameters:
-                @display("p=500,109");
-				packetCapacity = default(1000);
-				dropperClass = default("inet::queueing::PacketAtCollectionEndDropper");
+                @display("p=76,289");
+        }
+        //In this module we are going to use one queue to drop leftover packets
+        binQueue: DropTailQueue {
+            parameters:
+                @display("p=37,228");
+                packetCapacity = 0;
+                
         }
 
     connections allowunconnected:
         for i=0..numChannels-1 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
         }
-    
+        //Connection for the bin queue
+        classifier.out++ --> binQueue.in;
 }

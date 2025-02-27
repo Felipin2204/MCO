@@ -13,16 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
-simple UniformSlottedTrafficGenerator extends TrafficGenerator
+package inet.applications.vehicular.generator;
+
+//
+// A particularization of the TrafficGenerator for exponential interpacket generation time.
+// A simple version could have been implemented just using a exponential function in the .ini.
+// But with this implementation we let the MCO set the packet rate.
+//
+simple ExponentialTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        @class(UniformSlottedTrafficGenerator);
-        @display("i=block/app");
-
-        double minimumSlotDuration @unit(s) = default(1005us); //Time to transmit a packet (752us for 500B (537B with MAC and PHY), including IFS (58us) and cw*slot (slot=13us, 15*13=195us)
-        double generatePacketsFraction = default(0.5);
-        double generateSlotsPeriod @unit(s) = default(1s);
-        //double fractionDemand = default(0.1);
-        bool uniqueSlots = default(true); //Generate a set of unique slots
+        @class(ExponentialTrafficGenerator);    
 }

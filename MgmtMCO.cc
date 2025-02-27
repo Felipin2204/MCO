@@ -21,7 +21,7 @@
 #include "inet/common/Simsignals.h"
 #include "TrafficPacket_m.h"
 #include "MCOPacket_m.h"
-#include "TrafficGenerator.h"
+#include "generator/TrafficGenerator.h"
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolTag_m.h"

@@ -15,8 +15,8 @@
 
 #include "MinosTSOMgmtMCO.h"
 
-#include "../TrafficGenerator.h"
-#include "../UniformSlottedTrafficGenerator.h"
+#include "../generator/TrafficGenerator.h"
+#include "../generator/UniformSlottedTrafficGenerator.h"
 
 namespace inet {
 

@@ -13,26 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
-#define __INET4_4_PREDEFINEDSEQUENTIALMCO_H_
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MgmtMCO;
 
-#include <omnetpp.h>
-#include "MgmtMCO.h"
-#include "classifier/PredefinedPriorityClassifier.h"
-using namespace omnetpp;
-
-namespace inet {
-
-class PredefinedSequentialMgmtMCO : public MgmtMCO
+simple MCOLoadBalancingCCMgmt extends MgmtMCO
 {
-  protected:
-    virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *msg) override;
-    std::vector<double> maxChannelCapacity;
-    PredefinedPriorityClassifier* classifier;
-    static simsignal_t currentUsedChannelSignal;
-};
-
-} //namespace
-
-#endif
+    parameters:
+        @class(MCOLoadBalancingCCMgmt);
+        string maxChannelCapacity = default("0.62 0.62 0.62 0.62 0.62 0.62 0.62"); //MaxCapacity per channel
+}

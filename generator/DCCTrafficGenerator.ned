@@ -13,11 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.generator;
 
-simple MCOLoadBalancingCCMgmt extends MgmtMCO
+//
+// A simple DCC traffic generator.
+// To be used with a MCO with several channels, every application must use a certain channel, 
+// so the MCO classifier has to use a inet::ApplicationIdToQueueClassifier".
+//
+simple DCCTrafficGenerator extends TrafficGenerator
 {
     parameters:
-        @class(MCOLoadBalancingCCMgmt);
-        string maxChannelCapacity = default("0.62 0.62 0.62 0.62 0.62 0.62 0.62"); //MaxCapacity per channel
+        @class(DCCTrafficGenerator);
 }

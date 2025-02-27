@@ -13,17 +13,25 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MCO;
+import inet.queueing.queue.DropTailQueue;
 
-simple PredefinedSequentialMgmtMCO extends MgmtMCO
+module MCOLoadBalancing extends MCO
 {
     parameters:
-        @class(PredefinedSequentialMgmtMCO);
-        string maxChannelCapacity = default("0.62 0.62 0.62 0.62 0.62 0.62 0.62"); //MaxCapacity per channel
-        
-        bool adjustMaxChannelCapacity = default(false);
-        double maxChannelCapacityReduction = default(0.1);
-        
-        @signal[currentUsedChannel](type=int);
-        @statistic[currentUsedChannel](record=vector);
+        classifier.typename = default("WrrClassifier");
+
+    submodules:
+        queue[numChannels]: DropTailQueue {
+            parameters:
+                @display("p=76,289");
+				packetCapacity = 100;
+        }
+
+    connections allowunconnected:
+        for i=0..numChannels-1 {
+            classifier.out++ --> queue[i].in;
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+        }
 }

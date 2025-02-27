@@ -20,8 +20,8 @@
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/physicallayer/wireless/ieee80211/packetlevel/Ieee80211ScalarTransmitter.h"
 #include "MinosMCOPacket_m.h"
-#include "../TrafficGenerator.h"
-#include "../UniformSlottedTrafficGenerator.h"
+#include "../generator/TrafficGenerator.h"
+#include "../generator/UniformSlottedTrafficGenerator.h"
 
 #define UPDATE_WS_TO 1005
 #define UPDATE_BR_TO 1006

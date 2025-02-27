@@ -13,37 +13,37 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
-
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MCO;
+import inet.queueing.queue.PacketQueue;
 import inet.queueing.queue.DropTailQueue;
 
-// MCOLoadBalancing with Congestion Control (CBT)
-
-module MCOLoadBalancingCC extends MCO
+//
+// Outdated version of the sequential filling mechanism.
+// With this version you can't define an order.
+// Priority Classifier pushes packets into the first non-full among its connected queue.
+//
+module MCOSequentialFilling extends MCO
 {
     parameters:
-        mgmt.typename = "MCOLoadBalancingCCMgmt";
-        classifier.typename = default("WrrClassifierCC");
-
+        classifier.typename = default("PriorityClassifier");
+       
     submodules:
-        queue[numChannels]: DropTailQueue {
+        queue[numChannels-1]: PacketQueue {
             parameters:
                 @display("p=76,289");
-				packetCapacity = 100;
+                packetCapacity = 100;
         }
-        //In this module we are going to use one queue to drop leftover packets
-        binQueue: DropTailQueue {
+        dropTailQueue: DropTailQueue {
             parameters:
-                @display("p=37,228");
-                packetCapacity = 0;
-                
+                @display("p=133,221");
         }
 
     connections allowunconnected:
-        for i=0..numChannels-1 {
+        for i=0..numChannels-2 {
             classifier.out++ --> queue[i].in;
-            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections
         }
-        //Connection for the bin queue
-        classifier.out++ --> binQueue.in;
+        classifier.out++ --> dropTailQueue.in;
+        dropTailQueue.out --> mgmt.inQueue[numChannels-1]; //Symbolic connection
 }

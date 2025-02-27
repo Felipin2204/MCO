@@ -13,26 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.tr;
+import inet.applications.vehicular.IVehicleTable;
 
-import inet.physicallayer.wireless.common.contract.packetlevel.IRadioMedium;
-
-network TrafficGeneratorNetwork
+simple TRSimulationVehicleTable like IVehicleTable
 {
     parameters:
-        int nodes;
-
-    submodules:
-        radioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=0,0;is=vs");
-            analogModel.ignorePartialInterference = true;
-            mediumLimitCache.centerFrequency = 5.9GHz;
-        }
-        node[nodes]: TrafficGeneratorHost {
-            id = index;
-            @display("b=100,100,oval,,black,1");
-        }
-        nodeManager: <default("")> like INodeManager if typename != "" {
-            @display("p=0,0;is=vs");
-        }
+        double updateTime @unit(s) = default(1s);
+        bool persistent = default(false);
+        
+        double irtRange @unit(m) = default(200m);
+        
+        @signal[neighbors](type=unsigned int);
+        @signal[irt](type=double);
+        
+        @statistic[neighbors](record=mean);
+        @statistic[irt](record=vector);
 }

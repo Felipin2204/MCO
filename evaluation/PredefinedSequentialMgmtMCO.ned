@@ -13,10 +13,18 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.evaluation;
+import inet.applications.vehicular.MgmtMCO;
 
-simple MinosVehicleTable extends VehicleTable
+simple PredefinedSequentialMgmtMCO extends MgmtMCO
 {
     parameters:
-        @class(MinosVehicleTable);
+        @class(PredefinedSequentialMgmtMCO);
+        string maxChannelCapacity = default("0.62 0.62 0.62 0.62 0.62 0.62 0.62"); //MaxCapacity per channel
+        
+        bool adjustMaxChannelCapacity = default(false);
+        double maxChannelCapacityReduction = default(0.1);
+        
+        @signal[currentUsedChannel](type=int);
+        @statistic[currentUsedChannel](record=vector);
 }

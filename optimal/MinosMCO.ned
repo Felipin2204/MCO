@@ -13,19 +13,28 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package inet.applications.vehicular;
+package inet.applications.vehicular.optimal;
+import inet.applications.vehicular.MCO;
+import inet.queueing.queue.PacketQueue;
 
-simple TRSimulationVehicleTable like IVehicleTable
+module MinosMCO extends MCO
 {
     parameters:
-        double updateTime @unit(s) = default(1s);
-        bool persistent = default(false);
-        
-        double irtRange @unit(m) = default(200m);
-        
-        @signal[neighbors](type=unsigned int);
-        @signal[irt](type=double);
-        
-        @statistic[neighbors](record=mean);
-        @statistic[irt](record=vector);
+    
+    	mgmt.typename=default("MinosMgmtMCO");
+    
+    submodules:
+        queue[numChannels]: PacketQueue {
+            parameters:
+                @display("p=500,109");
+				packetCapacity = default(1000);
+				dropperClass = default("inet::queueing::PacketAtCollectionEndDropper");
+        }
+
+    connections allowunconnected:
+        for i=0..numChannels-1 {
+            classifier.out++ --> queue[i].in;
+            queue[i].out --> mgmt.inQueue[i]; //Symbolic connections   
+        }
+    
 }

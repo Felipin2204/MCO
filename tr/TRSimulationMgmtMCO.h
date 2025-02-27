@@ -22,7 +22,7 @@
 #include "inet/linklayer/ieee80211/mac/channelaccess/Dcaf.h"
 #include "TRSimulationVehicleInfo.h"
 #include "TRSimulationVehicleTable.h"
-#include "VehiclesNeighborCache.h"
+#include "../VehiclesNeighborCache.h"
 
 using namespace omnetpp;
 
