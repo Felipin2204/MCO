@@ -16,12 +16,11 @@
 package inet.applications.vehicular.generator;
 
 //
-// A particularization of the TrafficGenerator for exponential interpacket generation time.
-// A simple version could have been implemented just using a exponential function in the .ini.
-// But with this implementation we let the MCO set the packet rate.
+// Creates traffic with inter-packet intervals following an exponential distribution.
 //
 simple ExponentialTrafficGenerator extends TrafficGenerator
 {
+    // A particularization of the TrafficGenerator for exponential interpacket generation time. A simple version could have been implemented just using a exponential function in the .ini. But with this implementation we let the MCO set the packet rate.
     parameters:
         @class(ExponentialTrafficGenerator);    
 }

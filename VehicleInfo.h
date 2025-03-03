@@ -21,6 +21,9 @@
 
 namespace inet {
 
+//
+// Data structure for storing comprehensive vehicle neighbor information.
+//
 class INET_API VehicleInfo : public cObject {
   public:
     VehicleInfo(int id, int appId, int channelNumberLastUpdate, Coord pos);

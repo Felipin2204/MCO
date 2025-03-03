@@ -14,12 +14,14 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.linklayer.contract.IWirelessInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.applications.contract.IApp;
 
+//
+// Host/Node module used for our simulations.
+//
 module TrafficGeneratorHost
 {
     parameters:
@@ -64,7 +66,7 @@ module TrafficGeneratorHost
 //        wlan*.mac.dcf.rateControl.initialRate = 3Mbps;
 //        wlan*.mac.dcf.rateControl.typename = "MCORateControl";
 
-        //        wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
+//        wlan*.radio.centerFrequency = 5.9GHz; //opMode p works in the licensed ITS band of 5.9 GHz (5.85–5.925 GHz)
         wlan*.radio.bandwidth = 20MHz; //opMode p already sets a channel spacing of 10MHz. TODO: inet4.4 insists in using a BW of 20MHz even though channel spacing is 10 MHz, why? Assume it is correct
         wlan*.radio.bandName = "5.9 GHz";
         //Radio channel number initilizated in the submodules block

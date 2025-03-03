@@ -16,7 +16,7 @@
 package inet.applications.vehicular.generator;
 
 //
-// A particularization of the TrafficGenerator for periodic traffic.
+// Generates traffic at fixed intervals, simulating periodic data transmission.
 //
 simple PeriodicTrafficGenerator extends TrafficGenerator
 {

@@ -15,9 +15,11 @@
 
 import inet.common.geometry.Geometry;
 import TrafficPacket;
-
 namespace inet;
 
+//
+// Specialized packet structure for MCO operations with additional fields.
+//
 class MCOPacket extends TrafficPacket {
     int source;
     int sequenceNumber;

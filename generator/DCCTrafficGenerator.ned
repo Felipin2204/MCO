@@ -16,12 +16,11 @@
 package inet.applications.vehicular.generator;
 
 //
-// A simple DCC traffic generator.
-// To be used with a MCO with several channels, every application must use a certain channel, 
-// so the MCO classifier has to use a inet::ApplicationIdToQueueClassifier".
+// Generates traffic based on Decentralized Congestion Control (DCC) as defined in ETSI EN 302 663.
 //
 simple DCCTrafficGenerator extends TrafficGenerator
 {
+    // To be used with a MCO with several channels, every application must use a certain channel, so the MCO classifier has to use a inet::ApplicationIdToQueueClassifier".
     parameters:
         @class(DCCTrafficGenerator);
 }

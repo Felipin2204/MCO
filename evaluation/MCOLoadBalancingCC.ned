@@ -17,8 +17,9 @@ package inet.applications.vehicular.evaluation;
 import inet.applications.vehicular.MCO;
 import inet.queueing.queue.DropTailQueue;
 
-// MCOLoadBalancing with Congestion Control (CBT)
-
+//
+// MCOLoadBalancing implementation with basic congestion control (CBT)
+// 
 module MCOLoadBalancingCC extends MCO
 {
     parameters:

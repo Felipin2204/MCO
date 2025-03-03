@@ -16,6 +16,9 @@
 import inet.common.packet.chunk.Chunk;
 namespace inet;
 
+//
+// Base packet definition for traffic generator modules.
+//
 class TrafficPacket extends FieldsChunk {
     int appIdentifier;
 }

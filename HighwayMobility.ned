@@ -14,9 +14,11 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.mobility.base.MovingMobilityBase;
 
+//
+// ETSI TR 103 439 mobility model for highway scenarios in vehicular networks.
+//
 simple HighwayMobility extends MovingMobilityBase
 {
     parameters:

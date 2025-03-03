@@ -17,6 +17,9 @@ package inet.applications.vehicular.evaluation;
 import inet.applications.vehicular.MCO;
 import inet.queueing.queue.DropTailQueue;
 
+//
+// Load balancing channel usage mechanism implementation.
+//
 module MCOLoadBalancing extends MCO
 {
     parameters:

@@ -14,9 +14,11 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.physicallayer.wireless.common.contract.packetlevel.INeighborCache;
 
+//
+// Cache for storing and quickly accessing neighboring vehicle information.
+//
 module VehiclesNeighborCache like INeighborCache
 {
     parameters:

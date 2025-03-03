@@ -19,14 +19,12 @@ import inet.queueing.queue.PacketQueue;
 import inet.queueing.queue.DropTailQueue;
 
 //
-// Outdated version of the sequential filling mechanism.
-// With this version you can't define an order.
-// Priority Classifier pushes packets into the first non-full among its connected queue.
+// Outdated version of the sequential filling mechanism (with this version you can't define an order).
 //
 module MCOSequentialFilling extends MCO
 {
     parameters:
-        classifier.typename = default("PriorityClassifier");
+        classifier.typename = default("PriorityClassifier"); //Priority Classifier pushes packets into the first non-full among its connected queue.
        
     submodules:
         queue[numChannels-1]: PacketQueue {

@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Interface for node management modules.
+//
 moduleinterface INodeManager
 {
     parameters:

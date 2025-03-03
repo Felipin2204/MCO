@@ -15,10 +15,11 @@
 
 package inet.applications.vehicular;
 
-// This module computes interference from adjacent channels in Ieee 802.11p networks. It monitors a number of NICs (numChannels), each one operating on a different channel
-// It only computes the interference from channels which are at maxChannelSeparation (it is assumed that further away channel interference is neglectable)
-// Separation is given by channel number, not by actual delta frequency
-
+//
+// Computes interference from adjacent channels in IEEE 802.11p networks. It monitors a number of NICs (numChannels), each one operating on a different channel.
+// It only computes the interference from channels which are at maxChannelSeparation (it is assumed that further away channel interference is neglectable).
+// Separation is given by channel number, not by actual delta frequency.
+//
 simple AdjacentChannelInterferenceMonitor like IInterferenceMonitor
 {  
     parameters:

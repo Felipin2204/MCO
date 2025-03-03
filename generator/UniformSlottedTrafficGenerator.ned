@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular.generator;
 
+//
+// Sends packets in uniform time slots, useful for time-slotted transmission systems.
+//
 simple UniformSlottedTrafficGenerator extends TrafficGenerator
 {
     parameters:

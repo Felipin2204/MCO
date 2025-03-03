@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Interface for the implementation of modules for MCO mechanism usage.
+//
 moduleinterface IMCO
 {
     parameters:

@@ -16,8 +16,9 @@
 package inet.applications.vehicular.classifier;
 import inet.queueing.classifier.PriorityClassifier;
 
-// This classifier pushes packets to consumers in a predefined order(sequence), changing to next in sequence only when the corresponding state of the consumer is congested
-
+//
+// This classifier pushes packets to consumers in a predefined order (sequence), changing to next in sequence only when the corresponding state of the consumer is congested.
+//
 simple PredefinedPriorityClassifier extends PriorityClassifier
 {
     parameters:

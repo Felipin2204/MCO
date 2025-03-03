@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Interface for MCO management modules.
+//
 moduleinterface IMgmtMCO
 {
     parameters:

@@ -23,10 +23,6 @@ using namespace omnetpp;
 
 namespace inet {
 
-/*
- * This classifier pushes packets to consumers in a weighted round robin mode, avoiding the congested ones.
- */
-
 class WrrClassifierCC : public queueing::WrrClassifier, public virtual IWrrClassifierCC
 {
 protected:

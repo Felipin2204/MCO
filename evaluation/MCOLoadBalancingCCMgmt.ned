@@ -16,6 +16,9 @@
 package inet.applications.vehicular.evaluation;
 import inet.applications.vehicular.MgmtMCO;
 
+//
+// Management module for the MCOLoadBalancingCC implementation.
+//
 simple MCOLoadBalancingCCMgmt extends MgmtMCO
 {
     parameters:

@@ -17,6 +17,9 @@ package inet.applications.vehicular.evaluation;
 import inet.applications.vehicular.MCO;
 import inet.queueing.queue.DropTailQueue;
 
+//
+// Sequential filling channel usage mechanism implementation.
+//
 module PredefinedSequentialMCO extends MCO
 {
     parameters:

@@ -18,8 +18,9 @@
 
 namespace inet {
 
-//Interface for the Wrr classifiers of the congestion control case.
-
+//
+// Interface for the WRR classifiers of the congestion control case.
+//
 class IWrrClassifierCC {
 public:
     virtual ~IWrrClassifierCC() {};

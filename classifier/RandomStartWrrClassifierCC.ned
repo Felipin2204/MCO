@@ -16,8 +16,9 @@
 package inet.applications.vehicular.classifier;
 import inet.queueing.classifier.WrrClassifier;
 
-
-//This classifier pushes packets to consumers in a weighted round robin mode, avoiding the congested ones and where the initial consumer is chosen randomly for every instance.
+//
+// Slightly changed version of RandomStartWrrClassifier. The only difference is that this classifier avoids congested consumers.
+//
 simple RandomStartWrrClassifierCC extends WrrClassifier
 {
     parameters:

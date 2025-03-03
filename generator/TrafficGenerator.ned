@@ -16,6 +16,9 @@
 package inet.applications.vehicular.generator;
 import inet.applications.contract.IApp;
 
+//
+// Base class defining common methods and properties for all traffic generators.
+//
 simple TrafficGenerator like IApp
 {
 	parameters:

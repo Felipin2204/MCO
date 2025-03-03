@@ -16,6 +16,9 @@
 package inet.applications.vehicular.evaluation;
 import inet.applications.vehicular.MgmtMCO;
 
+//
+// Management module for the PredefinedSequentialMCO implementation.
+//
 simple PredefinedSequentialMgmtMCO extends MgmtMCO
 {
     parameters:

@@ -16,9 +16,7 @@
 package inet.applications.vehicular.generator;
 
 //
-// A particularization of the TrafficGenerator.
-// With this implementation we let the MCO set the maximum normalized load that the generator can send to the channel.
-// In addition, we select message sizes from a set of fixed sizes.
+// With this implementation we let the MCO set the maximum normalized load that the generator can send to the channel. In addition, we select message sizes from a set of fixed sizes.
 //
 simple NormalizedTrafficGenerator extends TrafficGenerator
 {

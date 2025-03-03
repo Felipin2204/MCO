@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Interface for interference monitoring implementations.
+//
 moduleinterface IInterferenceMonitor
 {
     parameters:

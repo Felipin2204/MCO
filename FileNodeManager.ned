@@ -16,8 +16,8 @@
 package inet.applications.vehicular;
 
 //
-// This module creates dynamically the nodes. The number of nodes corresponds with the number of rows in the file and each row contains the initial position
-// of the node. Is intended for nodes that use a StationaryMobility module.
+// This module creates dynamically the nodes. The number of nodes corresponds with the number of rows in the file and each row contains the initial position of the node.
+// Is intended for nodes that use a StationaryMobility module.
 //
 
 simple FileNodeManager like INodeManager

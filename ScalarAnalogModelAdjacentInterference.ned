@@ -14,13 +14,11 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.physicallayer.wireless.common.analogmodel.packetlevel.ScalarAnalogModel;
 
 //
-// A module that takes into account the adjacent channel interference in the reception (SNIR)
+// Scalar analog model that takes into account adjacent channel interference in the reception (SNIR).
 //
-
 module ScalarAnalogModelAdjacentInterference extends ScalarAnalogModel
 {
     parameters:

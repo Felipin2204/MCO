@@ -14,11 +14,12 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.queueing.common.PacketMultiplexer;
 import inet.queueing.contract.IPacketClassifier;
 
-
+//
+// Main module of the Multi-Channel Operation framework.
+//
 module MCO like IMCO
 {
     parameters:

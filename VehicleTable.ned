@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Table implementation for storing neigbouring vehicle information.
+//
 simple VehicleTable like IVehicleTable
 {
     parameters:

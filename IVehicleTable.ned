@@ -15,6 +15,9 @@
 
 package inet.applications.vehicular;
 
+//
+// Interface for vehicle tables.
+//
 moduleinterface IVehicleTable
 {
     parameters:

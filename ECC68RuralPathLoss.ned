@@ -14,9 +14,11 @@
 // 
 
 package inet.applications.vehicular;
-
 import inet.physicallayer.wireless.common.contract.packetlevel.IPathLoss;
 
+//
+// Implements the path loss model for rural environments according to ECC68 specifications.
+//
 module ECC68RuralPathLoss like IPathLoss
 {
     parameters:
